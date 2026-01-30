@@ -22,7 +22,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.endfield.talosIIarchive.gear.GearScreen
 import com.endfield.talosIIarchive.home.HomeScreen
-import com.endfield.talosIIarchive.operator.OperatorsScreen
+import com.endfield.talosIIarchive.operators.OperatorsScreen
 import com.endfield.talosIIarchive.ui.theme.TalosIIarchivefrontendTheme
 import com.endfield.talosIIarchive.weapon.WeaponsScreen
 import kotlinx.coroutines.launch

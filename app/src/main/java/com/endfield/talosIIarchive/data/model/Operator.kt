@@ -1,0 +1,53 @@
+package com.endfield.talosIIarchive.data.model
+
+data class Operator(
+    val id: Long,
+    val name: String,
+    val rarity: String,
+    val imageUrl: String,
+    val element: String,
+    val weaponType: String,
+    val operatorClass: String,
+    val strength: Int? = null,
+    val agility: Int? = null,
+    val intellect: Int? = null,
+    val will: Int? = null,
+    val basicAttack: String? = null,
+    val basicAttackDescription: String? = null,
+    val battleSkill: String? = null,
+    val battleSkillDescription: String? = null,
+    val battleSkillSpCost: Int? = null,
+    val comboSkill: String? = null,
+    val comboSkillDescription: String? = null,
+    val comboSkillCooldown: Int? = null,
+    val ultimate: String? = null,
+    val ultimateDescription: String? = null,
+    val ultimateEnergyCost: Int? = null,
+    val baseTalent1: String? = null,
+    val baseTalent2: String? = null,
+    val combatTalent1: String? = null,
+    val combatTalent2: String? = null,
+    val p1: String? = null,
+    val p1Effect: String? = null,
+    val p2: String? = null,
+    val p2Effect: String? = null,
+    val p3: String? = null,
+    val p3Effect: String? = null,
+    val p4: String? = null,
+    val p4Effect: String? = null,
+    val p5: String? = null,
+    val p5Effect: String? = null,
+    val conceptArt1: String? = null,
+    val conceptArt2: String? = null,
+    val conceptArt3: String? = null
+)
+
+data class OperatorBasic(
+    val id: Long,
+    val name: String,
+    val rarity: String,
+    val imageUrl: String,
+    val element: String,
+    val weaponType: String,
+    val operatorClass: String
+)
