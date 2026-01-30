@@ -3,30 +3,39 @@ package com.endfield.talosIIarchive
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Build
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import com.endfield.talosIIarchive.gear.GearScreen
 import com.endfield.talosIIarchive.home.HomeScreen
 import com.endfield.talosIIarchive.operator.OperatorsScreen
-import com.endfield.talosIIarchive.weapon.WeaponsScreen
 import com.endfield.talosIIarchive.ui.theme.TalosIIarchivefrontendTheme
+import com.endfield.talosIIarchive.weapon.WeaponsScreen
 import kotlinx.coroutines.launch
 
-sealed class Screen(val title: String, val icon: ImageVector, val route: String) {
-    object Home : Screen("Home", Icons.Default.Home, "home")
-    object Operators : Screen("Operators", Icons.Default.Person, "operators")
-    object Weapons : Screen("Weapons", Icons.Default.Person, "weapons")
-    object Gear : Screen("Gear", Icons.Default.Build, "gear")
+sealed class Screen(
+    val title: String,
+    val iconResId: Int,
+    val route: String
+) {
+    object Home : Screen("Home", R.drawable.home, "home")
+    object Operators : Screen("Operators", R.drawable.operator, "operators")
+    object Weapons : Screen("Weapons", R.drawable.weapon, "weapons")
+    object Gear : Screen("Gear", R.drawable.gear, "gear")
 }
 
 class MainActivity : ComponentActivity() {
@@ -64,12 +73,12 @@ fun App() {
                 screens.forEachIndexed { index, screen ->
                     NavigationBarItem(
                         icon = {
-                            Icon(
-                                screen.icon,
-                                contentDescription = screen.title
+                            Image(
+                                painter = painterResource(id = screen.iconResId),
+                                contentDescription = screen.title,
+                                modifier = Modifier.size(48.dp),
                             )
                         },
-                        label = { Text(screen.title) },
                         selected = pagerState.currentPage == index,
                         onClick = {
                             coroutineScope.launch {
