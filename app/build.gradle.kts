@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.android)
+    kotlin("plugin.serialization") version "2.1.0"
 }
 
 android {
@@ -42,6 +43,25 @@ android {
 }
 
 dependencies {
+    val ktorVersion = "3.0.3" // Versión estable actual
+
+    // El núcleo de Ktor
+    implementation("io.ktor:ktor-client-core:$ktorVersion")
+
+    // El "motor" (Engine). Para Android/JVM lo mejor es OkHttp o CIO
+    implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
+
+    // Para que Ktor entienda JSON
+    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+
+    // Logging (opcional, pero muy útil para ver qué responde el backend)
+    implementation("io.ktor:ktor-client-logging:$ktorVersion")
+
+
+
+
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

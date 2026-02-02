@@ -21,7 +21,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.endfield.talosIIarchive.R
+import com.endfield.talosIIarchive.domain.repositoty.OperatorRepositoryImpl
 import com.endfield.talosIIarchive.ui.theme.TalosIIarchivefrontendTheme
+import com.endfield.talosIIarchive.ui.viewmodel.OperatorViewModel
 import kotlinx.coroutines.launch
 
 sealed class Screen(
@@ -38,12 +40,14 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            val repository = OperatorRepositoryImpl()
+            val viewModel = OperatorViewModel(repository)
             TalosIIarchivefrontendTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    App()
+                    App(viewModel)
                 }
             }
         }
@@ -52,7 +56,7 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun App() {
+fun App(viewModel: OperatorViewModel) {
     val screens = listOf(
         Screen.Home,
         Screen.Operators,
@@ -93,7 +97,7 @@ fun App() {
         ) { page ->
             when (page) {
                 0 -> homeScreen()
-                1 -> wikiScreen()
+                1 -> wikiScreen(viewModel)
                 2 -> socialScreen()
 
                 else -> homeScreen()
