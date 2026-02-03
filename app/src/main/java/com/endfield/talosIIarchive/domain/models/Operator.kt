@@ -4,14 +4,14 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Operator(
-    val id: Long,
+    val id: Int,
     val name: String,
-    val operatorClass: OperatorClass,
-    val element: Element,
-    val rarity: Int,
-    val avatarUrl: String
+    val rarity: String,      // Ahora es un String como "6★"
+    val imageUrl: String,    // El backend ya usa camelCase
+    val element: String,     // Viene el nombre, no el ID
+    val weaponType: String,
+    val operatorClass: String
 )
-
 data class TeamOperator(
     val operator: Operator,
     val weapon: Weapon? = null,

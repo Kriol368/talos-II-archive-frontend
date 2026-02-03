@@ -43,6 +43,8 @@ android {
 }
 
 dependencies {
+
+    implementation("io.coil-kt:coil-compose:2.5.0")
     val ktorVersion = "3.0.3" // Versión estable actual
 
     // El núcleo de Ktor

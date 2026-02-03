@@ -97,7 +97,7 @@ fun App(viewModel: OperatorViewModel) {
         ) { page ->
             when (page) {
                 0 -> homeScreen()
-                1 -> wikiScreen(viewModel)
+                1 -> WikiScreen(viewModel)
                 2 -> socialScreen()
 
                 else -> homeScreen()

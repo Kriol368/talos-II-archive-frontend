@@ -12,25 +12,25 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.endfield.talosIIarchive.domain.models.Operator
-
-@Composable
-fun OperatorCard(operator: Operator) {
-    ElevatedCard(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp)
-    ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Column {
-                Text(text = operator.name, style = MaterialTheme.typography.titleLarge)
-                Text(text = "${operator.operatorClass} | ${operator.element}",
-                    style = MaterialTheme.typography.bodyMedium)
-            }
-            // Aquí podrías añadir la rareza (estrellas)
-            Text(text = "⭐".repeat(operator.rarity), color = MaterialTheme.colorScheme.primary)
-        }
-    }
-}
+//
+//@Composable
+//fun OperatorCard(operator: Operator) {
+//    ElevatedCard(
+//        modifier = Modifier
+//            .fillMaxWidth()
+//            .padding(vertical = 4.dp)
+//    ) {
+//        Row(
+//            modifier = Modifier.padding(16.dp),
+//            horizontalArrangement = Arrangement.SpaceBetween
+//        ) {
+//            Column {
+//                Text(text = operator.name, style = MaterialTheme.typography.titleLarge)
+//                Text(text = "${operator.operatorClass} | ${operator.element}",
+//                    style = MaterialTheme.typography.bodyMedium)
+//            }
+//            // Aquí podrías añadir la rareza (estrellas)
+//            Text(text = "⭐".repeat(operator.rarity), color = MaterialTheme.colorScheme.primary)
+//        }
+//    }
+//}
