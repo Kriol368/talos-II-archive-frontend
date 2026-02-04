@@ -20,3 +20,8 @@ val EndfieldCyan = Color(0xFF00E5FF)
 val TechBackground = Color(0xFF0D0D0D)
 val TechSurface = Color(0xFF151515)
 val TechBorder = Color(0xFF333333)
+val EndfieldBlack = Color(0xFF000000)
+val EndfieldLightGrey = Color(0xFFF2F2F2) // Fondo claro con textura
+
+val EndfieldYellow = Color(0xFFFFF200) // Amarillo neón de la imagen
+val TechBlack = Color(0xFF0D0D0D)      // Negro profundo

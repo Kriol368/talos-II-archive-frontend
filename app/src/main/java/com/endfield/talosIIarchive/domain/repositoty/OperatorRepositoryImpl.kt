@@ -12,24 +12,20 @@ class OperatorRepositoryImpl : OperatorRepository {
     // OperatorRepositoryImpl.kt
     override suspend fun getAllOperators(): List<Operator> {
         return try {
-            // Al usar "operators" sin el http delante,
-            // Ktor le pega la URL base que pusimos arriba (10.0.2.2)
-            val response = client.get("operators")
-            response.body()
+            client.get("http://10.0.2.2:8080/endfield/operators").body()
         } catch (e: Exception) {
-            Log.e("TALOS_DEBUG", "ERROR: ${e.message}")
+            Log.e("TALOS_DEBUG", "Error lista: ${e.message}")
             emptyList()
         }
     }
+
+    // Para la ficha técnica (Endpoint con ID)
     override suspend fun getOperatorById(id: Int): Operator? {
         return try {
-            // Esto llamará a http://10.0.2.2:8080/endfield/operators/1 (por ejemplo)
-            val response = client.get("operators/$id")
-            if (response.status.value in 200..299) {
-                response.body<Operator>()
-            } else null
+            // Importante: que la URL termine en /id
+            client.get("http://10.0.2.2:8080/endfield/operators/$id").body()
         } catch (e: Exception) {
-            Log.e("TALOS_DEBUG", "Error al obtener detalle: ${e.message}")
+            Log.e("TALOS_DEBUG", "Error detalle ID $id: ${e.message}")
             null
         }
     }
