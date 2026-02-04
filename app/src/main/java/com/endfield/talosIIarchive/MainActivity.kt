@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -31,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -51,9 +54,7 @@ import com.endfield.talosIIarchive.ui.viewmodel.WeaponViewModelFactory
 import kotlinx.coroutines.launch
 
 sealed class Screen(
-    val title: String,
-    val iconResId: Int,
-    val route: String
+    val title: String, val iconResId: Int, val route: String
 ) {
     object Home : Screen("Home", R.drawable.home, "home")
     object Operators : Screen("Wiki", R.drawable.operator, "operators")
@@ -66,14 +67,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             TalosIIarchivefrontendTheme {
                 Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                    modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
                 ) {
-                    // Create repositories
                     val operatorRepository = OperatorRepositoryImpl()
                     val weaponRepository = WeaponRepositoryImpl()
 
-                    // Create ViewModels with their factories
                     val operatorViewModel: OperatorViewModel = viewModel(
                         factory = OperatorViewModelFactory(operatorRepository)
                     )
@@ -82,7 +80,6 @@ class MainActivity : ComponentActivity() {
                         factory = WeaponViewModelFactory(weaponRepository)
                     )
 
-                    // Pass both ViewModels to App
                     App(operatorViewModel, weaponViewModel)
                 }
             }
@@ -93,8 +90,7 @@ class MainActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun App(
-    operatorViewModel: OperatorViewModel,
-    weaponViewModel: WeaponViewModel
+    operatorViewModel: OperatorViewModel, weaponViewModel: WeaponViewModel
 ) {
     val screens = listOf(
         Screen.Home,
@@ -104,7 +100,6 @@ fun App(
 
     val pagerState = rememberPagerState(pageCount = { screens.size })
     val coroutineScope = rememberCoroutineScope()
-
     Scaffold(
         bottomBar = {
             Column {
@@ -118,64 +113,65 @@ fun App(
                 NavigationBar(
                     containerColor = TechSurface,
                     tonalElevation = 0.dp,
-                    modifier = Modifier.height(72.dp)
+                    modifier = Modifier.height(100.dp)
                 ) {
                     screens.forEachIndexed { index, screen ->
                         val isSelected = pagerState.currentPage == index
-                        val accentColor =
-                            if (index == 1) EndfieldOrange else EndfieldCyan
+                        val accentColor = if (index == 1) EndfieldOrange else EndfieldCyan
 
                         NavigationBarItem(
-                            selected = isSelected,
-                            onClick = {
-                                coroutineScope.launch {
-                                    pagerState.animateScrollToPage(index)
-                                }
-                            },
-                            colors = NavigationBarItemDefaults.colors(
-                                indicatorColor = Color.Transparent,
-                                selectedIconColor = accentColor,
-                                unselectedIconColor = Color.Gray,
-                                selectedTextColor = accentColor,
-                                unselectedTextColor = Color.Gray
-                            ),
-                            icon = {
-                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Icon(
-                                        painter = painterResource(id = screen.iconResId),
-                                        contentDescription = screen.title,
-                                        modifier = Modifier.size(28.dp),
-                                        tint = if (isSelected) accentColor else Color.DarkGray
-                                    )
+                            selected = isSelected, onClick = {
+                            coroutineScope.launch {
+                                pagerState.animateScrollToPage(index)
+                            }
+                        }, colors = NavigationBarItemDefaults.colors(
+                            indicatorColor = Color.Transparent,
+                            selectedIconColor = accentColor,
+                            unselectedIconColor = Color.Gray,
+                            selectedTextColor = accentColor,
+                            unselectedTextColor = Color.Gray
+                        ), icon = {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.Center,
+                                modifier = Modifier.height(100.dp)
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = screen.iconResId),
+                                    contentDescription = screen.title,
+                                    modifier = Modifier.size(32.dp),
+                                    tint = if (isSelected) accentColor else Color.DarkGray
+                                )
 
+                                Spacer(Modifier.height(4.dp))
+
+                                Text(
+                                    text = screen.title.uppercase(),
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                    fontSize = 11.sp, // Texto un poco más grande
+                                    letterSpacing = 0.8.sp,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+
+                                if (isSelected) {
                                     Spacer(Modifier.height(4.dp))
-
-                                    Text(
-                                        text = screen.title.uppercase(),
-                                        style = MaterialTheme.typography.labelSmall,
-                                        fontWeight = if (isSelected) FontWeight.Black else FontWeight.Medium,
-                                        fontSize = 10.sp,
-                                        letterSpacing = 1.sp
+                                    Box(
+                                        modifier = Modifier
+                                            .width(24.dp)
+                                            .height(3.dp)
+                                            .background(
+                                                accentColor, shape = RoundedCornerShape(1.5.dp)
+                                            )
                                     )
-
-                                    if (isSelected) {
-                                        Box(
-                                            modifier = Modifier
-                                                .padding(top = 2.dp)
-                                                .width(20.dp)
-                                                .height(2.dp)
-                                                .background(accentColor)
-                                        )
-                                    }
                                 }
-                            },
-                            label = { }
-                        )
+                            }
+                        }, label = { })
                     }
                 }
             }
-        }
-    ) { paddingValues ->
+        }) { paddingValues ->
         HorizontalPager(
             state = pagerState,
             modifier = Modifier
