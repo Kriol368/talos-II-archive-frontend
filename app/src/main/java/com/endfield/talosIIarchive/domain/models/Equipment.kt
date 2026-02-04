@@ -1,6 +1,5 @@
 package com.endfield.talosIIarchive.domain.models
 
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -16,6 +15,7 @@ data class Weapon(
     val stat1: String? = null,
     val stat2: String? = null
 )
+
 @Serializable
 data class Blueprint(
     val id: Int,
@@ -24,6 +24,7 @@ data class Blueprint(
     val codeHash: String,
     val createdAt: String
 )
+
 @Serializable
 data class Gear(
     val id: Long,

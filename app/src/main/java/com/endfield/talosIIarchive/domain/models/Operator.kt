@@ -13,12 +13,10 @@ data class Operator(
     val element: String,
     val weaponType: String,
     val operatorClass: String,
-    // Stats
     val strength: Int = 0,
     val agility: Int = 0,
     val intellect: Int = 0,
     val will: Int = 0,
-    // Habilidades (Nombres corregidos a camelCase)
     val basicAttack: String? = null,
     val basicAttackDescription: String? = null,
     val battleSkill: String? = null,
@@ -30,7 +28,6 @@ data class Operator(
     val ultimate: String? = null,
     val ultimateDescription: String? = null,
     val ultimateEnergyCost: Int = 0,
-    // Talentos y Potenciales
     val baseTalent1: String? = null,
     val baseTalent2: String? = null,
     val combatTalent1: String? = null,

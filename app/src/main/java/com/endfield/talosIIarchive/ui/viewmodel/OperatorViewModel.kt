@@ -12,24 +12,16 @@ import kotlinx.coroutines.launch
 
 class OperatorViewModel(private val repository: OperatorRepository) : ViewModel() {
 
-    // --- ESTADOS DE PERSONAJES ---
     var operators by mutableStateOf<List<Operator>>(emptyList())
         private set
 
-    // --- ESTADOS DE ARMAS ---
-    var weapons by mutableStateOf<List<Weapon>>(emptyList())
-        private set
-
-    // --- ESTADOS GLOBALES ---
     var isLoading by mutableStateOf(false)
         private set
 
     var errorMessage by mutableStateOf<String?>(null)
         private set
 
-    /**
-     * Carga los operadores solo si la lista está vacía (evita peticiones extra)
-     */
+
     fun fetchOperators() {
         if (operators.isNotEmpty()) return
 
@@ -46,24 +38,7 @@ class OperatorViewModel(private val repository: OperatorRepository) : ViewModel(
         }
     }
 
-    /**
-     * Carga las armas desde el repositorio
-     */
-    fun fetchWeapons() {
-        if (weapons.isNotEmpty()) return
 
-        viewModelScope.launch {
-            startLoading()
-            try {
-                weapons = repository.getAllWeapons()
-                if (weapons.isEmpty()) errorMessage = "No se encontraron armas."
-            } catch (e: Exception) {
-                errorMessage = "Error al cargar armas: ${e.localizedMessage}"
-            } finally {
-                isLoading = false
-            }
-        }
-    }
 
     private fun startLoading() {
         isLoading = true

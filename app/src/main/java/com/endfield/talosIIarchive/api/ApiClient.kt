@@ -1,23 +1,21 @@
 package com.endfield.talosIIarchive.api
 
-import io.ktor.client.*
+import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
-import io.ktor.client.plugins.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.serialization.kotlinx.json.*
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.defaultRequest
+import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
-// src/commonMain/kotlin/com/endfield/talosIIarchive/api/ApiClient.kt
-val client = HttpClient(OkHttp) { // Usamos OkHttp que agregamos al build.gradle
+val client = HttpClient(OkHttp) {
     install(ContentNegotiation) {
         json(Json {
-            ignoreUnknownKeys = true // Importante: el backend envía muchos campos (will, intellect, etc.)
+            ignoreUnknownKeys = true
             isLenient = true
-            coerceInputValues = true // Ayuda con valores nulos o tipos ligeramente distintos
-              })
+            coerceInputValues = true
+        })
     }
     defaultRequest {
-        // IP para emulador Android conectando al localhost de tu PC
         url("http://127.0.0.1:8080/endfield/")
     }
 }

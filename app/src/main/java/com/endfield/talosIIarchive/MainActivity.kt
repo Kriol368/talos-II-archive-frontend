@@ -1,9 +1,8 @@
-package com.endfield.talosIIarchive.ui.screens
+package com.endfield.talosIIarchive
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,8 +36,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.endfield.talosIIarchive.R
 import com.endfield.talosIIarchive.domain.repositoty.OperatorRepositoryImpl
+import com.endfield.talosIIarchive.ui.screens.social.SocialScreen
+import com.endfield.talosIIarchive.ui.screens.wiki.WikiScreen
 import com.endfield.talosIIarchive.ui.theme.EndfieldCyan
 import com.endfield.talosIIarchive.ui.theme.EndfieldOrange
 import com.endfield.talosIIarchive.ui.theme.TalosIIarchivefrontendTheme
@@ -92,19 +92,23 @@ fun App(viewmodel: OperatorViewModel) {
 
     Scaffold(
         bottomBar = {
-            // --- NAVIGATION BAR ESTILO ENDFIELD ---
             Column {
-                // Línea decorativa superior (Efecto borde industrial)
-                Box(modifier = Modifier.fillMaxWidth().height(1.dp).background(TechBorder))
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(1.dp)
+                        .background(TechBorder)
+                )
 
                 NavigationBar(
                     containerColor = TechSurface,
-                    tonalElevation = 0.dp, // Eliminamos la elevación suave
+                    tonalElevation = 0.dp,
                     modifier = Modifier.height(72.dp)
                 ) {
                     screens.forEachIndexed { index, screen ->
                         val isSelected = pagerState.currentPage == index
-                        val accentColor = if (index == 1) EndfieldOrange else EndfieldCyan // Wiki en naranja, otros en cian
+                        val accentColor =
+                            if (index == 1) EndfieldOrange else EndfieldCyan
 
                         NavigationBarItem(
                             selected = isSelected,
@@ -113,7 +117,6 @@ fun App(viewmodel: OperatorViewModel) {
                                     pagerState.animateScrollToPage(index)
                                 }
                             },
-                            // Eliminamos el fondo de "píldora" de Material 3
                             colors = NavigationBarItemDefaults.colors(
                                 indicatorColor = Color.Transparent,
                                 selectedIconColor = accentColor,
@@ -123,7 +126,6 @@ fun App(viewmodel: OperatorViewModel) {
                             ),
                             icon = {
                                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    // Icono con tinte dinámico
                                     Icon(
                                         painter = painterResource(id = screen.iconResId),
                                         contentDescription = screen.title,
@@ -133,7 +135,6 @@ fun App(viewmodel: OperatorViewModel) {
 
                                     Spacer(Modifier.height(4.dp))
 
-                                    // Texto tipo terminal
                                     Text(
                                         text = screen.title.uppercase(),
                                         style = MaterialTheme.typography.labelSmall,
@@ -142,7 +143,6 @@ fun App(viewmodel: OperatorViewModel) {
                                         letterSpacing = 1.sp
                                     )
 
-                                    // Indicador de línea técnica (Solo si está seleccionado)
                                     if (isSelected) {
                                         Box(
                                             modifier = Modifier
@@ -154,7 +154,7 @@ fun App(viewmodel: OperatorViewModel) {
                                     }
                                 }
                             },
-                            label = { /* El texto ya lo pusimos dentro de icon para control total */ }
+                            label = { }
                         )
                     }
                 }
@@ -178,7 +178,6 @@ fun App(viewmodel: OperatorViewModel) {
 }
 
 
-// Y necesitarías un ViewModelFactory
 class ViewModelFactory(private val repository: OperatorRepositoryImpl) :
     ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {

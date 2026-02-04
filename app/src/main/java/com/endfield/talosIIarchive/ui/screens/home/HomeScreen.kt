@@ -22,7 +22,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import kotlin.random.Random
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,11 +34,9 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun HomeScreen() {
-    // Lista de URLs de imágenes de Arknights Endfield
-    // Estas son URLs reales que funcionan
     val imageUrls = remember {
         listOf(
-            "https://pbs.twimg.com/media/GB3v0aAW4AAKHeL.jpg", // Arknights Endfield oficial
+            "https://pbs.twimg.com/media/GB3v0aAW4AAKHeL.jpg",
             "https://pbs.twimg.com/media/GB3wI5vXgAAQxti.jpg",
             "https://pbs.twimg.com/media/GB3wQ7yWwAAc4HG.jpg",
             "https://pbs.twimg.com/media/GB3wZGVWkAAB26E.jpg",
@@ -49,7 +46,7 @@ fun HomeScreen() {
             "https://pbs.twimg.com/media/GB3xI81XwAAhKNb.jpg",
             "https://pbs.twimg.com/media/GB3xTWaXsAAr2Ea.jpg",
             "https://pbs.twimg.com/media/GB3xckVW8AAV4wI.jpg"
-        ).shuffled() // Se mezclan cada vez que se inicia la app
+        ).shuffled()
     }
 
     Column(
@@ -58,7 +55,6 @@ fun HomeScreen() {
             .background(Color(0xFF0A0E17))
             .padding(16.dp)
     ) {
-        // Título
         Text(
             text = "ARKNIGHTS ENDFIELD",
             fontSize = 28.sp,
@@ -74,7 +70,6 @@ fun HomeScreen() {
             modifier = Modifier.padding(bottom = 24.dp)
         )
 
-        // Carrusel de imágenes
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -98,7 +93,6 @@ fun HomeScreen() {
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Carrusel horizontal
                 LazyRow(
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
@@ -111,11 +105,10 @@ fun HomeScreen() {
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Card para Wiki
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { /* Navegar a WikiScreen */ },
+                .clickable {  },
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(
                 containerColor = Color(0xFF1E293B)
@@ -180,11 +173,10 @@ fun HomeScreen() {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Card para Social
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { /* Navegar a SocialScreen */ },
+                .clickable { },
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(
                 containerColor = Color(0xFF2A1A3A)

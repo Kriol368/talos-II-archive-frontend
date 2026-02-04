@@ -1,4 +1,4 @@
-package com.endfield.talosIIarchive.ui.screens
+package com.endfield.talosIIarchive.ui.screens.social
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
