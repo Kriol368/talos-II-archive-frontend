@@ -74,4 +74,24 @@ class OperatorViewModel(private val repository: OperatorRepository) : ViewModel(
     fun clearError() {
         errorMessage = null
     }
+
+    var selectedOperatorFull by mutableStateOf<Operator?>(null)
+        private set
+
+    var isDetailLoading by mutableStateOf(false)
+        private set
+
+    fun fetchOperatorDetails(id: Int) {
+        viewModelScope.launch {
+            isDetailLoading = true
+            val result = repository.getOperatorById(id)
+            selectedOperatorFull = result
+            isDetailLoading = false
+        }
+    }
+
+    fun clearSelectedOperator() {
+        selectedOperatorFull = null
+    }
+
 }

@@ -21,10 +21,15 @@ class OperatorRepositoryImpl : OperatorRepository {
             emptyList()
         }
     }
-    override suspend fun getOperatorById(id: Long): Operator? {
+    override suspend fun getOperatorById(id: Int): Operator? {
         return try {
-            client.get("operators/$id").body()
+            // Esto llamará a http://10.0.2.2:8080/endfield/operators/1 (por ejemplo)
+            val response = client.get("operators/$id")
+            if (response.status.value in 200..299) {
+                response.body<Operator>()
+            } else null
         } catch (e: Exception) {
+            Log.e("TALOS_DEBUG", "Error al obtener detalle: ${e.message}")
             null
         }
     }

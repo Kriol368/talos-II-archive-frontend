@@ -6,11 +6,22 @@ import kotlinx.serialization.Serializable
 data class Operator(
     val id: Int,
     val name: String,
-    val rarity: String,      // Ahora es un String como "6★"
-    val imageUrl: String,    // El backend ya usa camelCase
-    val element: String,     // Viene el nombre, no el ID
-    val weaponType: String,
-    val operatorClass: String
+    val rarity: String,
+    val imageUrl: String,
+    val operatorClass: String,
+    val element: String,
+    // Stats: con valor por defecto 0 por si no llegan
+    val strength: Int = 0,
+    val agility: Int = 0,
+    val intellect: Int = 0,
+    val will: Int = 0,
+    // Habilidades: con valor nulo por si el JSON no las trae aún
+    val basic_attack: String? = null,
+    val basic_attack_desc: String? = null,
+    val battle_skill: String? = null,
+    val battle_skill_desc: String? = null,
+    val ultimate: String? = null,
+    val ultimate_desc: String? = null
 )
 data class TeamOperator(
     val operator: Operator,
