@@ -44,20 +44,16 @@ android {
 
 dependencies {
 
-    implementation("io.coil-kt:coil-compose:2.5.0")
-    val ktorVersion = "3.0.3" // Versión estable actual
+    implementation("io.coil-kt:coil-compose:2.7.0")
+    val ktorVersion = "3.0.3"
 
-    // El núcleo de Ktor
     implementation("io.ktor:ktor-client-core:$ktorVersion")
 
-    // El "motor" (Engine). Para Android/JVM lo mejor es OkHttp o CIO
     implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
 
-    // Para que Ktor entienda JSON
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
 
-    // Logging (opcional, pero muy útil para ver qué responde el backend)
     implementation("io.ktor:ktor-client-logging:$ktorVersion")
 
 
@@ -79,4 +75,9 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.10.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.10.0")
 }
