@@ -18,6 +18,7 @@ import coil.compose.AsyncImage
 import com.endfield.talosIIarchive.domain.models.Weapon
 import com.endfield.talosIIarchive.ui.viewmodel.WeaponViewModel
 
+
 @Composable
 fun WeaponListScreen(
     weaponViewModel: WeaponViewModel

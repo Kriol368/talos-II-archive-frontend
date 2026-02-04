@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.endfield.talosIIarchive.domain.repositoty.OperatorRepositoryImpl
 import com.endfield.talosIIarchive.domain.repositoty.WeaponRepositoryImpl
+import com.endfield.talosIIarchive.ui.screens.home.HomeScreen
 import com.endfield.talosIIarchive.ui.screens.social.SocialScreen
 import com.endfield.talosIIarchive.ui.screens.wiki.WikiScreen
 import com.endfield.talosIIarchive.ui.theme.EndfieldCyan
@@ -47,7 +48,6 @@ import com.endfield.talosIIarchive.ui.viewmodel.OperatorViewModel
 import com.endfield.talosIIarchive.ui.viewmodel.OperatorViewModelFactory
 import com.endfield.talosIIarchive.ui.viewmodel.WeaponViewModel
 import com.endfield.talosIIarchive.ui.viewmodel.WeaponViewModelFactory
-import com.example.arknightsendfield.HomeScreen
 import kotlinx.coroutines.launch
 
 sealed class Screen(

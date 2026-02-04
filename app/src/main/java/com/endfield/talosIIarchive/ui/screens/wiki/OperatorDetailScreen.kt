@@ -39,6 +39,8 @@ import com.endfield.talosIIarchive.ui.theme.EndfieldCyan
 import com.endfield.talosIIarchive.ui.theme.EndfieldYellow
 import com.endfield.talosIIarchive.ui.theme.TechBlack
 
+//Aca faltaria mejorar el formato de las descripciones y tal (justificar el texto) y añadir el tipo de arma que usa, elemento y rareza
+
 @Composable
 fun OperatorDetailScreen(operator: Operator, onBack: () -> Unit) {
     var activeTab by remember { mutableStateOf("SKILLS") }

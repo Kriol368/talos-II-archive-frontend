@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.endfield.talosIIarchive.domain.repositoty.OperatorRepositoryImpl
 import com.endfield.talosIIarchive.domain.repositoty.WeaponRepository
 
-
+//replicar esto para todos los vm
 class OperatorViewModelFactory(private val repository: OperatorRepositoryImpl) :
     ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {

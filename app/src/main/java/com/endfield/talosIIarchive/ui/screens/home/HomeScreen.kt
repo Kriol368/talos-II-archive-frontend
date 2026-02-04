@@ -1,4 +1,4 @@
-package com.example.arknightsendfield
+package com.endfield.talosIIarchive.ui.screens.home
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 
+// es un mockup, falta mejorar todo
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,19 +57,13 @@ fun HomeScreen() {
             .padding(16.dp)
     ) {
         Text(
-            text = "ARKNIGHTS ENDFIELD",
+            text = "TALOS-II ARCHIVE",
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xFF4CC9F0),
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
-        Text(
-            text = "Operator Companion",
-            fontSize = 16.sp,
-            color = Color(0xFF8A9BA8),
-            modifier = Modifier.padding(bottom = 24.dp)
-        )
 
         Card(
             modifier = Modifier
