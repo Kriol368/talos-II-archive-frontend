@@ -160,8 +160,7 @@ fun App(viewModel: OperatorViewModel) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues),
-            userScrollEnabled = false // Recomendado para que no choque con los scrolls de las listas
-        ) { page ->
+            ) { page ->
             when (page) {
                 0 -> homeScreen()
                 1 -> WikiScreen(viewModel)
