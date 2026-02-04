@@ -1,16 +1,36 @@
 package com.endfield.talosIIarchive.ui.screens.home
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -20,34 +40,82 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import org.json.JSONObject
 
-// es un mockup, falta mejorar todo
-class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            HomeScreen()
+class HomeViewModel : ViewModel() {
+    private val client = OkHttpClient()
+
+    suspend fun fetchEndfieldImages(): List<String> = withContext(Dispatchers.IO) {
+        val imageUrls = mutableListOf<String>()
+
+        try {
+            val url = "https://www.reddit.com/r/Endfield/hot.json?limit=100"
+            val request =
+                Request.Builder().url(url).addHeader("User-Agent", "TalosArchive/1.0").build()
+
+            val response = client.newCall(request).execute()
+            val responseBody = response.body?.string()
+
+            if (response.isSuccessful && responseBody != null) {
+                val json = JSONObject(responseBody)
+                val data = json.getJSONObject("data")
+                val children = data.getJSONArray("children")
+
+                for (i in 0 until children.length()) {
+                    val child = children.getJSONObject(i)
+                    val post = child.getJSONObject("data")
+
+                    val imageUrl = when {
+                        post.optString("post_hint", "") == "image" -> {
+                            post.optString("url", "")
+                        }
+
+                        post.has("preview") -> {
+                            val preview = post.optJSONObject("preview")
+                            val images = preview?.optJSONArray("images")
+                            images?.getJSONObject(0)?.optJSONObject("source")?.optString("url", "")
+                                ?.replace("&amp;", "&")
+                        }
+
+                        else -> null
+                    }
+
+                    if (imageUrl != null && imageUrl.startsWith("http")) {
+                        imageUrls.add(imageUrl)
+                    }
+
+                    if (imageUrls.size >= 20) break
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
+
+        return@withContext imageUrls
     }
 }
 
 @Composable
-fun HomeScreen() {
-    val imageUrls = remember {
-        listOf(
-            "https://pbs.twimg.com/media/GB3v0aAW4AAKHeL.jpg",
-            "https://pbs.twimg.com/media/GB3wI5vXgAAQxti.jpg",
-            "https://pbs.twimg.com/media/GB3wQ7yWwAAc4HG.jpg",
-            "https://pbs.twimg.com/media/GB3wZGVWkAAB26E.jpg",
-            "https://pbs.twimg.com/media/GB3wlK4XwAAS70z.jpg",
-            "https://pbs.twimg.com/media/GB3wx9MWcAA-wtL.jpg",
-            "https://pbs.twimg.com/media/GB3w-QJXsAAaM-N.jpg",
-            "https://pbs.twimg.com/media/GB3xI81XwAAhKNb.jpg",
-            "https://pbs.twimg.com/media/GB3xTWaXsAAr2Ea.jpg",
-            "https://pbs.twimg.com/media/GB3xckVW8AAV4wI.jpg"
-        ).shuffled()
+fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
+    var imageUrls by remember { mutableStateOf<List<String>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(true) }
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        coroutineScope.launch {
+            isLoading = true
+            imageUrls = viewModel.fetchEndfieldImages()
+            isLoading = false
+        }
     }
 
     Column(
@@ -64,11 +132,31 @@ fun HomeScreen() {
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 8.dp),
+            horizontalArrangement = Arrangement.End
+        ) {
+            TextButton(
+                onClick = {
+                    coroutineScope.launch {
+                        isLoading = true
+                        imageUrls = viewModel.fetchEndfieldImages()
+                        isLoading = false
+                    }
+                }, colors = ButtonDefaults.textButtonColors(
+                    contentColor = Color(0xFF4CC9F0)
+                )
+            ) {
+                Text("Refresh")
+            }
+        }
 
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(280.dp),
+                .height(300.dp),
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(
                 containerColor = Color(0xFF1A1A2E)
@@ -80,7 +168,7 @@ fun HomeScreen() {
                     .padding(12.dp)
             ) {
                 Text(
-                    text = "Trending Images",
+                    text = "r/Endfield Images",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White
@@ -88,11 +176,27 @@ fun HomeScreen() {
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(imageUrls) { imageUrl ->
-                        ImageCard(imageUrl = imageUrl)
+                if (isLoading) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(color = Color(0xFF4CC9F0))
+                    }
+                } else if (imageUrls.isNotEmpty()) {
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(imageUrls) { imageUrl ->
+                            EndfieldImageCard(imageUrl = imageUrl)
+                        }
+                    }
+                } else {
+                    Box(
+                        modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "No images found", color = Color.Gray
+                        )
                     }
                 }
             }
@@ -103,7 +207,7 @@ fun HomeScreen() {
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable {  },
+                .clickable { },
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(
                 containerColor = Color(0xFF1E293B)
@@ -119,8 +223,7 @@ fun HomeScreen() {
                     modifier = Modifier
                         .size(60.dp)
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFF4CC9F0)),
-                    contentAlignment = Alignment.Center
+                        .background(Color(0xFF4CC9F0)), contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = "W",
@@ -153,8 +256,7 @@ fun HomeScreen() {
                     modifier = Modifier
                         .size(40.dp)
                         .clip(RoundedCornerShape(8.dp))
-                        .background(Color(0xFF4CC9F0)),
-                    contentAlignment = Alignment.Center
+                        .background(Color(0xFF4CC9F0)), contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = "→",
@@ -187,8 +289,7 @@ fun HomeScreen() {
                     modifier = Modifier
                         .size(60.dp)
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFF9D4EDD)),
-                    contentAlignment = Alignment.Center
+                        .background(Color(0xFF9D4EDD)), contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = "C",
@@ -221,8 +322,7 @@ fun HomeScreen() {
                     modifier = Modifier
                         .size(40.dp)
                         .clip(RoundedCornerShape(8.dp))
-                        .background(Color(0xFF9D4EDD)),
-                    contentAlignment = Alignment.Center
+                        .background(Color(0xFF9D4EDD)), contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = "→",
@@ -237,21 +337,38 @@ fun HomeScreen() {
 }
 
 @Composable
-fun ImageCard(imageUrl: String) {
+fun EndfieldImageCard(imageUrl: String) {
+    val targetHeight = 200.dp
+
     Card(
         modifier = Modifier
-            .width(200.dp)
-            .height(180.dp),
-        shape = RoundedCornerShape(12.dp)
+            .wrapContentWidth()
+            .height(targetHeight),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFF252525)
+        )
     ) {
-        AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(imageUrl)
-                .crossfade(true)
+        SubcomposeAsyncImage(
+            model = ImageRequest.Builder(LocalContext.current).data(imageUrl).crossfade(true)
                 .build(),
+            loading = {
+                Box(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .width(200.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(30.dp),
+                        strokeWidth = 2.dp,
+                        color = Color(0xFF4CC9F0)
+                    )
+                }
+            },
             contentDescription = "Arknights Endfield image",
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.fillMaxSize()
+            contentScale = ContentScale.FillHeight,
+            modifier = Modifier.fillMaxHeight()
         )
     }
 }
