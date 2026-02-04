@@ -132,26 +132,6 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
             modifier = Modifier.padding(bottom = 8.dp)
         )
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 8.dp),
-            horizontalArrangement = Arrangement.End
-        ) {
-            TextButton(
-                onClick = {
-                    coroutineScope.launch {
-                        isLoading = true
-                        imageUrls = viewModel.fetchEndfieldImages()
-                        isLoading = false
-                    }
-                }, colors = ButtonDefaults.textButtonColors(
-                    contentColor = Color(0xFF4CC9F0)
-                )
-            ) {
-                Text("Refresh")
-            }
-        }
 
         Card(
             modifier = Modifier
