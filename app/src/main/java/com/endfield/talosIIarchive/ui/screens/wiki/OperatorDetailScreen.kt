@@ -1,6 +1,8 @@
 package com.endfield.talosIIarchive.ui.screens.wiki
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,7 +13,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -36,8 +40,11 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.endfield.talosIIarchive.domain.models.Operator
 import com.endfield.talosIIarchive.ui.theme.EndfieldCyan
+import com.endfield.talosIIarchive.ui.theme.EndfieldOrange
 import com.endfield.talosIIarchive.ui.theme.EndfieldYellow
 import com.endfield.talosIIarchive.ui.theme.TechBlack
+import com.endfield.talosIIarchive.ui.theme.TechBorder
+import com.endfield.talosIIarchive.ui.theme.TechSurface
 
 //Aca faltaria mejorar el formato de las descripciones y tal (justificar el texto) y añadir el tipo de arma que usa, elemento y rareza
 
@@ -71,8 +78,7 @@ fun OperatorDetailScreen(operator: Operator, onBack: () -> Unit) {
                             .background(
                                 Brush.verticalGradient(
                                     listOf(
-                                        Color.Transparent,
-                                        TechBlack
+                                        Color.Transparent, TechBlack
                                     )
                                 )
                             )
@@ -128,26 +134,17 @@ fun OperatorDetailScreen(operator: Operator, onBack: () -> Unit) {
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     EndfieldTabButton(
-                        "Skills",
-                        "MOD_01",
-                        activeTab == "SKILLS",
-                        Modifier.weight(1f)
+                        "Skills", "MOD_01", activeTab == "SKILLS", Modifier.weight(1f)
                     ) {
                         activeTab = "SKILLS"
                     }
                     EndfieldTabButton(
-                        "Talents",
-                        "MOD_02",
-                        activeTab == "TALENTS",
-                        Modifier.weight(1f)
+                        "Talents", "MOD_02", activeTab == "TALENTS", Modifier.weight(1f)
                     ) {
                         activeTab = "TALENTS"
                     }
                     EndfieldTabButton(
-                        "Potential",
-                        "MOD_03",
-                        activeTab == "POTENTIAL",
-                        Modifier.weight(1f)
+                        "Potential", "MOD_03", activeTab == "POTENTIAL", Modifier.weight(1f)
                     ) {
                         activeTab = "POTENTIAL"
                     }
@@ -162,9 +159,7 @@ fun OperatorDetailScreen(operator: Operator, onBack: () -> Unit) {
                     when (activeTab) {
                         "SKILLS" -> Column {
                             SkillBlock(
-                                operator.basicAttack,
-                                "BASIC_ATK",
-                                operator.basicAttackDescription
+                                operator.basicAttack, "BASIC_ATK", operator.basicAttackDescription
                             )
                             SkillBlock(
                                 operator.battleSkill,
@@ -172,14 +167,10 @@ fun OperatorDetailScreen(operator: Operator, onBack: () -> Unit) {
                                 operator.battleSkillDescription
                             )
                             SkillBlock(
-                                operator.comboSkill,
-                                "COMBO_SKILL",
-                                operator.comboSkillDescription
+                                operator.comboSkill, "COMBO_SKILL", operator.comboSkillDescription
                             )
                             SkillBlock(
-                                operator.ultimate,
-                                "ULTIMATE",
-                                operator.ultimateDescription
+                                operator.ultimate, "ULTIMATE", operator.ultimateDescription
                             )
                         }
 
@@ -216,5 +207,124 @@ fun SkillBlock(name: String?, type: String, desc: String?) {
         Text(type, color = EndfieldCyan, fontSize = 10.sp, fontWeight = FontWeight.Bold)
         Text(name.uppercase(), color = Color.White, fontWeight = FontWeight.Black, fontSize = 16.sp)
         Text(desc ?: "", color = Color.LightGray, fontSize = 12.sp, lineHeight = 16.sp)
+    }
+}
+
+
+@Composable
+fun EndfieldTabButton(
+    label: String,
+    subLabel: String,
+    isSelected: Boolean,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    val backgroundColor = if (isSelected) EndfieldYellow else TechSurface
+    val textColor = if (isSelected) Color.Black else Color.White
+    val borderColor = if (isSelected) EndfieldYellow else TechBorder
+
+    Box(
+        modifier = modifier
+            .height(50.dp)
+            .border(1.dp, borderColor)
+            .background(backgroundColor)
+            .clickable { onClick() }
+            .padding(horizontal = 12.dp),
+        contentAlignment = Alignment.CenterStart) {
+        Column {
+            Text(
+                text = subLabel,
+                fontSize = 8.sp,
+                fontWeight = FontWeight.Bold,
+                color = if (isSelected) Color.Black.copy(0.6f) else EndfieldYellow
+            )
+            Text(
+                text = label.uppercase(),
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Black,
+                color = textColor,
+                letterSpacing = 1.sp
+            )
+        }
+
+        if (isSelected) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .size(10.dp)
+                    .background(Color.Black)
+            )
+        }
+    }
+}
+
+@Composable
+fun DataTag(label: String, value: String, bgColor: Color, textColor: Color) {
+    Row(modifier = Modifier.border(1.dp, TechBorder)) {
+        Box(
+            modifier = Modifier
+                .background(bgColor)
+                .padding(horizontal = 6.dp, vertical = 2.dp)
+        ) {
+            Text(label, color = textColor, fontSize = 9.sp, fontWeight = FontWeight.Black)
+        }
+        Box(modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)) {
+            Text(
+                value.uppercase(),
+                color = Color.White,
+                fontSize = 9.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+    }
+}
+
+@Composable
+fun FunctionalStatItem(label: String, value: Int) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(label, color = Color.Gray, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+        Text(value.toString(), color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Black)
+        Box(
+            Modifier
+                .size(15.dp, 2.dp)
+                .background(EndfieldYellow)
+        )
+    }
+}
+
+
+@Composable
+fun TalentBlock(label: String, desc: String?) {
+    if (desc.isNullOrBlank()) return
+    Column(
+        Modifier
+            .padding(bottom = 12.dp)
+            .border(1.dp, TechBorder)
+            .padding(12.dp)
+    ) {
+        Text(label, color = EndfieldOrange, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+        Text(desc, color = Color.White, fontSize = 12.sp)
+    }
+}
+
+@Composable
+fun PotentialRow(level: String, name: String?, effect: String?) {
+    if (name == null) return
+    Row(Modifier.padding(vertical = 6.dp)) {
+        Text(
+            level,
+            color = EndfieldCyan,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.width(35.dp)
+        )
+        Column {
+            Text(
+                name.uppercase(),
+                color = Color.White,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Text(effect ?: "", color = Color.Gray, fontSize = 11.sp)
+        }
     }
 }

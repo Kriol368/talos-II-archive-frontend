@@ -5,14 +5,12 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -38,7 +36,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.endfield.talosIIarchive.ui.theme.EndfieldCyan
 import com.endfield.talosIIarchive.ui.theme.EndfieldOrange
-import com.endfield.talosIIarchive.ui.theme.EndfieldYellow
 import com.endfield.talosIIarchive.ui.theme.TechBackground
 import com.endfield.talosIIarchive.ui.theme.TechBorder
 import com.endfield.talosIIarchive.ui.theme.TechSurface
@@ -52,8 +49,7 @@ enum class WikiCategory {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WikiScreen(
-    operatorViewModel: OperatorViewModel,
-    weaponViewModel: WeaponViewModel
+    operatorViewModel: OperatorViewModel, weaponViewModel: WeaponViewModel
 ) {
     var selectedCategory by remember { mutableStateOf<WikiCategory?>(null) }
 
@@ -85,26 +81,23 @@ fun WikiScreen(
                 Column(modifier = Modifier.fillMaxSize()) {
                     TopAppBar(
                         title = {
-                            Text(
-                                text = "// ${selectedCategory.toString()}",
-                                fontWeight = FontWeight.Black,
-                                fontSize = 18.sp,
-                                letterSpacing = 1.sp
-                            )
-                        },
-                        navigationIcon = {
-                            IconButton(onClick = { selectedCategory = null }) {
-                                Icon(
-                                    Icons.AutoMirrored.Filled.ArrowBack,
-                                    contentDescription = null,
-                                    tint = EndfieldOrange
-                                )
-                            }
-                        },
-                        colors = TopAppBarDefaults.topAppBarColors(
-                            containerColor = TechSurface,
-                            titleContentColor = Color.White
+                        Text(
+                            text = "// ${selectedCategory.toString()}",
+                            fontWeight = FontWeight.Black,
+                            fontSize = 18.sp,
+                            letterSpacing = 1.sp
                         )
+                    }, navigationIcon = {
+                        IconButton(onClick = { selectedCategory = null }) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = null,
+                                tint = EndfieldOrange
+                            )
+                        }
+                    }, colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = TechSurface, titleContentColor = Color.White
+                    )
                     )
 
                     when (selectedCategory) {
@@ -156,19 +149,14 @@ fun WikiScreen(
 
 @Composable
 fun WikiMenuButton(
-    number: String,
-    title: String,
-    accentColor: Color,
-    modifier: Modifier,
-    onClick: () -> Unit
+    number: String, title: String, accentColor: Color, modifier: Modifier, onClick: () -> Unit
 ) {
     Box(
         modifier = modifier
             .fillMaxWidth()
             .border(1.dp, TechBorder)
             .background(TechSurface)
-            .clickable { onClick() }
-    ) {
+            .clickable { onClick() }) {
         Box(
             modifier = Modifier
                 .fillMaxHeight()
@@ -207,122 +195,3 @@ fun WikiMenuButton(
     }
 }
 
-
-@Composable
-fun EndfieldTabButton(
-    label: String,
-    subLabel: String,
-    isSelected: Boolean,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit
-) {
-    val backgroundColor = if (isSelected) EndfieldYellow else TechSurface
-    val textColor = if (isSelected) Color.Black else Color.White
-    val borderColor = if (isSelected) EndfieldYellow else TechBorder
-
-    Box(
-        modifier = modifier
-            .height(50.dp)
-            .border(1.dp, borderColor)
-            .background(backgroundColor)
-            .clickable { onClick() }
-            .padding(horizontal = 12.dp),
-        contentAlignment = Alignment.CenterStart
-    ) {
-        Column {
-            Text(
-                text = subLabel,
-                fontSize = 8.sp,
-                fontWeight = FontWeight.Bold,
-                color = if (isSelected) Color.Black.copy(0.6f) else EndfieldYellow
-            )
-            Text(
-                text = label.uppercase(),
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Black,
-                color = textColor,
-                letterSpacing = 1.sp
-            )
-        }
-
-        if (isSelected) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .size(10.dp)
-                    .background(Color.Black)
-            )
-        }
-    }
-}
-
-@Composable
-fun DataTag(label: String, value: String, bgColor: Color, textColor: Color) {
-    Row(modifier = Modifier.border(1.dp, TechBorder)) {
-        Box(
-            modifier = Modifier
-                .background(bgColor)
-                .padding(horizontal = 6.dp, vertical = 2.dp)
-        ) {
-            Text(label, color = textColor, fontSize = 9.sp, fontWeight = FontWeight.Black)
-        }
-        Box(modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)) {
-            Text(
-                value.uppercase(),
-                color = Color.White,
-                fontSize = 9.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-    }
-}
-
-@Composable
-fun FunctionalStatItem(label: String, value: Int) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(label, color = Color.Gray, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-        Text(value.toString(), color = Color.White, fontSize = 22.sp, fontWeight = FontWeight.Black)
-        Box(
-            Modifier
-                .size(15.dp, 2.dp)
-                .background(EndfieldYellow)
-        )
-    }
-}
-
-
-@Composable
-fun TalentBlock(label: String, desc: String?) {
-    if (desc.isNullOrBlank()) return
-    Column(
-        Modifier
-            .padding(bottom = 12.dp)
-            .border(1.dp, TechBorder)
-            .padding(12.dp)
-    ) {
-        Text(label, color = EndfieldOrange, fontSize = 9.sp, fontWeight = FontWeight.Bold)
-        Text(desc, color = Color.White, fontSize = 12.sp)
-    }
-}
-
-@Composable
-fun PotentialRow(level: String, name: String?, effect: String?) {
-    if (name == null) return
-    Row(Modifier.padding(vertical = 6.dp)) {
-        Text(
-            level,
-            color = EndfieldCyan,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.width(35.dp)
-        )
-        Column {
-            Text(
-                name.uppercase(),
-                color = Color.White,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Text(effect ?: "", color = Color.Gray, fontSize = 11.sp)
-        }
-    }
-}
