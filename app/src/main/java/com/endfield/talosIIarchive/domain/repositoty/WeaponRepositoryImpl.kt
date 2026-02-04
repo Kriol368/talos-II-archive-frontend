@@ -9,11 +9,9 @@ import io.ktor.client.request.get
 class WeaponRepositoryImpl : WeaponRepository {
     override suspend fun getAllWeapons(): List<Weapon> {
         return try {
-            val response = client.get("weapons")
-            Log.d("TALOS_DEBUG", "Armas recibidas: ${response.status}")
-            response.body<List<Weapon>>()
+            client.get("weapons").body()
         } catch (e: Exception) {
-            Log.e("TALOS_DEBUG", "ERROR cargando armas: ${e.message}")
+            Log.e("TALOS_DEBUG", "Error lista: ${e.message}")
             emptyList()
         }
     }

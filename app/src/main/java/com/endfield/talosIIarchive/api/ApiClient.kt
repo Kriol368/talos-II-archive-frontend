@@ -16,6 +16,6 @@ val client = HttpClient(OkHttp) {
         })
     }
     defaultRequest {
-        url("http://127.0.0.1:8080/endfield/")
+        url("http://10.0.2.2:8080/endfield/")
     }
 }

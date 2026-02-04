@@ -33,10 +33,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.endfield.talosIIarchive.domain.repositoty.OperatorRepositoryImpl
+import com.endfield.talosIIarchive.domain.repositoty.WeaponRepositoryImpl
 import com.endfield.talosIIarchive.ui.screens.social.SocialScreen
 import com.endfield.talosIIarchive.ui.screens.wiki.WikiScreen
 import com.endfield.talosIIarchive.ui.theme.EndfieldCyan
@@ -45,6 +44,9 @@ import com.endfield.talosIIarchive.ui.theme.TalosIIarchivefrontendTheme
 import com.endfield.talosIIarchive.ui.theme.TechBorder
 import com.endfield.talosIIarchive.ui.theme.TechSurface
 import com.endfield.talosIIarchive.ui.viewmodel.OperatorViewModel
+import com.endfield.talosIIarchive.ui.viewmodel.OperatorViewModelFactory
+import com.endfield.talosIIarchive.ui.viewmodel.WeaponViewModel
+import com.endfield.talosIIarchive.ui.viewmodel.WeaponViewModelFactory
 import com.example.arknightsendfield.HomeScreen
 import kotlinx.coroutines.launch
 
@@ -67,11 +69,21 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    val repository = OperatorRepositoryImpl()
-                    val viewModel: OperatorViewModel = viewModel(
-                        factory = ViewModelFactory(repository)
+                    // Create repositories
+                    val operatorRepository = OperatorRepositoryImpl()
+                    val weaponRepository = WeaponRepositoryImpl()
+
+                    // Create ViewModels with their factories
+                    val operatorViewModel: OperatorViewModel = viewModel(
+                        factory = OperatorViewModelFactory(operatorRepository)
                     )
-                    App(viewModel)
+
+                    val weaponViewModel: WeaponViewModel = viewModel(
+                        factory = WeaponViewModelFactory(weaponRepository)
+                    )
+
+                    // Pass both ViewModels to App
+                    App(operatorViewModel, weaponViewModel)
                 }
             }
         }
@@ -80,7 +92,10 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun App(viewmodel: OperatorViewModel) {
+fun App(
+    operatorViewModel: OperatorViewModel,
+    weaponViewModel: WeaponViewModel
+) {
     val screens = listOf(
         Screen.Home,
         Screen.Operators,
@@ -169,22 +184,10 @@ fun App(viewmodel: OperatorViewModel) {
         ) { page ->
             when (page) {
                 0 -> HomeScreen()
-                1 -> WikiScreen(viewmodel)
+                1 -> WikiScreen(operatorViewModel, weaponViewModel)
                 2 -> SocialScreen()
                 else -> HomeScreen()
             }
         }
-    }
-}
-
-
-class ViewModelFactory(private val repository: OperatorRepositoryImpl) :
-    ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(OperatorViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return OperatorViewModel(repository) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

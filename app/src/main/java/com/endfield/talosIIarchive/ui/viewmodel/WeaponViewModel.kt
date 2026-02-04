@@ -26,9 +26,11 @@ class WeaponViewModel(private val repository: WeaponRepository) : ViewModel() {
             startLoading()
             try {
                 weapons = repository.getAllWeapons()
-                if (weapons.isEmpty()) errorMessage = "No se encontraron armas."
+                if (weapons.isEmpty()) {
+                    errorMessage = "No weapons found in database"
+                }
             } catch (e: Exception) {
-                errorMessage = "Error al cargar armas: ${e.localizedMessage}"
+                errorMessage = "Error loading weapons: ${e.localizedMessage}"
             } finally {
                 isLoading = false
             }
@@ -37,6 +39,10 @@ class WeaponViewModel(private val repository: WeaponRepository) : ViewModel() {
 
     private fun startLoading() {
         isLoading = true
+        errorMessage = null
+    }
+
+    fun clearError() {
         errorMessage = null
     }
 }

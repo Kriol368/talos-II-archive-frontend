@@ -11,7 +11,7 @@ class OperatorRepositoryImpl : OperatorRepository {
 
     override suspend fun getAllOperators(): List<Operator> {
         return try {
-            client.get("http://10.0.2.2:8080/endfield/operators").body()
+            client.get("operators").body()
         } catch (e: Exception) {
             Log.e("TALOS_DEBUG", "Error lista: ${e.message}")
             emptyList()
@@ -20,7 +20,7 @@ class OperatorRepositoryImpl : OperatorRepository {
 
     override suspend fun getOperatorById(id: Int): Operator? {
         return try {
-            client.get("http://10.0.2.2:8080/endfield/operators/$id").body()
+            client.get("operators/$id").body()
         } catch (e: Exception) {
             Log.e("TALOS_DEBUG", "Error detalle ID $id: ${e.message}")
             null

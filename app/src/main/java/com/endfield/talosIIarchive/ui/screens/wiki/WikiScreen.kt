@@ -1,6 +1,5 @@
 package com.endfield.talosIIarchive.ui.screens.wiki
 
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -44,20 +43,23 @@ import com.endfield.talosIIarchive.ui.theme.TechBackground
 import com.endfield.talosIIarchive.ui.theme.TechBorder
 import com.endfield.talosIIarchive.ui.theme.TechSurface
 import com.endfield.talosIIarchive.ui.viewmodel.OperatorViewModel
+import com.endfield.talosIIarchive.ui.viewmodel.WeaponViewModel
 
 enum class WikiCategory {
     OPERATORS, WEAPONS, GEAR
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WikiScreen(viewModel: OperatorViewModel) {
+fun WikiScreen(
+    operatorViewModel: OperatorViewModel,
+    weaponViewModel: WeaponViewModel
+) {
     var selectedCategory by remember { mutableStateOf<WikiCategory?>(null) }
 
     Surface(modifier = Modifier.fillMaxSize(), color = TechBackground) {
         when {
-            viewModel.isDetailLoading -> {
+            operatorViewModel.isDetailLoading -> {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         CircularProgressIndicator(color = EndfieldOrange)
@@ -73,9 +75,9 @@ fun WikiScreen(viewModel: OperatorViewModel) {
                 }
             }
 
-            viewModel.selectedOperatorFull != null -> {
-                OperatorDetailScreen(viewModel.selectedOperatorFull!!) {
-                    viewModel.clearSelectedOperator()
+            operatorViewModel.selectedOperatorFull != null -> {
+                OperatorDetailScreen(operatorViewModel.selectedOperatorFull!!) {
+                    operatorViewModel.clearSelectedOperator()
                 }
             }
 
@@ -107,12 +109,15 @@ fun WikiScreen(viewModel: OperatorViewModel) {
 
                     when (selectedCategory) {
                         WikiCategory.OPERATORS -> {
-                            OperatorList(viewModel) { op ->
-                                viewModel.fetchOperatorDetails(op.id)
+                            OperatorListScreen(operatorViewModel) { operator ->
+                                operatorViewModel.fetchOperatorDetails(operator.id)
                             }
                         }
 
-                        WikiCategory.WEAPONS -> WeaponListScreen()
+                        WikiCategory.WEAPONS -> {
+                            WeaponListScreen(weaponViewModel)
+                        }
+
                         WikiCategory.GEAR -> GearListPlaceholder()
                         else -> {}
                     }
@@ -148,7 +153,6 @@ fun WikiScreen(viewModel: OperatorViewModel) {
         }
     }
 }
-
 
 @Composable
 fun WikiMenuButton(

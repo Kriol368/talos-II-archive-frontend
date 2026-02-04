@@ -1,66 +1,80 @@
 package com.endfield.talosIIarchive.ui.screens.wiki
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.endfield.talosIIarchive.domain.models.Weapon
+import com.endfield.talosIIarchive.ui.viewmodel.WeaponViewModel
 
 @Composable
-fun WeaponListScreen(){
-
-}
-
-/*
-@Composable
-fun WeaponListScreen(viewModel: OperatorViewModel) {
+fun WeaponListScreen(
+    weaponViewModel: WeaponViewModel
+) {
     LaunchedEffect(Unit) {
-        viewModel.fetchWeapons()
+        weaponViewModel.fetchWeapons()
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        if (viewModel.isLoading) {
-            CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.Center),
-                color = Color.Cyan
-            )
-        } else if (viewModel.weapons.isEmpty()) {
-            // 👈 AÑADE ESTO: Si no hay armas, mostramos este texto
-            Text(
-                "No se encontraron armas en la DB",
-                modifier = Modifier.align(Alignment.Center),
-                color = Color.Gray
-            )
-        } else {
-            LazyColumn(
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(viewModel.weapons) { weapon ->
-                    WeaponCard(weapon)
+        when {
+            weaponViewModel.isLoading -> {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    CircularProgressIndicator(color = Color.Cyan)
+                    Spacer(Modifier.height(16.dp))
+                    Text("LOADING_WEAPON_DATA...", color = Color.Gray)
+                }
+            }
+
+            weaponViewModel.errorMessage != null -> {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text("ERROR", color = Color.Red, fontWeight = FontWeight.Bold)
+                    Text(weaponViewModel.errorMessage ?: "Unknown error", color = Color.Gray)
+                }
+            }
+
+            weaponViewModel.weapons.isEmpty() -> {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text("NO_WEAPONS_FOUND", color = Color.Gray)
+                }
+            }
+
+            else -> {
+                LazyColumn(
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(weaponViewModel.weapons) { weapon ->
+                        WeaponCard(weapon)
+                    }
                 }
             }
         }
     }
 }
 
- */
 @Composable
 fun WeaponCard(weapon: Weapon) {
     ElevatedCard(
@@ -68,14 +82,13 @@ fun WeaponCard(weapon: Weapon) {
             .fillMaxWidth()
             .padding(vertical = 4.dp),
         colors = CardDefaults.elevatedCardColors(
-            containerColor = Color(0xFF1E1E1E) // Gris oscuro
+            containerColor = Color(0xFF1E1E1E)
         )
     ) {
         Row(
             modifier = Modifier.padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // IMAGEN (Usamos la URL directamente porque el backend ya la manda completa)
             AsyncImage(
                 model = weapon.imageUrl,
                 contentDescription = weapon.name,
@@ -98,14 +111,12 @@ fun WeaponCard(weapon: Weapon) {
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Cyan
                 )
-                // Estrellas doradas
                 Text(
                     text = weapon.rarity,
                     color = Color(0xFFFFD700),
                     style = MaterialTheme.typography.bodyMedium
                 )
 
-                // Solo mostramos la pasiva si el servidor la envía
                 if (!weapon.passive.isNullOrBlank()) {
                     Text(
                         text = weapon.passive,

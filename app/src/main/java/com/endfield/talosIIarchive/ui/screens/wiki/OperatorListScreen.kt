@@ -36,18 +36,21 @@ import com.endfield.talosIIarchive.ui.theme.TechSurface
 import com.endfield.talosIIarchive.ui.viewmodel.OperatorViewModel
 
 @Composable
-fun OperatorList(viewModel: OperatorViewModel, onOperatorClick: (Operator) -> Unit) {
+fun OperatorListScreen(
+    operatorViewModel: OperatorViewModel,
+    onOperatorClick: (Operator) -> Unit
+) {
     LaunchedEffect(Unit) {
-        viewModel.fetchOperators()
+        operatorViewModel.fetchOperators()
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        if (viewModel.isLoading) {
+        if (operatorViewModel.isLoading) {
             CircularProgressIndicator(
                 modifier = Modifier.align(Alignment.Center),
                 color = EndfieldOrange
             )
-        } else if (viewModel.operators.isEmpty()) {
+        } else if (operatorViewModel.operators.isEmpty()) {
             Text("DATA_NOT_FOUND", color = Color.Red, modifier = Modifier.align(Alignment.Center))
         } else {
             LazyVerticalGrid(
@@ -56,14 +59,13 @@ fun OperatorList(viewModel: OperatorViewModel, onOperatorClick: (Operator) -> Un
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(viewModel.operators) { operator ->
+                items(operatorViewModel.operators) { operator ->
                     OperatorGridItem(operator) { onOperatorClick(operator) }
                 }
             }
         }
     }
 }
-
 
 @Composable
 fun OperatorGridItem(operator: Operator, onClick: () -> Unit) {
