@@ -34,6 +34,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.endfield.talosIIarchive.R
 import com.endfield.talosIIarchive.domain.repositoty.OperatorRepositoryImpl
 import com.endfield.talosIIarchive.ui.theme.EndfieldCyan
@@ -42,6 +45,7 @@ import com.endfield.talosIIarchive.ui.theme.TalosIIarchivefrontendTheme
 import com.endfield.talosIIarchive.ui.theme.TechBorder
 import com.endfield.talosIIarchive.ui.theme.TechSurface
 import com.endfield.talosIIarchive.ui.viewmodel.OperatorViewModel
+import com.example.arknightsendfield.HomeScreen
 import kotlinx.coroutines.launch
 
 sealed class Screen(
@@ -58,13 +62,15 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val repository = OperatorRepositoryImpl()
-            val viewModel = OperatorViewModel(repository)
             TalosIIarchivefrontendTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
+                    val repository = OperatorRepositoryImpl()
+                    val viewModel: OperatorViewModel = viewModel(
+                        factory = ViewModelFactory(repository)
+                    )
                     App(viewModel)
                 }
             }
@@ -74,7 +80,7 @@ class MainActivity : ComponentActivity() {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun App(viewModel: OperatorViewModel) {
+fun App(viewmodel: OperatorViewModel) {
     val screens = listOf(
         Screen.Home,
         Screen.Operators,
@@ -160,13 +166,26 @@ fun App(viewModel: OperatorViewModel) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues),
-            ) { page ->
+        ) { page ->
             when (page) {
-                0 -> homeScreen()
-                1 -> WikiScreen(viewModel)
-                2 -> socialScreen()
-                else -> homeScreen()
+                0 -> HomeScreen()
+                1 -> WikiScreen(viewmodel)
+                2 -> SocialScreen()
+                else -> HomeScreen()
             }
         }
+    }
+}
+
+
+// Y necesitarías un ViewModelFactory
+class ViewModelFactory(private val repository: OperatorRepositoryImpl) :
+    ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(OperatorViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return OperatorViewModel(repository) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

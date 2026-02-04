@@ -18,6 +18,6 @@ val client = HttpClient(OkHttp) { // Usamos OkHttp que agregamos al build.gradle
     }
     defaultRequest {
         // IP para emulador Android conectando al localhost de tu PC
-        url("http://10.0.2.2:8080/endfield/")
+        url("http://127.0.0.1:8080/endfield/")
     }
 }
