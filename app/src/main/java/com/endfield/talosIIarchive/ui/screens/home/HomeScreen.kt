@@ -148,7 +148,7 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
                     .padding(12.dp)
             ) {
                 Text(
-                    text = "r/Endfield Images",
+                    text = "Now trending on r/Endfield",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White
@@ -219,30 +219,10 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(
-                        text = "WIKI & DATABASE",
+                        text = "WIKI",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White
-                    )
-
-                    Text(
-                        text = "Character profiles, skills, items and strategies",
-                        fontSize = 14.sp,
-                        color = Color(0xFF94A3B8)
-                    )
-                }
-
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(Color(0xFF4CC9F0)), contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "→",
-                        fontSize = 24.sp,
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold
                     )
                 }
             }
@@ -285,30 +265,10 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(
-                        text = "COMMUNITY HUB",
+                        text = "SOCIAL",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.White
-                    )
-
-                    Text(
-                        text = "Connect with other operators and share builds",
-                        fontSize = 14.sp,
-                        color = Color(0xFF94A3B8)
-                    )
-                }
-
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(Color(0xFF9D4EDD)), contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "→",
-                        fontSize = 24.sp,
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold
                     )
                 }
             }
