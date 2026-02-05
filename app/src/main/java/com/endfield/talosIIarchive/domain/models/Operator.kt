@@ -38,19 +38,3 @@ data class Operator(
     val p4: String? = null, val p4Effect: String? = null,
     val p5: String? = null, val p5Effect: String? = null
 )
-data class TeamOperator(
-    val operator: Operator,
-    val weapon: Weapon? = null,
-    val armor: Gear? = null,
-    val gloves: Gear? = null,
-    val kit1: Gear? = null,
-    val kit2: Gear? = null
-) {
-    fun getActiveSetBonuses(): List<String> {
-        val equippedGear = listOfNotNull(armor, gloves, kit1, kit2)
-        return equippedGear
-            .groupBy { it.setId }
-            .filter { it.value.size >= 3 }
-            .map { it.value.first().setName }
-    }
-}

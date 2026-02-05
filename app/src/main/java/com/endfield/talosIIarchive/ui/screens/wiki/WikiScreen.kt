@@ -39,6 +39,7 @@ import com.endfield.talosIIarchive.ui.theme.EndfieldOrange
 import com.endfield.talosIIarchive.ui.theme.TechBackground
 import com.endfield.talosIIarchive.ui.theme.TechBorder
 import com.endfield.talosIIarchive.ui.theme.TechSurface
+import com.endfield.talosIIarchive.ui.viewmodel.GearViewModel
 import com.endfield.talosIIarchive.ui.viewmodel.OperatorViewModel
 import com.endfield.talosIIarchive.ui.viewmodel.WeaponViewModel
 
@@ -49,7 +50,9 @@ enum class WikiCategory {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WikiScreen(
-    operatorViewModel: OperatorViewModel, weaponViewModel: WeaponViewModel
+    operatorViewModel: OperatorViewModel,
+    weaponViewModel: WeaponViewModel,
+    gearViewModel: GearViewModel
 ) {
     var selectedCategory by remember { mutableStateOf<WikiCategory?>(null) }
 
@@ -71,9 +74,53 @@ fun WikiScreen(
                 }
             }
 
+            weaponViewModel.isDetailLoading -> {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        CircularProgressIndicator(color = EndfieldCyan)
+                        Spacer(Modifier.height(16.dp))
+                        Text(
+                            "LOADING_WEAPON_FILE...",
+                            color = EndfieldCyan,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 2.sp
+                        )
+                    }
+                }
+            }
+
+            gearViewModel.isDetailLoading -> {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        CircularProgressIndicator(color = Color.White)
+                        Spacer(Modifier.height(16.dp))
+                        Text(
+                            "LOADING_GEAR_FILE...",
+                            color = Color.White,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 2.sp
+                        )
+                    }
+                }
+            }
+
             operatorViewModel.selectedOperatorFull != null -> {
                 OperatorDetailScreen(operatorViewModel.selectedOperatorFull!!) {
                     operatorViewModel.clearSelectedOperator()
+                }
+            }
+
+            weaponViewModel.selectedWeapon != null -> {
+                WeaponDetailScreen(weaponViewModel.selectedWeapon!!) {
+                    weaponViewModel.clearSelectedWeapon()
+                }
+            }
+
+            gearViewModel.selectedGear != null -> {
+                GearDetailScreen(gearViewModel.selectedGear!!) {
+                    gearViewModel.clearSelectedGear()
                 }
             }
 
@@ -81,23 +128,23 @@ fun WikiScreen(
                 Column(modifier = Modifier.fillMaxSize()) {
                     TopAppBar(
                         title = {
-                        Text(
-                            text = "// ${selectedCategory.toString()}",
-                            fontWeight = FontWeight.Black,
-                            fontSize = 18.sp,
-                            letterSpacing = 1.sp
-                        )
-                    }, navigationIcon = {
-                        IconButton(onClick = { selectedCategory = null }) {
-                            Icon(
-                                Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = null,
-                                tint = EndfieldOrange
+                            Text(
+                                text = "// ${selectedCategory.toString()}",
+                                fontWeight = FontWeight.Black,
+                                fontSize = 18.sp,
+                                letterSpacing = 1.sp
                             )
-                        }
-                    }, colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = TechSurface, titleContentColor = Color.White
-                    )
+                        }, navigationIcon = {
+                            IconButton(onClick = { selectedCategory = null }) {
+                                Icon(
+                                    Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = null,
+                                    tint = EndfieldOrange
+                                )
+                            }
+                        }, colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = TechSurface, titleContentColor = Color.White
+                        )
                     )
 
                     when (selectedCategory) {
@@ -108,10 +155,16 @@ fun WikiScreen(
                         }
 
                         WikiCategory.WEAPONS -> {
-                            WeaponListScreen(weaponViewModel)
+                            WeaponListScreen(weaponViewModel) { weapon ->
+                                weaponViewModel.fetchWeaponDetails(weapon.id)
+                            }
                         }
 
-                        WikiCategory.GEAR -> GearListPlaceholder()
+                        WikiCategory.GEAR -> {
+                            GearListScreen(gearViewModel) { gear ->
+                                gearViewModel.fetchGearDetails(gear.id)
+                            }
+                        }
                         else -> {}
                     }
                 }

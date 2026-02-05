@@ -37,6 +37,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.endfield.talosIIarchive.domain.repositoty.GearRepositoryImpl
 import com.endfield.talosIIarchive.domain.repositoty.OperatorRepositoryImpl
 import com.endfield.talosIIarchive.domain.repositoty.WeaponRepositoryImpl
 import com.endfield.talosIIarchive.ui.screens.home.HomeScreen
@@ -47,6 +48,8 @@ import com.endfield.talosIIarchive.ui.theme.EndfieldOrange
 import com.endfield.talosIIarchive.ui.theme.TalosIIarchivefrontendTheme
 import com.endfield.talosIIarchive.ui.theme.TechBorder
 import com.endfield.talosIIarchive.ui.theme.TechSurface
+import com.endfield.talosIIarchive.ui.viewmodel.GearViewModel
+import com.endfield.talosIIarchive.ui.viewmodel.GearViewModelFactory
 import com.endfield.talosIIarchive.ui.viewmodel.OperatorViewModel
 import com.endfield.talosIIarchive.ui.viewmodel.OperatorViewModelFactory
 import com.endfield.talosIIarchive.ui.viewmodel.WeaponViewModel
@@ -71,6 +74,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     val operatorRepository = OperatorRepositoryImpl()
                     val weaponRepository = WeaponRepositoryImpl()
+                    val gearRepository = GearRepositoryImpl()
 
                     val operatorViewModel: OperatorViewModel = viewModel(
                         factory = OperatorViewModelFactory(operatorRepository)
@@ -80,7 +84,11 @@ class MainActivity : ComponentActivity() {
                         factory = WeaponViewModelFactory(weaponRepository)
                     )
 
-                    App(operatorViewModel, weaponViewModel)
+                    val gearViewModel: GearViewModel = viewModel(
+                        factory = GearViewModelFactory(gearRepository)
+                    )
+
+                    App(operatorViewModel, weaponViewModel, gearViewModel)
                 }
             }
         }
@@ -90,7 +98,9 @@ class MainActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun App(
-    operatorViewModel: OperatorViewModel, weaponViewModel: WeaponViewModel
+    operatorViewModel: OperatorViewModel,
+    weaponViewModel: WeaponViewModel,
+    gearViewModel: GearViewModel
 ) {
     val screens = listOf(
         Screen.Home,
@@ -149,7 +159,7 @@ fun App(
                                     text = screen.title.uppercase(),
                                     style = MaterialTheme.typography.labelMedium,
                                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                    fontSize = 11.sp, // Texto un poco más grande
+                                    fontSize = 11.sp,
                                     letterSpacing = 0.8.sp,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis
@@ -180,7 +190,7 @@ fun App(
         ) { page ->
             when (page) {
                 0 -> HomeScreen()
-                1 -> WikiScreen(operatorViewModel, weaponViewModel)
+                1 -> WikiScreen(operatorViewModel, weaponViewModel, gearViewModel)
                 2 -> SocialScreen()
                 else -> HomeScreen()
             }

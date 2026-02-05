@@ -9,10 +9,19 @@ import io.ktor.client.request.get
 class WeaponRepositoryImpl : WeaponRepository {
     override suspend fun getAllWeapons(): List<Weapon> {
         return try {
-            client.get("weapons").body()
+            client.get("endfield/weapons").body()
         } catch (e: Exception) {
-            Log.e("TALOS_DEBUG", "Error lista: ${e.message}")
+            Log.e("TALOS_DEBUG", "Error fetching weapons: ${e.message}")
             emptyList()
+        }
+    }
+
+    override suspend fun getWeaponById(id: Int): Weapon? {
+        return try {
+            client.get("endfield/weapons/$id").body()
+        } catch (e: Exception) {
+            Log.e("TALOS_DEBUG", "Error fetching weapon $id: ${e.message}")
+            null
         }
     }
 }
