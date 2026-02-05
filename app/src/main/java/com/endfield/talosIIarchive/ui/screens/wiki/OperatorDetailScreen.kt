@@ -67,7 +67,7 @@ fun OperatorDetailScreen(operator: Operator, onBack: () -> Unit) {
                         .fillMaxWidth()
                 ) {
                     AsyncImage(
-                        model = "http://10.0.2.2:8080${operator.imageUrl}",
+                        model = "http://158.179.216.16:8080${operator.imageUrl}",
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize()

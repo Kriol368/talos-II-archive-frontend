@@ -81,7 +81,7 @@ fun OperatorGridItem(operator: Operator, onClick: () -> Unit) {
     ) {
         AsyncImage(
             model = if (operator.imageUrl.startsWith("http")) operator.imageUrl
-            else "http://10.0.2.2:8080${operator.imageUrl}",
+            else "http://158.179.216.16:8080${operator.imageUrl}",
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier
