@@ -10,3 +10,10 @@ data class Blueprint(
     val codeHash: String,
     val createdAt: String
 )
+
+@Serializable
+data class BlueprintRequest(
+    val title: String,
+    val description: String,
+    val codeHash: String
+)

@@ -20,8 +20,6 @@ class BlueprintViewModel(private val repository: BlueprintRepository) : ViewMode
         private set
 
     fun fetchBlueprints() {
-        if (blueprints.isNotEmpty()) return
-
         viewModelScope.launch {
             startLoading()
             try {
@@ -34,6 +32,20 @@ class BlueprintViewModel(private val repository: BlueprintRepository) : ViewMode
             } finally {
                 isLoading = false
             }
+        }
+    }
+
+    suspend fun createBlueprint(title: String, description: String, codeHash: String): Boolean {
+        return try {
+            val newBlueprint = repository.createBlueprint(title, description, codeHash)
+            if (newBlueprint != null) {
+                fetchBlueprints()
+                true
+            } else {
+                false
+            }
+        } catch (e: Exception) {
+            false
         }
     }
 
