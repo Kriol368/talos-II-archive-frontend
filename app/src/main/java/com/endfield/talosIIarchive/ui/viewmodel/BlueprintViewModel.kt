@@ -54,7 +54,4 @@ class BlueprintViewModel(private val repository: BlueprintRepository) : ViewMode
         errorMessage = null
     }
 
-    fun clearError() {
-        errorMessage = null
-    }
 }
