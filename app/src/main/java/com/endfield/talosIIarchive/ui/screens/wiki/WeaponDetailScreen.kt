@@ -98,12 +98,13 @@ fun WeaponDetailScreen(weapon: Weapon, onBack: () -> Unit) {
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold
                         )
-                        Text(
-                            weapon.name.uppercase(),
-                            fontSize = 46.sp,
-                            fontWeight = FontWeight.Black,
-                            color = Color.White
-                        )
+                            Text(
+                                weapon.name.uppercase(),
+                                fontSize = 40.sp,
+                                fontWeight = FontWeight.Black,
+                                color = Color.White,
+                                lineHeight = 40.sp,
+                                )
                         DataTag("TYPE", weapon.weaponType, EndfieldCyan, Color.Black)
                     }
 

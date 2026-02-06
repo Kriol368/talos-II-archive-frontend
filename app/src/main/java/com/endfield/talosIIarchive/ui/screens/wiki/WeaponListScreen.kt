@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,6 +17,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -27,11 +31,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.endfield.talosIIarchive.domain.models.Weapon
 import com.endfield.talosIIarchive.ui.theme.EndfieldCyan
@@ -51,115 +58,90 @@ fun WeaponListScreen(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        when {
-            weaponViewModel.isLoading -> {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    CircularProgressIndicator(color = EndfieldCyan)
-                    Spacer(Modifier.height(16.dp))
-                    Text("LOADING_WEAPON_DATA...", color = Color.Gray)
-                }
-            }
+        if (weaponViewModel.isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center),
+                color = EndfieldOrange
+            )
+        } else if (weaponViewModel.weapons.isEmpty()) {
+            Text("DATA_NOT_FOUND", color = Color.Red, modifier = Modifier.align(Alignment.Center))
+        } else {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                contentPadding = PaddingValues(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(weaponViewModel.weapons) { weapon ->
+                    WeaponrGridItem(weapon) { onWeaponClick(weapon) }
 
-            weaponViewModel.errorMessage != null -> {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text("ERROR", color = Color.Red, fontWeight = FontWeight.Bold)
-                    Text(weaponViewModel.errorMessage ?: "Unknown error", color = Color.Gray)
-                }
-            }
-
-            weaponViewModel.weapons.isEmpty() -> {
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text("NO_WEAPONS_FOUND", color = Color.Gray)
-                }
-            }
-
-            else -> {
-                LazyColumn(
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(weaponViewModel.weapons) { weapon ->
-                        WeaponCard(weapon) { onWeaponClick(weapon) }
-                    }
                 }
             }
         }
     }
 }
+
 
 @Composable
-fun WeaponCard(weapon: Weapon, onClick: () -> Unit) {
-    Card(
+fun WeaponrGridItem(weapon: Weapon,onClick:()-> Unit){
+    val rarityColor = if (weapon.rarity.contains("6")) EndfieldOrange else EndfieldCyan
+
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp)
-            .clickable { onClick() },
-        colors = CardDefaults.cardColors(
-            containerColor = TechSurface
-        )
+            .aspectRatio(0.7f)
+            .border(0.5.dp, TechBorder)
+            .background(TechSurface)
+            .clickable { onClick() }
     ) {
-        Row(
-            modifier = Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Weapon image
-            Box(
-                modifier = Modifier
-                    .size(70.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(Color(0xFF2D2D2D))
-                    .border(1.dp, TechBorder, RoundedCornerShape(8.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                AsyncImage(
-                    model = weapon.imageUrl,
-                    contentDescription = weapon.name,
-                    modifier = Modifier.size(50.dp),
-                    contentScale = ContentScale.Fit
-                )
-            }
+        AsyncImage(
+            model = if (weapon.imageUrl.startsWith("http")) weapon.imageUrl
+            else "http://158.179.216.16:8080${weapon.imageUrl}",
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .fillMaxSize()
+                .alpha(0.85f)
+        )
 
-            Spacer(modifier = Modifier.width(16.dp))
-
-            Column {
-                Text(
-                    text = weapon.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    color = Color.White
-                )
-                Text(
-                    text = "${weapon.weaponType} | ATK: ${weapon.baseAtk}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = EndfieldCyan
-                )
-                Text(
-                    text = weapon.rarity,
-                    color = if (weapon.rarity.contains("6")) EndfieldOrange else EndfieldCyan,
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Bold
-                )
-
-                if (!weapon.passive.isNullOrBlank()) {
-                    Text(
-                        text = weapon.passive.take(60) + "...",
-                        color = Color.LightGray,
-                        style = MaterialTheme.typography.labelSmall,
-                        maxLines = 2,
-                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        listOf(Color.Transparent, Color.Black.copy(0.8f)),
+                        startY = 400f
                     )
-                }
-            }
+                )
+        )
+
+        Column(modifier = Modifier
+            .align(Alignment.BottomStart)
+            .padding(12.dp)) {
+            Text(
+                weapon.rarity,
+                color = rarityColor,
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                weapon.name.uppercase(),
+                color = Color.White,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Black,
+                lineHeight = 20.sp
+            )
         }
+
+        Text(
+            "№ ${weapon.id}",
+            color = Color.White.copy(0.3f),
+            fontSize = 9.sp,
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(8.dp)
+        )
     }
 }
+
+
