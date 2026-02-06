@@ -1,8 +1,10 @@
 package com.endfield.talosIIarchive.ui.screens.wiki
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -31,11 +34,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.motionEventSpy
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -47,6 +57,7 @@ import com.endfield.talosIIarchive.ui.theme.EndfieldYellow
 import com.endfield.talosIIarchive.ui.theme.TechBlack
 import com.endfield.talosIIarchive.ui.theme.TechBorder
 import com.endfield.talosIIarchive.ui.theme.TechSurface
+import kotlin.math.roundToInt
 
 //Aca faltaria mejorar el formato de las descripciones y tal (justificar el texto) y añadir el tipo de arma que usa, elemento y rareza
 
@@ -55,8 +66,51 @@ fun OperatorDetailScreen(operator: Operator, onBack: () -> Unit) {
     var activeTab by remember { mutableStateOf("SKILLS") }
     val scrollState = rememberScrollState()
 
-    Surface(modifier = Modifier.fillMaxSize(), color = TechBlack) {
-        Box(modifier = Modifier.fillMaxSize()) {
+    //Retroceso con scroll hacia abajo
+    var offsetY by remember { mutableStateOf(0f) }
+    var dismissThreshold = 400f
+// 2. Definimos la conexión de scroll anidado
+    val nestedScrollConnection = remember {
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                // Si el usuario arrastra hacia abajo y ya estamos en el tope del scroll (scrollState.value == 0)
+                if (available.y > 0 && scrollState.value == 0) {
+                    offsetY += available.y
+                    return Offset(0f, available.y) // Consumimos el evento para que el Column no lo use
+                }
+
+                // Si la pantalla ya está desplazada hacia abajo y el usuario arrastra hacia arriba
+                if (available.y < 0 && offsetY > 0) {
+                    val consumed = if (offsetY + available.y < 0) -offsetY else available.y
+                    offsetY += consumed
+                    return Offset(0f, consumed)
+                }
+                return Offset.Zero
+            }
+
+            override suspend fun onPreFling(available: Velocity): Velocity {
+                // Cuando el usuario suelta el dedo
+                if (offsetY > dismissThreshold) {
+                    onBack()
+                } else {
+                    offsetY = 0f
+                }
+                return super.onPreFling(available)
+            }
+        }
+    }
+
+    // 3. Animación suave para cuando el usuario suelta y no llega al límite
+    val animatedOffset by animateFloatAsState(targetValue = offsetY, label = "offset")
+
+
+    Surface(modifier = Modifier.fillMaxSize()
+        .nestedScroll(nestedScrollConnection)
+
+        , color = TechBlack) {
+        Box(modifier = Modifier.fillMaxSize()
+            .offset{ IntOffset(0,animatedOffset.roundToInt())}
+        ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
