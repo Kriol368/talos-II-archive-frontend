@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -39,75 +40,119 @@ import com.endfield.talosIIarchive.ui.theme.EndfieldPurple
 import com.endfield.talosIIarchive.ui.theme.TechBackground
 import com.endfield.talosIIarchive.ui.theme.TechBorder
 import com.endfield.talosIIarchive.ui.theme.TechSurface
+import com.endfield.talosIIarchive.ui.viewmodel.BlueprintViewModel
+import com.endfield.talosIIarchive.ui.viewmodel.TeamViewModel
 
 enum class SocialCategory {
     TEAMS, BLUEPRINTS
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SocialScreen() {
+fun SocialScreen(blueprintViewModel: BlueprintViewModel, teamViewModel: TeamViewModel) {
     var selectedCategory by remember { mutableStateOf<SocialCategory?>(null) }
 
     Surface(modifier = Modifier.fillMaxSize(), color = TechBackground) {
-        when {
-            selectedCategory != null -> {
-                Column(modifier = Modifier.fillMaxSize()) {
-                    TopAppBar(
-                        title = {
-                            Text(
-                                text = "// ${selectedCategory.toString()}",
-                                fontWeight = FontWeight.Black,
-                                fontSize = 18.sp,
-                                letterSpacing = 1.sp
-                            )
-                        }, navigationIcon = {
-                            IconButton(onClick = { selectedCategory = null }) {
-                                Icon(
-                                    Icons.AutoMirrored.Filled.ArrowBack,
-                                    contentDescription = null,
-                                    tint = EndfieldOrange
-                                )
-                            }
-                        }, colors = TopAppBarDefaults.topAppBarColors(
-                            containerColor = TechSurface, titleContentColor = Color.White
-                        )
+        // FIRST: Check if we're showing a team detail (this overrides everything else)
+        if (teamViewModel.selectedTeam != null) {
+            TeamDetailScreen(teamViewModel.selectedTeam!!) {
+                teamViewModel.clearSelectedTeam()
+            }
+        }
+        // SECOND: Check if team detail is loading
+        else if (teamViewModel.isDetailLoading) {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    CircularProgressIndicator(color = EndfieldPurple)
+                    Spacer(Modifier.height(16.dp))
+                    Text(
+                        "LOADING_TEAM_FILE...",
+                        color = EndfieldPurple,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 2.sp
                     )
-
-                    when (selectedCategory) {
-                        SocialCategory.TEAMS -> {
-                            TeamListScreen()
-                        }
-
-                        SocialCategory.BLUEPRINTS -> {
-                            BlueprintScreen()
-                        }
-
-                        else -> {}
-                    }
                 }
             }
-
-            else -> {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp)
-                ) {
-                    Text(
-                        text = "// COMMUNITY_HUB_V.1.0",
-                        color = Color.White,
-                        style = MaterialTheme.typography.labelMedium,
-                        modifier = Modifier.padding(bottom = 24.dp)
-                    )
-
-                    SocialMenuButton("04", "TEAMS", EndfieldPurple, Modifier.weight(1f)) {
-                        selectedCategory = SocialCategory.TEAMS
+        }
+        // THIRD: Show the main screen based on selected category
+        else {
+            when (selectedCategory) {
+                SocialCategory.TEAMS -> {
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        TopAppBar(
+                            title = {
+                                Text(
+                                    text = "// TEAMS",
+                                    fontWeight = FontWeight.Black,
+                                    fontSize = 18.sp,
+                                    letterSpacing = 1.sp
+                                )
+                            }, navigationIcon = {
+                                IconButton(onClick = {
+                                    selectedCategory = null
+                                    teamViewModel.clearSelectedTeam()
+                                }) {
+                                    Icon(
+                                        Icons.AutoMirrored.Filled.ArrowBack,
+                                        contentDescription = null,
+                                        tint = EndfieldOrange
+                                    )
+                                }
+                            }, colors = TopAppBarDefaults.topAppBarColors(
+                                containerColor = TechSurface, titleContentColor = Color.White
+                            )
+                        )
+                        TeamListScreen(teamViewModel)
                     }
-                    Spacer(modifier = Modifier.height(12.dp))
-                    SocialMenuButton("05", "BLUEPRINTS", EndfieldGreen, Modifier.weight(1f)) {
-                        selectedCategory = SocialCategory.BLUEPRINTS
+                }
+
+                SocialCategory.BLUEPRINTS -> {
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        TopAppBar(
+                            title = {
+                                Text(
+                                    text = "// BLUEPRINTS",
+                                    fontWeight = FontWeight.Black,
+                                    fontSize = 18.sp,
+                                    letterSpacing = 1.sp
+                                )
+                            }, navigationIcon = {
+                                IconButton(onClick = { selectedCategory = null }) {
+                                    Icon(
+                                        Icons.AutoMirrored.Filled.ArrowBack,
+                                        contentDescription = null,
+                                        tint = EndfieldOrange
+                                    )
+                                }
+                            }, colors = TopAppBarDefaults.topAppBarColors(
+                                containerColor = TechSurface, titleContentColor = Color.White
+                            )
+                        )
+                        BlueprintScreen(blueprintViewModel)
+                    }
+                }
+
+                null -> {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp)
+                    ) {
+                        Text(
+                            text = "// COMMUNITY_HUB_V.1.0",
+                            color = Color.White,
+                            style = MaterialTheme.typography.labelMedium,
+                            modifier = Modifier.padding(bottom = 24.dp)
+                        )
+
+                        SocialMenuButton("04", "TEAMS", EndfieldPurple, Modifier.weight(1f)) {
+                            selectedCategory = SocialCategory.TEAMS
+                        }
+                        Spacer(modifier = Modifier.height(12.dp))
+                        SocialMenuButton("05", "BLUEPRINTS", EndfieldGreen, Modifier.weight(1f)) {
+                            selectedCategory = SocialCategory.BLUEPRINTS
+                        }
                     }
                 }
             }
