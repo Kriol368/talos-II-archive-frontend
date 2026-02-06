@@ -33,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.motionEventSpy
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -41,6 +42,7 @@ import coil.compose.AsyncImage
 import com.endfield.talosIIarchive.domain.models.Operator
 import com.endfield.talosIIarchive.ui.theme.EndfieldCyan
 import com.endfield.talosIIarchive.ui.theme.EndfieldOrange
+import com.endfield.talosIIarchive.ui.theme.EndfieldPurple
 import com.endfield.talosIIarchive.ui.theme.EndfieldYellow
 import com.endfield.talosIIarchive.ui.theme.TechBlack
 import com.endfield.talosIIarchive.ui.theme.TechBorder
@@ -111,8 +113,15 @@ fun OperatorDetailScreen(operator: Operator, onBack: () -> Unit) {
                             fontWeight = FontWeight.Black,
                             color = Color.White
                         )
-                        DataTag("CLASS", operator.operatorClass, EndfieldYellow, Color.Black)
-                    }
+                        Row(modifier = Modifier.border(1.dp, TechBorder)) {
+                            DataTag("CLASS", operator.operatorClass, EndfieldYellow, Color.Black)
+                            Spacer(modifier = Modifier.width(4.dp))
+                            DataTag("WEAPON ", operator.weaponType, EndfieldOrange, Color.Black)
+                            Spacer(modifier = Modifier.width(4.dp))
+                            DataTag("RARITY ", operator.rarity, EndfieldPurple, Color.Black)
+
+                        }
+                        }
                 }
 
                 Row(
@@ -260,7 +269,7 @@ fun EndfieldTabButton(
 
 @Composable
 fun DataTag(label: String, value: String, bgColor: Color, textColor: Color) {
-    Row(modifier = Modifier.border(1.dp, TechBorder)) {
+
         Box(
             modifier = Modifier
                 .background(bgColor)
@@ -276,7 +285,12 @@ fun DataTag(label: String, value: String, bgColor: Color, textColor: Color) {
                 fontWeight = FontWeight.Bold
             )
         }
-    }
+
+
+
+
+
+
 }
 
 @Composable
