@@ -43,14 +43,12 @@ fun SocialScreen(blueprintViewModel: BlueprintViewModel, teamViewModel: TeamView
                 )
             }
 
-            // SECOND: Check if we're showing a team detail
             teamViewModel.selectedTeam != null -> {
                 TeamDetailScreen(teamViewModel.selectedTeam!!) {
                     teamViewModel.clearSelectedTeam()
                 }
             }
 
-            // THIRD: Check if team detail is loading
             teamViewModel.isDetailLoading -> {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -67,7 +65,6 @@ fun SocialScreen(blueprintViewModel: BlueprintViewModel, teamViewModel: TeamView
                 }
             }
 
-            // FOURTH: Show the main screen based on selected category
             else -> {
                 when (selectedCategory) {
                     SocialCategory.TEAMS -> {
@@ -97,7 +94,7 @@ fun SocialScreen(blueprintViewModel: BlueprintViewModel, teamViewModel: TeamView
                             )
                             TeamListScreen(
                                 teamViewModel = teamViewModel,
-                                onNewTeamClick = { showNewTeamScreen = true }  // Pass callback
+                                onNewTeamClick = { showNewTeamScreen = true }
                             )
                         }
                     }

@@ -3,15 +3,44 @@ package com.endfield.talosIIarchive.ui.screens.social
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,8 +48,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.endfield.talosIIarchive.ui.theme.*
+import com.endfield.talosIIarchive.ui.theme.EndfieldCyan
+import com.endfield.talosIIarchive.ui.theme.EndfieldPurple
+import com.endfield.talosIIarchive.ui.theme.EndfieldYellow
+import com.endfield.talosIIarchive.ui.theme.TechBackground
+import com.endfield.talosIIarchive.ui.theme.TechBorder
+import com.endfield.talosIIarchive.ui.theme.TechSurface
 import com.endfield.talosIIarchive.ui.viewmodel.TeamViewModel
 import kotlinx.coroutines.launch
 
@@ -105,12 +138,10 @@ fun NewTeamScreen(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // Team Info Section
                 item {
                     TeamInfoSection(viewModel)
                 }
 
-                // Operators Section
                 item {
                     Text(
                         "SELECT OPERATORS (4 REQUIRED)",
@@ -128,7 +159,6 @@ fun NewTeamScreen(
                     )
                 }
 
-                // Weapons Section (only shown when all operators are selected)
                 if (viewModel.selectedOperators.size == 4 && viewModel.selectedOperators.all { it != null }) {
                     item {
                         Text(
@@ -148,7 +178,6 @@ fun NewTeamScreen(
                     }
                 }
 
-                // Gear Section (only shown when all weapons are selected)
                 if (viewModel.selectedWeapons.size == 4 && viewModel.selectedWeapons.all { it != null }) {
                     item {
                         Text(
@@ -173,7 +202,6 @@ fun NewTeamScreen(
                 }
             }
 
-            // Loading State
             if (viewModel.isLoading) {
                 Box(
                     modifier = Modifier
@@ -198,13 +226,15 @@ fun NewTeamScreen(
         }
     }
 
-    // Selection Dialogs
     if (viewModel.showingOperatorDialogFor != null) {
         OperatorSelectionDialog(
             title = "SELECT OPERATOR",
             items = viewModel.availableOperatorsForSelection(),
             onOperatorSelected = { operatorItem ->
-                viewModel.selectOperator(viewModel.showingOperatorDialogFor!!, operatorItem.operator)
+                viewModel.selectOperator(
+                    viewModel.showingOperatorDialogFor!!,
+                    operatorItem.operator
+                )
                 viewModel.showingOperatorDialogFor = null
             },
             onDismiss = { viewModel.showingOperatorDialogFor = null }
@@ -236,7 +266,6 @@ fun NewTeamScreen(
         )
     }
 
-    // Success Dialog
     if (showSuccessDialog) {
         AlertDialog(
             onDismissRequest = { showSuccessDialog = false },
@@ -459,7 +488,6 @@ fun GearSelectorSection(operatorIndex: Int, viewModel: NewTeamViewModel) {
                 fontWeight = FontWeight.Bold
             )
 
-            // Armor
             GearSelectorRow(
                 gearType = GearType.ARMOR,
                 selectedGear = viewModel.selectedGear[operatorIndex]?.get(GearType.ARMOR),
@@ -468,7 +496,6 @@ fun GearSelectorSection(operatorIndex: Int, viewModel: NewTeamViewModel) {
                 }
             )
 
-            // Gloves
             GearSelectorRow(
                 gearType = GearType.GLOVES,
                 selectedGear = viewModel.selectedGear[operatorIndex]?.get(GearType.GLOVES),
@@ -477,7 +504,6 @@ fun GearSelectorSection(operatorIndex: Int, viewModel: NewTeamViewModel) {
                 }
             )
 
-            // Kit 1
             GearSelectorRow(
                 gearType = GearType.KIT1,
                 selectedGear = viewModel.selectedGear[operatorIndex]?.get(GearType.KIT1),
@@ -486,7 +512,6 @@ fun GearSelectorSection(operatorIndex: Int, viewModel: NewTeamViewModel) {
                 }
             )
 
-            // Kit 2
             GearSelectorRow(
                 gearType = GearType.KIT2,
                 selectedGear = viewModel.selectedGear[operatorIndex]?.get(GearType.KIT2),
@@ -499,8 +524,13 @@ fun GearSelectorSection(operatorIndex: Int, viewModel: NewTeamViewModel) {
 }
 
 @Composable
-fun GearSelectorRow(gearType: GearType, selectedGear: com.endfield.talosIIarchive.domain.models.Gear?, onClick: () -> Unit) {
-    val backgroundColor = if (selectedGear != null) EndfieldYellow.copy(alpha = 0.2f) else Color.Transparent
+fun GearSelectorRow(
+    gearType: GearType,
+    selectedGear: com.endfield.talosIIarchive.domain.models.Gear?,
+    onClick: () -> Unit
+) {
+    val backgroundColor =
+        if (selectedGear != null) EndfieldYellow.copy(alpha = 0.2f) else Color.Transparent
 
     Row(
         modifier = Modifier

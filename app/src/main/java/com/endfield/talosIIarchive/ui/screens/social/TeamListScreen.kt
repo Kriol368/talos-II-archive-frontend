@@ -90,7 +90,7 @@ fun TeamListScreen(
         }
 
         FloatingActionButton(
-            onClick = onNewTeamClick,  // Use the callback instead
+            onClick = onNewTeamClick,
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp),

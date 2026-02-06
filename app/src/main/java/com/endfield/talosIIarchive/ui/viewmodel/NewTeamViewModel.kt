@@ -29,11 +29,9 @@ class NewTeamViewModel(
     private val gearRepository: GearRepository
 ) : ViewModel() {
 
-    // Form data
     var teamName by mutableStateOf("")
     var description by mutableStateOf("")
 
-    // Selections
     var selectedOperators by mutableStateOf<Array<Operator?>>(arrayOf(null, null, null, null))
     var selectedWeapons by mutableStateOf<Array<Weapon?>>(arrayOf(null, null, null, null))
     var selectedGear by mutableStateOf<Map<Int, Map<GearType, Gear?>>>(
@@ -45,12 +43,10 @@ class NewTeamViewModel(
         )
     )
 
-    // Available data
     var allOperators by mutableStateOf<List<Operator>>(emptyList())
     var allWeapons by mutableStateOf<List<Weapon>>(emptyList())
     var allGear by mutableStateOf<List<Gear>>(emptyList())
 
-    // UI state
     var isLoading by mutableStateOf(false)
     var isCreating by mutableStateOf(false)
     var showingOperatorDialogFor by mutableStateOf<Int?>(null)
@@ -102,14 +98,12 @@ class NewTeamViewModel(
         newArray[index] = operator
         selectedOperators = newArray
 
-        // Clear weapon for this position if operator changed
         if (selectedWeapons[index] != null) {
             val newWeapons = selectedWeapons.copyOf()
             newWeapons[index] = null
             selectedWeapons = newWeapons
         }
 
-        // Clear gear for this operator
         selectedGear = selectedGear.toMutableMap().apply {
             this[index] = emptyMap()
         }
@@ -132,13 +126,10 @@ class NewTeamViewModel(
     fun isFormValid(): Boolean {
         if (teamName.isBlank() || description.isBlank()) return false
 
-        // Check all operators are selected
         if (selectedOperators.any { it == null }) return false
 
-        // Check all weapons are selected
         if (selectedWeapons.any { it == null }) return false
 
-        // Check all gear is selected for each operator
         for (i in 0..3) {
             val operatorGear = selectedGear[i]
             if (operatorGear == null ||
@@ -158,13 +149,10 @@ class NewTeamViewModel(
 
         isCreating = true
         try {
-            // Prepare operator IDs
             val operatorIds = selectedOperators.mapNotNull { it?.id }
 
-            // Prepare weapon IDs
             val weaponIds = selectedWeapons.mapNotNull { it?.id }
 
-            // Prepare gear IDs - for each operator, get gear IDs in order: [armor, gloves, kit1, kit2]
             val gearIds = mutableListOf<List<Int>>()
             for (i in 0..3) {
                 val operatorGear = selectedGear[i]!!
