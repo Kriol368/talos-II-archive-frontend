@@ -1,5 +1,10 @@
 package com.endfield.talosIIarchive.ui.screens.home
 
+import android.view.ViewGroup
+import android.webkit.WebResourceRequest
+import android.webkit.WebResourceResponse
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -18,12 +23,10 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -40,10 +43,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.webkit.WebViewAssetLoader
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
+import com.endfield.talosIIarchive.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -103,7 +109,6 @@ class HomeViewModel : ViewModel() {
         return@withContext imageUrls
     }
 }
-
 @Composable
 fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
     var imageUrls by remember { mutableStateOf<List<String>>(emptyList()) }
@@ -118,164 +123,144 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFF0A0E17))
-            .padding(16.dp)
-    ) {
-        Text(
-            text = "TALOS-II ARCHIVE",
-            fontSize = 28.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color(0xFF4CC9F0),
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
+    Box(modifier = Modifier.fillMaxSize().background(Color(0xFF0A0E17))) {
 
-
-        Card(
+        // --- CAPA 1 (FONDO): TU INTERFAZ ---
+        // Ahora la interfaz va primero para estar debajo
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(300.dp),
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = Color(0xFF1A1A2E)
-            )
+                .fillMaxSize()
+                .padding(16.dp)
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(12.dp)
+            Text(
+                text = "TALOS-II ARCHIVE",
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color(0xFF4CC9F0),
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            Card(
+                modifier = Modifier.fillMaxWidth().height(250.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFF1A1A2E))
             ) {
-                Text(
-                    text = "Now trending on r/Endfield",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                if (isLoading) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator(color = Color(0xFF4CC9F0))
-                    }
-                } else if (imageUrls.isNotEmpty()) {
-                    LazyRow(
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        items(imageUrls) { imageUrl ->
-                            EndfieldImageCard(imageUrl = imageUrl)
+                Column(modifier = Modifier.fillMaxSize().padding(12.dp)) {
+                    Text("Now trending on r/Endfield", fontWeight = FontWeight.Bold, color = Color.White)
+                    Spacer(modifier = Modifier.height(12.dp))
+                    if (isLoading) {
+                        Box(Modifier.fillMaxSize(), Alignment.Center) { CircularProgressIndicator(color = Color(0xFF4CC9F0)) }
+                    } else {
+                        LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            items(imageUrls) { url -> EndfieldImageCard(url) }
                         }
                     }
-                } else {
-                    Box(
-                        modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "No images found", color = Color.Gray
-                        )
-                    }
                 }
             }
+
+            Spacer(modifier = Modifier.height(24.dp))
+            MenuButton("WIKI", "W", Color(0xFF4CC9F0))
+            Spacer(modifier = Modifier.height(16.dp))
+            MenuButton("SOCIAL", "C", Color(0xFF9D4EDD))
         }
 
-        Spacer(modifier = Modifier.height(32.dp))
-
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { },
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = Color(0xFF1E293B)
-            )
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(60.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFF4CC9F0)), contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "W",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(16.dp))
-
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = "WIKI",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { },
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = Color(0xFF2A1A3A)
-            )
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(60.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFF9D4EDD)), contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "C",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(16.dp))
-
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = "SOCIAL",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
-                }
-            }
-        }
+        // --- CAPA 2 (TOP): EL MODELO 3D ---
+        // Al estar al final, se dibuja ENCIMA de la interfaz
+        ModelViewer3D(modifier = Modifier.fillMaxSize())
     }
 }
 
+@Composable
+fun ModelViewer3D(modifier: Modifier) {
+    val context = LocalContext.current
+    val assetLoader = remember {
+        WebViewAssetLoader.Builder()
+            .setDomain("appassets.android.com")
+            .addPathHandler("/assets/", WebViewAssetLoader.AssetsPathHandler(context))
+            .build()
+    }
+
+    AndroidView(
+        modifier = modifier,
+        factory = { ctx ->
+            WebView(ctx).apply {
+                layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+                )
+                setBackgroundColor(android.graphics.Color.TRANSPARENT)
+                setLayerType(android.view.View.LAYER_TYPE_HARDWARE, null)
+                settings.javaScriptEnabled = true
+
+                webViewClient = object : WebViewClient() {
+                    override fun shouldInterceptRequest(
+                        view: WebView,
+                        request: WebResourceRequest
+                    ): WebResourceResponse? {
+                        return assetLoader.shouldInterceptRequest(request.url)
+                    }
+                }
+
+                val html = """
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
+                        <style>
+                            body { margin: 0; padding: 0; background: transparent; overflow: hidden; }
+                            model-viewer { 
+                                width: 200vw; 
+                                height: 200vh; 
+                                background: transparent;
+                                --poster-color: transparent;
+                                pointer-events: none; 
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <model-viewer 
+                            src="https://appassets.android.com/assets/talos_animado.glb" 
+                            autoplay 
+                            animation-name="*"
+                            /* ESTO MEJORA EL COLOR: */
+    environment-image="neutral" 
+    exposure="1.2" 
+    shadow-intensity="1.5"
+    shadow-softness="1"
+    /* --------------------- */
+                            shadow-intensity="1"
+                            /* camera-orbit: giro, inclinación y distancia (3m es más cerca que 4m) */
+                            camera-orbit="0deg 90deg 2m" 
+                            /* camera-target: X Y Z. El valor central (0.8m) sube el modelo al centro visual */
+                            camera-target="250m 0m 0m" 
+                            interaction-prompt="none">
+                        </model-viewer>
+                    </body>
+                    </html>
+                """.trimIndent()
+
+                loadDataWithBaseURL("https://appassets.android.com/", html, "text/html", "UTF-8", null)
+            }
+        }
+    )
+}
+
+@Composable
+fun MenuButton(text: String, icon: String, color: Color) {
+    Card(
+        modifier = Modifier.fillMaxWidth().clickable { },
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF1E293B).copy(alpha = 0.8f))
+    ) {
+        Row(modifier = Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.size(40.dp).clip(RoundedCornerShape(8.dp)).background(color), Alignment.Center) {
+                Text(icon, fontWeight = FontWeight.Bold, color = Color.White)
+            }
+            Spacer(modifier = Modifier.width(16.dp))
+            Text(text, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White)
+        }
+    }
+}
 @Composable
 fun EndfieldImageCard(imageUrl: String) {
     val targetHeight = 200.dp
