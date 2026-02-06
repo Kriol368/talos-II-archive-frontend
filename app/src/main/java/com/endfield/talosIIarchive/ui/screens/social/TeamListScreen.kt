@@ -21,9 +21,11 @@ import com.endfield.talosIIarchive.ui.theme.TechSurface
 import com.endfield.talosIIarchive.ui.viewmodel.TeamViewModel
 
 @Composable
-fun TeamListScreen(teamViewModel: TeamViewModel) {
+fun TeamListScreen(
+    teamViewModel: TeamViewModel,
+    onNewTeamClick: () -> Unit
+) {
     val context = LocalContext.current
-    var showCreateDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         teamViewModel.fetchTeams()
@@ -88,7 +90,7 @@ fun TeamListScreen(teamViewModel: TeamViewModel) {
         }
 
         FloatingActionButton(
-            onClick = { showCreateDialog = true },
+            onClick = onNewTeamClick,  // Use the callback instead
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp),
@@ -97,10 +99,6 @@ fun TeamListScreen(teamViewModel: TeamViewModel) {
         ) {
             Icon(Icons.Default.Add, contentDescription = "Create Team")
         }
-    }
-
-    if (showCreateDialog) {
-        Text("New Team Screen Coming Soon")
     }
 }
 

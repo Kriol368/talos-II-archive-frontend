@@ -24,6 +24,9 @@ class TeamViewModel(private val repository: TeamRepository) : ViewModel() {
     var isDetailLoading by mutableStateOf(false)
         private set
 
+    var isCreating by mutableStateOf(false)  // Add this
+        private set
+
     var errorMessage by mutableStateOf<String?>(null)
         private set
 
@@ -58,11 +61,12 @@ class TeamViewModel(private val repository: TeamRepository) : ViewModel() {
         }
     }
 
-    suspend fun createTeam(request: CreateTeamRequest): Boolean {
+    suspend fun createTeam(request: CreateTeamRequest): Boolean {  // Make this suspend
+        isCreating = true
         return try {
             val newTeam = repository.createTeam(request)
             if (newTeam != null) {
-                    fetchTeams()
+                fetchTeams()
                 true
             } else {
                 false
@@ -70,6 +74,8 @@ class TeamViewModel(private val repository: TeamRepository) : ViewModel() {
         } catch (e: Exception) {
             errorMessage = "Error creating team: ${e.localizedMessage}"
             false
+        } finally {
+            isCreating = false
         }
     }
 

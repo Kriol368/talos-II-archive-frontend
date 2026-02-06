@@ -43,6 +43,7 @@ import com.endfield.talosIIarchive.domain.repositoty.OperatorRepositoryImpl
 import com.endfield.talosIIarchive.domain.repositoty.TeamRepositoryImpl
 import com.endfield.talosIIarchive.domain.repositoty.WeaponRepositoryImpl
 import com.endfield.talosIIarchive.ui.screens.home.HomeScreen
+import com.endfield.talosIIarchive.ui.screens.social.NewTeamViewModel
 import com.endfield.talosIIarchive.ui.screens.social.SocialScreen
 import com.endfield.talosIIarchive.ui.screens.wiki.WikiScreen
 import com.endfield.talosIIarchive.ui.theme.EndfieldCyan
@@ -54,6 +55,7 @@ import com.endfield.talosIIarchive.ui.viewmodel.BlueprintViewModel
 import com.endfield.talosIIarchive.ui.viewmodel.BlueprintViewModelFactory
 import com.endfield.talosIIarchive.ui.viewmodel.GearViewModel
 import com.endfield.talosIIarchive.ui.viewmodel.GearViewModelFactory
+import com.endfield.talosIIarchive.ui.viewmodel.NewTeamViewModelFactory
 import com.endfield.talosIIarchive.ui.viewmodel.OperatorViewModel
 import com.endfield.talosIIarchive.ui.viewmodel.OperatorViewModelFactory
 import com.endfield.talosIIarchive.ui.viewmodel.TeamViewModel
@@ -104,7 +106,16 @@ class MainActivity : ComponentActivity() {
                         factory = TeamViewModelFactory(teamRepository)
                     )
 
-                    App(operatorViewModel, weaponViewModel, gearViewModel, blueprintViewModel, teamViewModel)
+                    val newTeamViewModel: NewTeamViewModel = viewModel(
+                        factory = NewTeamViewModelFactory(
+                            operatorRepository,
+                            weaponRepository,
+                            gearRepository
+                        )
+                    )
+
+
+                    App(operatorViewModel, weaponViewModel, gearViewModel, blueprintViewModel, teamViewModel, newTeamViewModel)
                 }
             }
         }
@@ -118,13 +129,15 @@ fun App(
     weaponViewModel: WeaponViewModel,
     gearViewModel: GearViewModel,
     blueprintViewModel: BlueprintViewModel,
-    teamViewModel: TeamViewModel
+    teamViewModel: TeamViewModel,
+    newTeamViewModel: NewTeamViewModel
 ) {
     val screens = listOf(
         Screen.Home,
         Screen.Operators,
         Screen.Weapons,
     )
+
 
     val pagerState = rememberPagerState(pageCount = { screens.size })
     val coroutineScope = rememberCoroutineScope()
@@ -220,7 +233,7 @@ fun App(
                     }
                 )
                 1 -> WikiScreen(operatorViewModel, weaponViewModel, gearViewModel)
-                2 -> SocialScreen(blueprintViewModel, teamViewModel)
+                2 -> SocialScreen(blueprintViewModel, teamViewModel, newTeamViewModel)
                 else -> HomeScreen(
                     onWikiClick = {
                         coroutineScope.launch {
