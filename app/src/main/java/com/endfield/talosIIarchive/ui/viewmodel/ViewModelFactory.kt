@@ -2,6 +2,7 @@ package com.endfield.talosIIarchive.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.endfield.talosIIarchive.domain.repositoty.BlueprintRepository
 import com.endfield.talosIIarchive.domain.repositoty.GearRepository
 import com.endfield.talosIIarchive.domain.repositoty.OperatorRepositoryImpl
 import com.endfield.talosIIarchive.domain.repositoty.WeaponRepository
@@ -37,6 +38,18 @@ class GearViewModelFactory(
         if (modelClass.isAssignableFrom(GearViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
             return GearViewModel(repository) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+}
+
+class BlueprintViewModelFactory(
+    private val repository: BlueprintRepository
+) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(BlueprintViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return BlueprintViewModel(repository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

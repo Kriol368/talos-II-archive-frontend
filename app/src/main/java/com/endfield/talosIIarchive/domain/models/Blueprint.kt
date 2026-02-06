@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 data class Blueprint(
     val id: Int,
     val title: String,
-    val description: String?,
+    val description: String,
     val codeHash: String,
     val createdAt: String
 )

@@ -37,6 +37,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.endfield.talosIIarchive.domain.repositoty.BlueprintRepositoryImpl
 import com.endfield.talosIIarchive.domain.repositoty.GearRepositoryImpl
 import com.endfield.talosIIarchive.domain.repositoty.OperatorRepositoryImpl
 import com.endfield.talosIIarchive.domain.repositoty.WeaponRepositoryImpl
@@ -48,6 +49,8 @@ import com.endfield.talosIIarchive.ui.theme.EndfieldOrange
 import com.endfield.talosIIarchive.ui.theme.TalosIIarchivefrontendTheme
 import com.endfield.talosIIarchive.ui.theme.TechBorder
 import com.endfield.talosIIarchive.ui.theme.TechSurface
+import com.endfield.talosIIarchive.ui.viewmodel.BlueprintViewModel
+import com.endfield.talosIIarchive.ui.viewmodel.BlueprintViewModelFactory
 import com.endfield.talosIIarchive.ui.viewmodel.GearViewModel
 import com.endfield.talosIIarchive.ui.viewmodel.GearViewModelFactory
 import com.endfield.talosIIarchive.ui.viewmodel.OperatorViewModel
@@ -75,6 +78,7 @@ class MainActivity : ComponentActivity() {
                     val operatorRepository = OperatorRepositoryImpl()
                     val weaponRepository = WeaponRepositoryImpl()
                     val gearRepository = GearRepositoryImpl()
+                    val blueprintRepository = BlueprintRepositoryImpl()
 
                     val operatorViewModel: OperatorViewModel = viewModel(
                         factory = OperatorViewModelFactory(operatorRepository)
@@ -88,7 +92,11 @@ class MainActivity : ComponentActivity() {
                         factory = GearViewModelFactory(gearRepository)
                     )
 
-                    App(operatorViewModel, weaponViewModel, gearViewModel)
+                    val blueprintViewModel: BlueprintViewModel = viewModel(
+                        factory = BlueprintViewModelFactory(blueprintRepository)
+                    )
+
+                    App(operatorViewModel, weaponViewModel, gearViewModel, blueprintViewModel)
                 }
             }
         }
@@ -100,7 +108,8 @@ class MainActivity : ComponentActivity() {
 fun App(
     operatorViewModel: OperatorViewModel,
     weaponViewModel: WeaponViewModel,
-    gearViewModel: GearViewModel
+    gearViewModel: GearViewModel,
+    blueprintViewModel: BlueprintViewModel
 ) {
     val screens = listOf(
         Screen.Home,
@@ -202,7 +211,7 @@ fun App(
                     }
                 )
                 1 -> WikiScreen(operatorViewModel, weaponViewModel, gearViewModel)
-                2 -> SocialScreen()
+                2 -> SocialScreen(blueprintViewModel)
                 else -> HomeScreen(
                     onWikiClick = {
                         coroutineScope.launch {
