@@ -18,12 +18,10 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -105,7 +103,11 @@ class HomeViewModel : ViewModel() {
 }
 
 @Composable
-fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
+fun HomeScreen(
+    onWikiClick: () -> Unit = {},
+    onSocialClick: () -> Unit = {},
+    viewModel: HomeViewModel = viewModel()
+) {
     var imageUrls by remember { mutableStateOf<List<String>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     val coroutineScope = rememberCoroutineScope()
@@ -187,7 +189,7 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { },
+                .clickable { onWikiClick()},
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(
                 containerColor = Color(0xFF1E293B)
@@ -233,7 +235,7 @@ fun HomeScreen(viewModel: HomeViewModel = viewModel()) {
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { },
+                .clickable {onSocialClick() },
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(
                 containerColor = Color(0xFF2A1A3A)

@@ -189,10 +189,32 @@ fun App(
                 .padding(paddingValues),
         ) { page ->
             when (page) {
-                0 -> HomeScreen()
+                0 -> HomeScreen(
+                    onWikiClick = {
+                        coroutineScope.launch {
+                            pagerState.animateScrollToPage(1)
+                        }
+                    },
+                    onSocialClick = {
+                        coroutineScope.launch {
+                            pagerState.animateScrollToPage(2)
+                        }
+                    }
+                )
                 1 -> WikiScreen(operatorViewModel, weaponViewModel, gearViewModel)
                 2 -> SocialScreen()
-                else -> HomeScreen()
+                else -> HomeScreen(
+                    onWikiClick = {
+                        coroutineScope.launch {
+                            pagerState.animateScrollToPage(1)
+                        }
+                    },
+                    onSocialClick = {
+                        coroutineScope.launch {
+                            pagerState.animateScrollToPage(2)
+                        }
+                    }
+                )
             }
         }
     }
