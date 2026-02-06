@@ -18,8 +18,9 @@ data class TeamDetail(
     val description: String,
     val createdAt: String,
     val operators: List<TeamOperatorDetail>,
-    val totalSetBonuses: List<List<String>>
+    val totalSetBonuses: Map<String, List<String>>
 )
+
 
 @Serializable
 data class TeamOperatorDetail(
