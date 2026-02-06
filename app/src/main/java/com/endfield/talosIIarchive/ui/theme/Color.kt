@@ -25,3 +25,6 @@ val EndfieldLightGrey = Color(0xFFF2F2F2) // Fondo claro con textura
 
 val EndfieldYellow = Color(0xFFFFF200) // Amarillo neón de la imagen
 val TechBlack = Color(0xFF0D0D0D)      // Negro profundo
+
+val EndfieldPurple = Color(0xFF9D4EDD)
+val EndfieldGreen = Color(0xFF4CAF50)
