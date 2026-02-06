@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.endfield.talosIIarchive.domain.repositoty.BlueprintRepository
 import com.endfield.talosIIarchive.domain.repositoty.GearRepository
 import com.endfield.talosIIarchive.domain.repositoty.OperatorRepositoryImpl
+import com.endfield.talosIIarchive.domain.repositoty.TeamRepository
 import com.endfield.talosIIarchive.domain.repositoty.WeaponRepository
 
 //replicar esto para todos los vm
@@ -50,6 +51,18 @@ class BlueprintViewModelFactory(
         if (modelClass.isAssignableFrom(BlueprintViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
             return BlueprintViewModel(repository) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+}
+
+class TeamViewModelFactory(
+    private val repository: TeamRepository
+) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(TeamViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return TeamViewModel(repository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

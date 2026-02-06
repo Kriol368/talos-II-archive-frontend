@@ -40,6 +40,7 @@ import com.endfield.talosIIarchive.ui.theme.TechBackground
 import com.endfield.talosIIarchive.ui.theme.TechBorder
 import com.endfield.talosIIarchive.ui.theme.TechSurface
 import com.endfield.talosIIarchive.ui.viewmodel.BlueprintViewModel
+import com.endfield.talosIIarchive.ui.viewmodel.TeamViewModel
 
 enum class SocialCategory {
     TEAMS, BLUEPRINTS
@@ -48,7 +49,7 @@ enum class SocialCategory {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SocialScreen(blueprintViewModel: BlueprintViewModel) {
+fun SocialScreen(blueprintViewModel: BlueprintViewModel, teamViewModel: TeamViewModel) {
     var selectedCategory by remember { mutableStateOf<SocialCategory?>(null) }
 
     Surface(modifier = Modifier.fillMaxSize(), color = TechBackground) {
@@ -78,7 +79,7 @@ fun SocialScreen(blueprintViewModel: BlueprintViewModel) {
 
                     when (selectedCategory) {
                         SocialCategory.TEAMS -> {
-                            TeamListScreen()
+                            TeamListScreen(teamViewModel)
                         }
 
                         SocialCategory.BLUEPRINTS -> {
