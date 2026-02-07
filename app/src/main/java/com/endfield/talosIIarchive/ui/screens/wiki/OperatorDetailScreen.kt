@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -23,14 +24,19 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,6 +56,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.endfield.talosIIarchive.domain.models.Operator
+import com.endfield.talosIIarchive.ui.components.swipeToDismiss
 import com.endfield.talosIIarchive.ui.theme.EndfieldCyan
 import com.endfield.talosIIarchive.ui.theme.EndfieldOrange
 import com.endfield.talosIIarchive.ui.theme.EndfieldPurple
@@ -61,55 +68,37 @@ import kotlin.math.roundToInt
 
 //Aca faltaria mejorar el formato de las descripciones y tal (justificar el texto) y añadir el tipo de arma que usa, elemento y rareza
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OperatorDetailScreen(operator: Operator, onBack: () -> Unit) {
-    var activeTab by remember { mutableStateOf("SKILLS") }
-    val scrollState = rememberScrollState()
 
-    //Retroceso con scroll hacia abajo
-    var offsetY by remember { mutableStateOf(0f) }
-    var dismissThreshold = 400f
-// 2. Definimos la conexión de scroll anidado
-    val nestedScrollConnection = remember {
-        object : NestedScrollConnection {
-            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-                // Si el usuario arrastra hacia abajo y ya estamos en el tope del scroll (scrollState.value == 0)
-                if (available.y > 0 && scrollState.value == 0) {
-                    offsetY += available.y
-                    return Offset(0f, available.y) // Consumimos el evento para que el Column no lo use
-                }
-
-                // Si la pantalla ya está desplazada hacia abajo y el usuario arrastra hacia arriba
-                if (available.y < 0 && offsetY > 0) {
-                    val consumed = if (offsetY + available.y < 0) -offsetY else available.y
-                    offsetY += consumed
-                    return Offset(0f, consumed)
-                }
-                return Offset.Zero
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true // Para que se abra a pantalla completa de una vez
+    )
+    ModalBottomSheet(
+        onDismissRequest = { onBack() },
+        sheetState = sheetState,
+        containerColor = TechBlack, // Tu color de tema
+        scrimColor = Color.Black.copy(alpha = 0.6f), // Color del fondo que se oscurece
+        dragHandle = {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Icon(
+                    imageVector = Icons.Default.KeyboardArrowDown,
+                    contentDescription = "Cerrar",
+                    tint = EndfieldYellow.copy(alpha = 0.7f),
+                    modifier = Modifier
+                        .padding(top = 40.dp)
+                        .size(30.dp)
+                )
             }
+        }, shape = androidx.compose.ui.graphics.RectangleShape,
+    ) {
+        var activeTab by remember { mutableStateOf("SKILLS") }
+        val scrollState = rememberScrollState()
 
-            override suspend fun onPreFling(available: Velocity): Velocity {
-                // Cuando el usuario suelta el dedo
-                if (offsetY > dismissThreshold) {
-                    onBack()
-                } else {
-                    offsetY = 0f
-                }
-                return super.onPreFling(available)
-            }
-        }
-    }
+        Box(
+            modifier = Modifier.fillMaxSize().background(TechBlack)
 
-    // 3. Animación suave para cuando el usuario suelta y no llega al límite
-    val animatedOffset by animateFloatAsState(targetValue = offsetY, label = "offset")
-
-
-    Surface(modifier = Modifier.fillMaxSize()
-        .nestedScroll(nestedScrollConnection)
-
-        , color = TechBlack) {
-        Box(modifier = Modifier.fillMaxSize()
-            .offset{ IntOffset(0,animatedOffset.roundToInt())}
         ) {
             Column(
                 modifier = Modifier
@@ -175,7 +164,7 @@ fun OperatorDetailScreen(operator: Operator, onBack: () -> Unit) {
                             DataTag("RARITY ", operator.rarity, EndfieldPurple, Color.Black)
 
                         }
-                        }
+                    }
                 }
 
                 Row(
@@ -261,6 +250,8 @@ fun OperatorDetailScreen(operator: Operator, onBack: () -> Unit) {
 
         }
     }
+
+
 }
 
 @Composable
