@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.endfield.talosIIarchive.domain.models.Gear
+import com.endfield.talosIIarchive.domain.models.Weapon
 import com.endfield.talosIIarchive.domain.repositoty.GearRepository
 import kotlinx.coroutines.launch
 
@@ -16,6 +17,9 @@ class GearViewModel(private val repository: GearRepository) : ViewModel() {
     var isLoading by mutableStateOf(false)
         private set
 
+
+    var selectedGearFull by mutableStateOf<Gear?>(null)
+        private set
     var errorMessage by mutableStateOf<String?>(null)
         private set
 

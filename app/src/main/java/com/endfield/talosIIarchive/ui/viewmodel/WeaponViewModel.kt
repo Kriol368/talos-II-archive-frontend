@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.endfield.talosIIarchive.domain.models.Operator
 import com.endfield.talosIIarchive.domain.models.Weapon
 import com.endfield.talosIIarchive.domain.repositoty.WeaponRepository
 import kotlinx.coroutines.launch
@@ -14,6 +15,9 @@ class WeaponViewModel(private val repository: WeaponRepository) : ViewModel() {
         private set
 
     var isLoading by mutableStateOf(false)
+        private set
+
+    var selectedWeaponFull by mutableStateOf<Weapon?>(null)
         private set
 
     var errorMessage by mutableStateOf<String?>(null)

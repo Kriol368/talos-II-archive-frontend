@@ -1,6 +1,7 @@
 package com.endfield.talosIIarchive.ui.screens.wiki
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,12 +17,16 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,12 +48,29 @@ import com.endfield.talosIIarchive.ui.theme.EndfieldYellow
 import com.endfield.talosIIarchive.ui.theme.TechBlack
 import com.endfield.talosIIarchive.ui.theme.TechSurface
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GearDetailScreen(gear: Gear, onBack: () -> Unit) {
+fun GearDetailScreen(gear: Gear,isLoadingFullData: Boolean, onBack: () -> Unit) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    ModalBottomSheet(
+        onDismissRequest = { onBack() },
+        sheetState = sheetState,
+        containerColor = TechBlack,
+        scrimColor = Color.Black.copy(alpha = 0.6f),
+        dragHandle = {
+            Icon(
+                imageVector = Icons.Default.KeyboardArrowDown,
+                contentDescription = "Cerrar",
+                tint = EndfieldYellow.copy(alpha = 0.7f),
+                modifier = Modifier.padding(top = 12.dp).size(30.dp).clickable { onBack() }
+            )
+        },
+        shape = androidx.compose.ui.graphics.RectangleShape
+    ) {
     var activeTab by remember { mutableStateOf("STATS") }
     val scrollState = rememberScrollState()
 
-    Surface(modifier = Modifier.fillMaxSize(), color = TechBlack) {
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
                 modifier = Modifier

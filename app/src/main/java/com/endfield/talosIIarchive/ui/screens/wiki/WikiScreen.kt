@@ -34,7 +34,9 @@
     import androidx.compose.ui.text.font.FontWeight
     import androidx.compose.ui.unit.dp
     import androidx.compose.ui.unit.sp
+    import com.endfield.talosIIarchive.domain.models.Gear
     import com.endfield.talosIIarchive.domain.models.Operator
+    import com.endfield.talosIIarchive.domain.models.Weapon
     import com.endfield.talosIIarchive.ui.theme.EndfieldCyan
     import com.endfield.talosIIarchive.ui.theme.EndfieldOrange
     import com.endfield.talosIIarchive.ui.theme.EndfieldYellow
@@ -60,6 +62,9 @@
 
         // Estado para abrir la ficha de operador al instante
         var previewOperator by remember { mutableStateOf<Operator?>(null) }
+        var previewWeapon by remember { mutableStateOf<Weapon?>(null) }
+        var previewGear by remember { mutableStateOf<Gear?>(null) }
+
 
         Box(modifier = Modifier.fillMaxSize()) {
 
@@ -101,11 +106,13 @@
                             }
                             WikiCategory.WEAPONS -> {
                                 WeaponListScreen(weaponViewModel) { weapon ->
+                                    previewWeapon = weapon
                                     weaponViewModel.fetchWeaponDetails(weapon.id)
                                 }
                             }
                             WikiCategory.GEAR -> {
                                 GearListScreen(gearViewModel) { gear ->
+                                    previewGear = gear
                                     gearViewModel.fetchGearDetails(gear.id)
                                 }
                             }
@@ -151,42 +158,31 @@
                 }
             }
 
-            // Detalle de Arma
-            weaponViewModel.selectedWeapon?.let { weapon ->
-                WeaponDetailScreen(weapon) {
+            val weaponToShow = weaponViewModel.selectedWeaponFull ?: previewWeapon
+            weaponToShow?.let {wp ->
+                WeaponDetailScreen(
+                    weapon = wp,
+                    isLoadingFullData = weaponViewModel.isDetailLoading
+                ) {
+                    previewWeapon = null
                     weaponViewModel.clearSelectedWeapon()
                 }
+
             }
 
-            // Detalle de Gear
-            gearViewModel.selectedGear?.let { gear ->
-                GearDetailScreen(gear) {
+
+            val gearToShow = gearViewModel.selectedGearFull ?: previewGear
+            gearToShow?.let {gear ->
+                GearDetailScreen(
+                    gear = gear,
+                    isLoadingFullData = gearViewModel.isDetailLoading
+                ) {
+                    previewGear = null
                     gearViewModel.clearSelectedGear()
                 }
+
             }
 
-            // --- CAPA 3: CARGAS NO OPTIMISTAS (PARA WEAPONS/GEAR) ---
-            val loadingState = when {
-                // No incluimos operators aquí para que se vea la ficha en lugar del overlay negro
-                weaponViewModel.isDetailLoading -> EndfieldCyan to "LOADING_WEAPON_FILE..."
-                gearViewModel.isDetailLoading -> Color.White to "LOADING_GEAR_FILE..."
-                else -> null
-            }
-
-            loadingState?.let { (color, text) ->
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(Color.Black.copy(alpha = 0.7f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        CircularProgressIndicator(color = color)
-                        Spacer(Modifier.height(16.dp))
-                        Text(text = text, color = color, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                    }
-                }
-            }
         }
     }
 
