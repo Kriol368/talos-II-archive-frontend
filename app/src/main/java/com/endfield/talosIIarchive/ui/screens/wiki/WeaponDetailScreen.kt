@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -20,6 +21,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -77,129 +79,83 @@ fun WeaponDetailScreen(weapon: Weapon, isLoadingFullData: Boolean, onBack: () ->
 
 
 
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(TechBlack)
+                .verticalScroll(scrollState)
+        ) {
+            // --- 1. HEADER (Siempre visible con datos de la lista) ---
+            Box(modifier = Modifier.height(380.dp).fillMaxWidth()) {
+                AsyncImage(
+                    model = weapon.imageUrl,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+                Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.Transparent, TechBlack))))
 
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(scrollState)
-            ) {
-                // Header with image
-                Box(
-                    modifier = Modifier
-                        .height(380.dp)
-                        .fillMaxWidth()
-                ) {
-                    AsyncImage(
-                        model = weapon.imageUrl,
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
+
+                Column(Modifier.align(Alignment.BottomStart).padding(24.dp)) {
+                    Text("REC // WEAPON_FILE", color = EndfieldYellow, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                    Text(
+                        weapon.name.uppercase(),
+                        fontSize = 40.sp,
+                        fontWeight = FontWeight.Black,
+                        color = Color.White,
+                        lineHeight = 40.sp,
                     )
-                    Box(
-                        Modifier
-                            .fillMaxSize()
-                            .background(
-                                Brush.verticalGradient(
-                                    listOf(
-                                        Color.Transparent, TechBlack
-                                    )
-                                )
-                            )
-                    )
-
-                    IconButton(
-                        onClick = onBack, modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .padding(16.dp)
-                    ) {
-                        Icon(Icons.Default.Close, contentDescription = null, tint = Color.White)
-                    }
-
-                    Column(
-                        Modifier
-                            .align(Alignment.BottomStart)
-                            .padding(24.dp)
-                    ) {
-                        Text(
-                            "REC // WEAPON_FILE",
-                            color = EndfieldYellow,
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                            Text(
-                                weapon.name.uppercase(),
-                                fontSize = 40.sp,
-                                fontWeight = FontWeight.Black,
-                                color = Color.White,
-                                lineHeight = 40.sp,
-                                )
+                    // Etiquetas técnicas corregidas
+                    Row(modifier = Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                         DataTag("TYPE", weapon.weaponType, EndfieldCyan, Color.Black)
-                    }
-
-                    // Rarity badge
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.TopStart)
-                            .padding(16.dp)
-                            .background(
-                                if (weapon.rarity.contains("6")) EndfieldOrange else EndfieldCyan,
-                                shape = RoundedCornerShape(4.dp)
-                            )
-                            .padding(horizontal = 8.dp, vertical = 4.dp)
-                    ) {
-                        Text(
-                            weapon.rarity,
-                            color = Color.Black,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
-                        )
+                        DataTag("RARITY", weapon.rarity, if (weapon.rarity.contains("6")) EndfieldOrange else EndfieldCyan, Color.Black)
                     }
                 }
+            }
 
-                // Stats row - Fixed: Create a custom version for weapon
-                Row(
-                    modifier = Modifier
-                        .padding(24.dp)
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
+            // --- 2. STATS PRINCIPALES (Con Skeleton Loading) ---
+            Row(
+                modifier = Modifier.padding(24.dp).fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                if (isLoadingFullData) {
+                    // Muestra cargadores en lugar de números vacíos
+                    repeat(3) {
+                        CircularProgressIndicator(Modifier.size(24.dp), strokeWidth = 2.dp, color = EndfieldCyan)
+                    }
+                } else {
                     WeaponStatItem("ATK", weapon.baseAtk.toString())
                     WeaponStatItem("RARITY", weapon.rarity)
                     WeaponStatItem("TYPE", weapon.weaponType)
                 }
+            }
 
-                // Tabs
-                Row(
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    EndfieldTabButton(
-                        "Stats", "MOD_01", activeTab == "STATS", Modifier.weight(1f)
-                    ) {
-                        activeTab = "STATS"
-                    }
-                    EndfieldTabButton(
-                        "Passive", "MOD_02", activeTab == "PASSIVE", Modifier.weight(1f)
-                    ) {
-                        activeTab = "PASSIVE"
-                    }
-                }
+            // --- 3. SELECTOR DE TABS ---
+            Row(
+                modifier = Modifier.padding(horizontal = 16.dp).fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                EndfieldTabButton("Stats", "MOD_01", activeTab == "STATS", Modifier.weight(1f)) { activeTab = "STATS" }
+                EndfieldTabButton("Passive", "MOD_02", activeTab == "PASSIVE", Modifier.weight(1f)) { activeTab = "PASSIVE" }
+            }
 
-                // Content
-                Box(
-                    modifier = Modifier
-                        .padding(24.dp)
-                        .fillMaxWidth()
-                ) {
+            // --- 4. CONTENIDO DINÁMICO (Con Skeleton Loading) ---
+            Box(modifier = Modifier.padding(24.dp).fillMaxWidth().heightIn(min = 300.dp)) {
+                if (isLoadingFullData) {
+                    Text(
+                        "SYNCHRONIZING_WEAPON_DATA...",
+                        color = EndfieldCyan,
+                        fontSize = 12.sp,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                } else {
                     when (activeTab) {
                         "STATS" -> StatContent(weapon)
                         "PASSIVE" -> PassiveContent(weapon)
                     }
                 }
-
-                Spacer(modifier = Modifier.height(100.dp))
+            }
+            Spacer(modifier = Modifier.height(100.dp))
             }
         }
     }

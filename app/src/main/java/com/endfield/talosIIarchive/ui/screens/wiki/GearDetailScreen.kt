@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -20,6 +21,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -70,127 +72,128 @@ fun GearDetailScreen(gear: Gear,isLoadingFullData: Boolean, onBack: () -> Unit) 
     ) {
     var activeTab by remember { mutableStateOf("STATS") }
     val scrollState = rememberScrollState()
-
-        Box(modifier = Modifier.fillMaxSize()) {
-            Column(
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(TechBlack)
+                .verticalScroll(scrollState)
+        ) {
+            // --- 1. HEADER (Datos básicos de la lista) ---
+            Box(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(scrollState)
+                    .height(380.dp)
+                    .fillMaxWidth()
             ) {
+                AsyncImage(
+                    model = gear.imageUrl,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
                 Box(
-                    modifier = Modifier
-                        .height(380.dp)
-                        .fillMaxWidth()
+                    Modifier
+                        .fillMaxSize()
+                        .background(Brush.verticalGradient(listOf(Color.Transparent, TechBlack)))
+                )
+
+
+
+                Column(
+                    Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(24.dp)
                 ) {
-                    AsyncImage(
-                        model = gear.imageUrl,
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
+                    Text(
+                        "REC // GEAR_FILE",
+                        color = EndfieldYellow,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold
                     )
-                    Box(
-                        Modifier
-                            .fillMaxSize()
-                            .background(
-                                Brush.verticalGradient(
-                                    listOf(
-                                        Color.Transparent, TechBlack
-                                    )
-                                )
-                            )
+                    Text(
+                        gear.name.uppercase(),
+                        fontSize = 46.sp,
+                        fontWeight = FontWeight.Black,
+                        color = Color.White,
+                        lineHeight = 44.sp
                     )
-
-                    IconButton(
-                        onClick = onBack, modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .padding(16.dp)
-                    ) {
-                        Icon(Icons.Default.Close, contentDescription = null, tint = Color.White)
-                    }
-
-                    Column(
-                        Modifier
-                            .align(Alignment.BottomStart)
-                            .padding(24.dp)
-                    ) {
-                        Text(
-                            "REC // GEAR_FILE",
-                            color = EndfieldYellow,
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            gear.name.uppercase(),
-                            fontSize = 46.sp,
-                            fontWeight = FontWeight.Black,
-                            color = Color.White
-                        )
+                    // Etiquetas técnicas
+                    Row(modifier = Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                         DataTag("TYPE", gear.gearType, EndfieldCyan, Color.Black)
-                    }
-
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.TopStart)
-                            .padding(16.dp)
-                            .background(
-                                EndfieldOrange, shape = RoundedCornerShape(4.dp)
-                            )
-                            .padding(horizontal = 8.dp, vertical = 4.dp)
-                    ) {
-                        Text(
-                            gear.gearSet,
-                            color = Color.Black,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
-                        )
+                        DataTag("SET_ID", gear.gearSet.take(8), EndfieldOrange, Color.Black)
                     }
                 }
+            }
 
-                Row(
-                    modifier = Modifier
-                        .padding(24.dp)
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
+            // --- 2. STATS PRINCIPALES (Skeleton Loading) ---
+            Row(
+                modifier = Modifier
+                    .padding(24.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                if (isLoadingFullData) {
+                    // Indicadores de carga técnicos
+                    repeat(3) {
+                        CircularProgressIndicator(
+                            Modifier.size(24.dp),
+                            strokeWidth = 2.dp,
+                            color = EndfieldYellow
+                        )
+                    }
+                } else {
                     GearStatItem("DEF", gear.def.toString())
                     GearStatItem("TYPE", gear.gearType)
                     GearStatItem("SET", gear.gearSet.take(6))
                 }
+            }
 
-                Row(
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+            // --- 3. SELECTOR DE MÓDULOS ---
+            Row(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                EndfieldTabButton(
+                    "Attributes", "MOD_01", activeTab == "STATS", Modifier.weight(1f)
                 ) {
-                    EndfieldTabButton(
-                        "Attributes", "MOD_01", activeTab == "STATS", Modifier.weight(1f)
-                    ) {
-                        activeTab = "STATS"
-                    }
-                    EndfieldTabButton(
-                        "Set Bonus", "MOD_02", activeTab == "BONUS", Modifier.weight(1f)
-                    ) {
-                        activeTab = "BONUS"
-                    }
+                    activeTab = "STATS"
                 }
-
-                Box(
-                    modifier = Modifier
-                        .padding(24.dp)
-                        .fillMaxWidth()
+                EndfieldTabButton(
+                    "Set Bonus", "MOD_02", activeTab == "BONUS", Modifier.weight(1f)
                 ) {
+                    activeTab = "BONUS"
+                }
+            }
+
+            // --- 4. PANEL DE CONTENIDO (Carga progresiva) ---
+            Box(
+                modifier = Modifier
+                    .padding(24.dp)
+                    .fillMaxWidth()
+                    .heightIn(min = 300.dp)
+            ) {
+                if (isLoadingFullData) {
+                    Text(
+                        "UPLOADING_GEAR_PARAMETERS...",
+                        color = EndfieldYellow,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                } else {
                     when (activeTab) {
                         "STATS" -> GearStatContent(gear)
                         "BONUS" -> SetBonusContent(gear)
                     }
                 }
+            }
 
-                Spacer(modifier = Modifier.height(100.dp))
+            Spacer(modifier = Modifier.height(100.dp))
             }
         }
     }
-}
+
 
 @Composable
 fun GearStatItem(label: String, value: String) {
