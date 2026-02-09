@@ -25,6 +25,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -70,170 +71,99 @@ import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OperatorDetailScreen(operator: Operator, onBack: () -> Unit) {
+fun OperatorDetailScreen(operator: Operator, isLoadingFullData: Boolean, onBack: () -> Unit) {
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-    val sheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true // Para que se abra a pantalla completa de una vez
-    )
     ModalBottomSheet(
         onDismissRequest = { onBack() },
         sheetState = sheetState,
-        containerColor = TechBlack, // Tu color de tema
-        scrimColor = Color.Black.copy(alpha = 0.6f), // Color del fondo que se oscurece
+        containerColor = TechBlack,
+        scrimColor = Color.Black.copy(alpha = 0.6f),
         dragHandle = {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Icon(
-                    imageVector = Icons.Default.KeyboardArrowDown,
-                    contentDescription = "Cerrar",
-                    tint = EndfieldYellow.copy(alpha = 0.7f),
-                    modifier = Modifier
-                        .padding(top = 40.dp)
-                        .size(30.dp)
-                )
-            }
-        }, shape = androidx.compose.ui.graphics.RectangleShape,
+            Icon(
+                imageVector = Icons.Default.KeyboardArrowDown,
+                contentDescription = "Cerrar",
+                tint = EndfieldYellow.copy(alpha = 0.7f),
+                modifier = Modifier.padding(top = 12.dp).size(30.dp).clickable { onBack() }
+            )
+        },
+        shape = androidx.compose.ui.graphics.RectangleShape
     ) {
         var activeTab by remember { mutableStateOf("SKILLS") }
         val scrollState = rememberScrollState()
 
-        Box(
-            modifier = Modifier.fillMaxSize().background(TechBlack)
-
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(TechBlack)
+                .verticalScroll(scrollState)
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(scrollState)
-            ) {
+            // --- 1. CABECERA (Imagen y Datos Básicos) ---
+            Box(modifier = Modifier.height(380.dp).fillMaxWidth()) {
+                AsyncImage(
+                    model = "http://158.179.216.16:8080${operator.imageUrl}",
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                )
+                Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.Transparent, TechBlack))))
 
-                Box(
-                    modifier = Modifier
-                        .height(380.dp)
-                        .fillMaxWidth()
-                ) {
-                    AsyncImage(
-                        model = "http://158.179.216.16:8080${operator.imageUrl}",
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                    Box(
-                        Modifier
-                            .fillMaxSize()
-                            .background(
-                                Brush.verticalGradient(
-                                    listOf(
-                                        Color.Transparent, TechBlack
-                                    )
-                                )
-                            )
-                    )
+                Column(Modifier.align(Alignment.BottomStart).padding(24.dp)) {
+                    Text("REC // PERSONNEL_FILE", color = EndfieldYellow, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                    Text(operator.name.uppercase(), fontSize = 46.sp, fontWeight = FontWeight.Black, color = Color.White)
 
-                    IconButton(
-                        onClick = onBack,
-                        modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .padding(16.dp)
-                            .statusBarsPadding()
-                    ) {
-                        Icon(Icons.Default.Close, contentDescription = null, tint = Color.White)
-                    }
-
-                    Column(
-                        Modifier
-                            .align(Alignment.BottomStart)
-                            .padding(24.dp)
-                    ) {
-                        Text(
-                            "REC // PERSONAL_FILE",
-                            color = EndfieldYellow,
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            operator.name.uppercase(),
-                            fontSize = 46.sp,
-                            fontWeight = FontWeight.Black,
-                            color = Color.White
-                        )
-                        Row(modifier = Modifier.border(1.dp, TechBorder)) {
-                            DataTag("CLASS", operator.operatorClass, EndfieldYellow, Color.Black)
-                            Spacer(modifier = Modifier.width(4.dp))
-                            DataTag("WEAPON ", operator.weaponType, EndfieldOrange, Color.Black)
-                            Spacer(modifier = Modifier.width(4.dp))
-                            DataTag("RARITY ", operator.rarity, EndfieldPurple, Color.Black)
-
-                        }
+                    // Etiquetas de Clase, Arma y Rareza
+                    Row(modifier = Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        DataTag("CLASS", operator.operatorClass, EndfieldYellow, Color.Black)
+                        DataTag("WEAPON", operator.weaponType, EndfieldOrange, Color.Black)
+                        DataTag("RARITY", operator.rarity, EndfieldPurple, Color.Black)
                     }
                 }
+            }
 
-                Row(
-                    modifier = Modifier
-                        .padding(24.dp)
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
+            // --- 2. CORE STATS (Siempre visibles) ---
+            Row(
+                modifier = Modifier.padding(24.dp).fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                if (isLoadingFullData) {
+                    repeat(4) { CircularProgressIndicator(Modifier.size(24.dp), strokeWidth = 2.dp, color = EndfieldYellow) }
+                } else {
                     FunctionalStatItem("STR", operator.strength)
                     FunctionalStatItem("AGI", operator.agility)
                     FunctionalStatItem("INT", operator.intellect)
                     FunctionalStatItem("WILL", operator.will)
                 }
+            }
 
-                Row(
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    EndfieldTabButton(
-                        "Skills", "MOD_01", activeTab == "SKILLS", Modifier.weight(1f)
-                    ) {
-                        activeTab = "SKILLS"
-                    }
-                    EndfieldTabButton(
-                        "Talents", "MOD_02", activeTab == "TALENTS", Modifier.weight(1f)
-                    ) {
-                        activeTab = "TALENTS"
-                    }
-                    EndfieldTabButton(
-                        "Potential", "MOD_03", activeTab == "POTENTIAL", Modifier.weight(1f)
-                    ) {
-                        activeTab = "POTENTIAL"
-                    }
-                }
+            // --- 3. SELECTOR DE MÓDULOS (BOTONES) ---
+            Row(
+                modifier = Modifier.padding(horizontal = 16.dp).fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                EndfieldTabButton("Skills", "MOD_01", activeTab == "SKILLS", Modifier.weight(1f)) { activeTab = "SKILLS" }
+                EndfieldTabButton("Talents", "MOD_02", activeTab == "TALENTS", Modifier.weight(1f)) { activeTab = "TALENTS" }
+                EndfieldTabButton("Potential", "MOD_03", activeTab == "POTENTIAL", Modifier.weight(1f)) { activeTab = "POTENTIAL" }
+            }
 
-                Box(
-                    modifier = Modifier
-                        .padding(24.dp)
-                        .fillMaxWidth()
-                        .heightIn(min = 400.dp)
-                ) {
+            // --- 4. CONTENIDO DINÁMICO ---
+            Box(modifier = Modifier.padding(24.dp).fillMaxWidth().heightIn(min = 400.dp)) {
+                if (isLoadingFullData) {
+                    Text("ACCESSING_DATABASE...", color = EndfieldYellow, modifier = Modifier.align(Alignment.Center))
+                } else {
                     when (activeTab) {
                         "SKILLS" -> Column {
-                            SkillBlock(
-                                operator.basicAttack, "BASIC_ATK", operator.basicAttackDescription
-                            )
-                            SkillBlock(
-                                operator.battleSkill,
-                                "BATTLE_SKILL",
-                                operator.battleSkillDescription
-                            )
-                            SkillBlock(
-                                operator.comboSkill, "COMBO_SKILL", operator.comboSkillDescription
-                            )
-                            SkillBlock(
-                                operator.ultimate, "ULTIMATE", operator.ultimateDescription
-                            )
+                            SkillBlock(operator.basicAttack, "BASIC_ATK", operator.basicAttackDescription)
+                            SkillBlock(operator.battleSkill, "BATTLE_SKILL", operator.battleSkillDescription)
+                            SkillBlock(operator.comboSkill, "COMBO_SKILL", operator.comboSkillDescription)
+                            SkillBlock(operator.ultimate, "ULTIMATE", operator.ultimateDescription)
                         }
-
                         "TALENTS" -> Column {
                             TalentBlock("COMBAT_TALENT_01", operator.combatTalent1)
                             TalentBlock("COMBAT_TALENT_02", operator.combatTalent2)
                             TalentBlock("BASE_LOGISTICS_01", operator.baseTalent1)
                             TalentBlock("BASE_LOGISTICS_02", operator.baseTalent2)
-
                         }
-
                         "POTENTIAL" -> Column {
                             PotentialRow("P1", operator.p1, operator.p1Effect)
                             PotentialRow("P2", operator.p2, operator.p2Effect)
@@ -243,15 +173,10 @@ fun OperatorDetailScreen(operator: Operator, onBack: () -> Unit) {
                         }
                     }
                 }
-
-                Spacer(modifier = Modifier.height(100.dp))
             }
-
-
+            Spacer(modifier = Modifier.height(100.dp))
         }
     }
-
-
 }
 
 @Composable
@@ -260,7 +185,13 @@ fun SkillBlock(name: String?, type: String, desc: String?) {
     Column(Modifier.padding(bottom = 20.dp)) {
         Text(type, color = EndfieldCyan, fontSize = 10.sp, fontWeight = FontWeight.Bold)
         Text(name.uppercase(), color = Color.White, fontWeight = FontWeight.Black, fontSize = 16.sp)
-        Text(desc ?: "", color = Color.LightGray, fontSize = 12.sp, lineHeight = 16.sp)
+        Text(
+            text = desc ?: "",
+            color = Color.LightGray,
+            fontSize = 12.sp,
+            lineHeight = 18.sp,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Justify // 👈 Justificado
+        )
     }
 }
 
@@ -314,7 +245,7 @@ fun EndfieldTabButton(
 
 @Composable
 fun DataTag(label: String, value: String, bgColor: Color, textColor: Color) {
-
+    Row(modifier = Modifier.border(1.dp, TechBorder)) {
         Box(
             modifier = Modifier
                 .background(bgColor)
@@ -330,12 +261,7 @@ fun DataTag(label: String, value: String, bgColor: Color, textColor: Color) {
                 fontWeight = FontWeight.Bold
             )
         }
-
-
-
-
-
-
+    }
 }
 
 @Composable

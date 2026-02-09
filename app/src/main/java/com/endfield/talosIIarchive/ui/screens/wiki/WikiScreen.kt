@@ -34,6 +34,7 @@
     import androidx.compose.ui.text.font.FontWeight
     import androidx.compose.ui.unit.dp
     import androidx.compose.ui.unit.sp
+    import com.endfield.talosIIarchive.domain.models.Operator
     import com.endfield.talosIIarchive.ui.theme.EndfieldCyan
     import com.endfield.talosIIarchive.ui.theme.EndfieldOrange
     import com.endfield.talosIIarchive.ui.theme.EndfieldYellow
@@ -57,75 +58,14 @@
     ) {
         var selectedCategory by remember { mutableStateOf<WikiCategory?>(null) }
 
-        Surface(modifier = Modifier.fillMaxSize(), color = TechBackground) {
-            when {
-                operatorViewModel.isDetailLoading -> {
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            CircularProgressIndicator(color = EndfieldOrange)
-                            Spacer(Modifier.height(16.dp))
-                            Text(
-                                "LOADING_PERSONNEL_FILE...",
-                                color = EndfieldOrange,
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.Bold,
-                                letterSpacing = 2.sp
-                            )
-                        }
-                    }
-                }
+        // Estado para abrir la ficha de operador al instante
+        var previewOperator by remember { mutableStateOf<Operator?>(null) }
 
-                weaponViewModel.isDetailLoading -> {
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            CircularProgressIndicator(color = EndfieldCyan)
-                            Spacer(Modifier.height(16.dp))
-                            Text(
-                                "LOADING_WEAPON_FILE...",
-                                color = EndfieldCyan,
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.Bold,
-                                letterSpacing = 2.sp
-                            )
-                        }
-                    }
-                }
+        Box(modifier = Modifier.fillMaxSize()) {
 
-                gearViewModel.isDetailLoading -> {
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            CircularProgressIndicator(color = Color.White)
-                            Spacer(Modifier.height(16.dp))
-                            Text(
-                                "LOADING_GEAR_FILE...",
-                                color = Color.White,
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.Bold,
-                                letterSpacing = 2.sp
-                            )
-                        }
-                    }
-                }
-
-                operatorViewModel.selectedOperatorFull != null -> {
-                    OperatorDetailScreen(operatorViewModel.selectedOperatorFull!!) {
-                        operatorViewModel.clearSelectedOperator()
-                    }
-                }
-
-                weaponViewModel.selectedWeapon != null -> {
-                    WeaponDetailScreen(weaponViewModel.selectedWeapon!!) {
-                        weaponViewModel.clearSelectedWeapon()
-                    }
-                }
-
-                gearViewModel.selectedGear != null -> {
-                    GearDetailScreen(gearViewModel.selectedGear!!) {
-                        gearViewModel.clearSelectedGear()
-                    }
-                }
-
-                selectedCategory != null -> {
+            // --- CAPA 1: BASE (MENÚ O LISTAS) ---
+            Surface(modifier = Modifier.fillMaxSize(), color = TechBackground) {
+                if (selectedCategory != null) {
                     Column(modifier = Modifier.fillMaxSize()) {
                         TopAppBar(
                             title = {
@@ -135,7 +75,8 @@
                                     fontSize = 18.sp,
                                     letterSpacing = 1.sp
                                 )
-                            }, navigationIcon = {
+                            },
+                            navigationIcon = {
                                 IconButton(onClick = { selectedCategory = null }) {
                                     Icon(
                                         Icons.AutoMirrored.Filled.ArrowBack,
@@ -143,24 +84,26 @@
                                         tint = EndfieldOrange
                                     )
                                 }
-                            }, colors = TopAppBarDefaults.topAppBarColors(
-                                containerColor = TechSurface, titleContentColor = Color.White
+                            },
+                            colors = TopAppBarDefaults.topAppBarColors(
+                                containerColor = TechSurface,
+                                titleContentColor = Color.White
                             )
                         )
 
                         when (selectedCategory) {
                             WikiCategory.OPERATORS -> {
-                                OperatorListScreen(operatorViewModel) { operator ->
-                                    operatorViewModel.fetchOperatorDetails(operator.id)
+                                OperatorListScreen(operatorViewModel) { op ->
+                                    // Acción Optimista: Seteamos preview y disparamos fetch
+                                    previewOperator = op
+                                    operatorViewModel.fetchOperatorDetails(op.id)
                                 }
                             }
-
                             WikiCategory.WEAPONS -> {
                                 WeaponListScreen(weaponViewModel) { weapon ->
                                     weaponViewModel.fetchWeaponDetails(weapon.id)
                                 }
                             }
-
                             WikiCategory.GEAR -> {
                                 GearListScreen(gearViewModel) { gear ->
                                     gearViewModel.fetchGearDetails(gear.id)
@@ -169,14 +112,9 @@
                             else -> {}
                         }
                     }
-                }
-
-                else -> {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp)
-                    ) {
+                } else {
+                    // MENÚ PRINCIPAL
+                    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
                         Text(
                             text = "// ARCHIVE_SYSTEM_V.2.0",
                             color = Color.White,
@@ -195,6 +133,57 @@
                         WikiMenuButton("03", "GEAR", EndfieldYellow, Modifier.weight(1f)) {
                             selectedCategory = WikiCategory.GEAR
                         }
+                    }
+                }
+            }
+
+            // --- CAPA 2: PANTALLAS DE DETALLES (OVERLAYS) ---
+
+            // Detalle de Operador (Optimista: usa preview mientras carga el full)
+            val operatorToShow = operatorViewModel.selectedOperatorFull ?: previewOperator
+            operatorToShow?.let { op ->
+                OperatorDetailScreen(
+                    operator = op,
+                    isLoadingFullData = operatorViewModel.isDetailLoading
+                ) {
+                    previewOperator = null
+                    operatorViewModel.clearSelectedOperator()
+                }
+            }
+
+            // Detalle de Arma
+            weaponViewModel.selectedWeapon?.let { weapon ->
+                WeaponDetailScreen(weapon) {
+                    weaponViewModel.clearSelectedWeapon()
+                }
+            }
+
+            // Detalle de Gear
+            gearViewModel.selectedGear?.let { gear ->
+                GearDetailScreen(gear) {
+                    gearViewModel.clearSelectedGear()
+                }
+            }
+
+            // --- CAPA 3: CARGAS NO OPTIMISTAS (PARA WEAPONS/GEAR) ---
+            val loadingState = when {
+                // No incluimos operators aquí para que se vea la ficha en lugar del overlay negro
+                weaponViewModel.isDetailLoading -> EndfieldCyan to "LOADING_WEAPON_FILE..."
+                gearViewModel.isDetailLoading -> Color.White to "LOADING_GEAR_FILE..."
+                else -> null
+            }
+
+            loadingState?.let { (color, text) ->
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.7f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        CircularProgressIndicator(color = color)
+                        Spacer(Modifier.height(16.dp))
+                        Text(text = text, color = color, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }
