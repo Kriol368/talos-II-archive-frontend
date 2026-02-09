@@ -3,27 +3,13 @@ package com.endfield.talosIIarchive.ui.screens.social
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -40,13 +26,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.endfield.talosIIarchive.domain.models.TeamDetail
 import com.endfield.talosIIarchive.domain.models.TeamOperatorDetail
-import com.endfield.talosIIarchive.ui.theme.EndfieldCyan
-import com.endfield.talosIIarchive.ui.theme.EndfieldOrange
-import com.endfield.talosIIarchive.ui.theme.EndfieldPurple
-import com.endfield.talosIIarchive.ui.theme.EndfieldYellow
-import com.endfield.talosIIarchive.ui.theme.TechBackground
-import com.endfield.talosIIarchive.ui.theme.TechBorder
-import com.endfield.talosIIarchive.ui.theme.TechSurface
+import com.endfield.talosIIarchive.ui.theme.*
 
 @Composable
 fun TeamDetailScreen(
@@ -63,11 +43,19 @@ fun TeamDetailScreen(
                 .fillMaxSize()
                 .verticalScroll(scrollState)
         ) {
+            // Header con degradado
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(180.dp)
-                    .background(EndfieldPurple.copy(alpha = 0.2f))
+                    .height(220.dp)
+                    .background(
+                        brush = androidx.compose.ui.graphics.Brush.verticalGradient(
+                            colors = listOf(
+                                EndfieldPurple.copy(alpha = 0.3f),
+                                Color.Transparent
+                            )
+                        )
+                    )
             ) {
                 IconButton(
                     onClick = onBack,
@@ -88,26 +76,29 @@ fun TeamDetailScreen(
                         .padding(24.dp)
                 ) {
                     Text(
-                        text = "TEAM DETAILS",
-                        color = EndfieldPurple,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold
+                        text = "// TEAM_FILE",
+                        color = EndfieldYellow,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.sp
                     )
                     Text(
-                        text = team.teamName,
+                        text = team.teamName.uppercase(),
                         color = Color.White,
-                        fontSize = 28.sp,
-                        fontWeight = FontWeight.Black
+                        fontSize = 36.sp,
+                        fontWeight = FontWeight.Black,
+                        letterSpacing = 1.sp
                     )
                     Text(
                         text = team.description,
                         color = Color.Gray,
-                        fontSize = 14.sp,
+                        fontSize = 12.sp,
                         modifier = Modifier.padding(top = 4.dp)
                     )
                 }
             }
 
+            // Pestañas de operadores
             OperatorTabsRow(
                 operators = team.operators,
                 selectedIndex = selectedOperatorIndex,
@@ -124,7 +115,6 @@ fun TeamDetailScreen(
                     verticalArrangement = Arrangement.spacedBy(24.dp)
                 ) {
                     OperatorInfoCard(operator)
-
                     GearSection(operator)
                 }
             }
@@ -164,50 +154,27 @@ fun OperatorTabItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val backgroundColor = if (isSelected) EndfieldPurple else TechSurface
     val borderColor = if (isSelected) EndfieldPurple else TechBorder
 
     Box(
         modifier = modifier
+            .aspectRatio(1f)
             .clip(RoundedCornerShape(8.dp))
             .border(1.dp, borderColor, RoundedCornerShape(8.dp))
-            .background(backgroundColor)
-            .clickable { onClick() }
+            .background(if (isSelected) EndfieldPurple else Color.Black)
+            .clickable { onClick() },
+        contentAlignment = Alignment.Center
     ) {
-        Column(
+        AsyncImage(
+            model = "http://158.179.216.16:8080${operator.operatorImage}",
+            contentDescription = operator.operatorName,
+            contentScale = ContentScale.Fit,
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(50.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(Color(0xFF2D2D2D))
-                    .border(1.dp, TechBorder, RoundedCornerShape(8.dp))
-            ) {
-                AsyncImage(
-                    model = "http://158.179.216.16:8080${operator.operatorImage}",
-                    contentDescription = operator.operatorName,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
-                )
-            }
-
-            Text(
-                text = operator.operatorName,
-                color = if (isSelected) Color.White else Color.Gray,
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Bold,
-                maxLines = 1,
-                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
-            )
-        }
+                .fillMaxSize()
+                .padding(12.dp)
+        )
     }
 }
-
 @Composable
 fun OperatorInfoCard(operator: TeamOperatorDetail) {
     Card(
@@ -215,122 +182,141 @@ fun OperatorInfoCard(operator: TeamOperatorDetail) {
         colors = CardDefaults.cardColors(
             containerColor = TechSurface
         ),
-        shape = RoundedCornerShape(12.dp)
+        shape = RoundedCornerShape(4.dp),
+        elevation = CardDefaults.cardElevation(0.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+        Box(modifier = Modifier.fillMaxWidth()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
-                Text(
-                    text = "OPERATOR DETAILS",
-                    color = EndfieldPurple,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 1.sp
-                )
+                // Header
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "// OPERATOR_DATA",
+                        color = EndfieldPurple,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.sp
+                    )
 
-                if (operator.activeSetBonuses.isNotEmpty()) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        operator.activeSetBonuses.forEach { setBonus ->
-                            Box(
-                                modifier = Modifier
-                                    .background(
-                                        EndfieldPurple.copy(alpha = 0.2f),
-                                        shape = RoundedCornerShape(4.dp)
+                    if (operator.activeSetBonuses.isNotEmpty()) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            operator.activeSetBonuses.forEach { setBonus ->
+                                Box(
+                                    modifier = Modifier
+                                        .background(Color.Black)
+                                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                                ) {
+                                    Text(
+                                        text = setBonus,
+                                        color = EndfieldPurple,
+                                        fontSize = 9.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        letterSpacing = 0.5.sp
                                     )
-                                    .padding(horizontal = 6.dp, vertical = 3.dp)
-                            ) {
-                                Text(
-                                    text = setBonus,
-                                    color = EndfieldPurple,
-                                    fontSize = 9.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(24.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(
-                    modifier = Modifier.weight(1f),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                // Contenido principal
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(24.dp),
+                    verticalAlignment = Alignment.Top
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .size(100.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(Color(0xFF2D2D2D))
-                            .border(2.dp, EndfieldPurple, RoundedCornerShape(12.dp))
+                    // Operador
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        AsyncImage(
-                            model = "http://158.179.216.16:8080${operator.operatorImage}",
-                            contentDescription = operator.operatorName,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    }
-
-                    Text(
-                        text = operator.operatorName,
-                        color = Color.White,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-
-                Column(
-                    modifier = Modifier.weight(1f),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(80.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(Color(0xFF2D2D2D))
-                            .border(2.dp, EndfieldCyan, RoundedCornerShape(12.dp))
-                    ) {
-                        AsyncImage(
-                            model = operator.weaponImage,
-                            contentDescription = operator.weaponName,
-                            contentScale = ContentScale.Fit,
+                        Box(
                             modifier = Modifier
-                                .fillMaxSize()
-                                .padding(12.dp)
-                        )
+                                .size(120.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(Color.Black)
+                                .border(1.dp, EndfieldPurple, RoundedCornerShape(8.dp)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            AsyncImage(
+                                model = "http://158.179.216.16:8080${operator.operatorImage}",
+                                contentDescription = operator.operatorName,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                        }
+
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(
+                                text = "OPERATOR",
+                                color = EndfieldPurple,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 1.sp
+                            )
+                            Text(
+                                text = operator.operatorName.uppercase(),
+                                color = Color.White,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Black,
+                                letterSpacing = 0.5.sp
+                            )
+                        }
                     }
 
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(
-                            text = "EQUIPPED WEAPON",
-                            color = Color.Gray,
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            text = operator.weaponName,
-                            color = EndfieldCyan,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
-                            maxLines = 2,
-                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                        )
+                    // Arma
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(100.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(Color.Black)
+                                .border(1.dp, EndfieldCyan, RoundedCornerShape(8.dp)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            AsyncImage(
+                                model = operator.weaponImage,
+                                contentDescription = operator.weaponName,
+                                contentScale = ContentScale.Fit,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(12.dp)
+                            )
+                        }
+
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(
+                                text = "WEAPON",
+                                color = EndfieldCyan,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 1.sp
+                            )
+                            Text(
+                                text = operator.weaponName.uppercase(),
+                                color = Color.White,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Black,
+                                maxLines = 2,
+                                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                letterSpacing = 0.5.sp
+                            )
+                        }
                     }
                 }
             }
@@ -345,7 +331,8 @@ fun GearSection(operator: TeamOperatorDetail) {
         colors = CardDefaults.cardColors(
             containerColor = TechSurface
         ),
-        shape = RoundedCornerShape(12.dp)
+        shape = RoundedCornerShape(4.dp),
+        elevation = CardDefaults.cardElevation(0.dp)
     ) {
         Column(
             modifier = Modifier
@@ -354,9 +341,9 @@ fun GearSection(operator: TeamOperatorDetail) {
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             Text(
-                text = "EQUIPPED GEAR",
+                text = "// EQUIPPED_GEAR",
                 color = EndfieldPurple,
-                fontSize = 14.sp,
+                fontSize = 10.sp,
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 1.sp
             )
@@ -369,7 +356,7 @@ fun GearSection(operator: TeamOperatorDetail) {
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     operator.armorGear?.let { gear ->
-                        GearCardWithImage(
+                        GearCard(
                             gear = gear,
                             gearType = "ARMOR",
                             modifier = Modifier.weight(1f)
@@ -377,7 +364,7 @@ fun GearSection(operator: TeamOperatorDetail) {
                     }
 
                     operator.glovesGear?.let { gear ->
-                        GearCardWithImage(
+                        GearCard(
                             gear = gear,
                             gearType = "GLOVES",
                             modifier = Modifier.weight(1f)
@@ -390,17 +377,17 @@ fun GearSection(operator: TeamOperatorDetail) {
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     operator.kit1Gear?.let { gear ->
-                        GearCardWithImage(
+                        GearCard(
                             gear = gear,
-                            gearType = "KIT 1",
+                            gearType = "KIT_1",
                             modifier = Modifier.weight(1f)
                         )
                     }
 
                     operator.kit2Gear?.let { gear ->
-                        GearCardWithImage(
+                        GearCard(
                             gear = gear,
-                            gearType = "KIT 2",
+                            gearType = "KIT_2",
                             modifier = Modifier.weight(1f)
                         )
                     }
@@ -411,17 +398,19 @@ fun GearSection(operator: TeamOperatorDetail) {
 }
 
 @Composable
-fun GearCardWithImage(
+fun GearCard(
     gear: com.endfield.talosIIarchive.domain.models.Gear,
     gearType: String,
     modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = modifier,
+        modifier = modifier
+            .border(1.dp, TechBorder),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF252525)
+            containerColor = Color.Black
         ),
-        shape = RoundedCornerShape(12.dp)
+        elevation = CardDefaults.cardElevation(0.dp),
+        shape = RoundedCornerShape(4.dp)
     ) {
         Column(
             modifier = Modifier
@@ -430,29 +419,29 @@ fun GearCardWithImage(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            // Tipo de gear
             Box(
                 modifier = Modifier
-                    .background(
-                        EndfieldYellow.copy(alpha = 0.2f),
-                        shape = RoundedCornerShape(6.dp)
-                    )
-                    .padding(horizontal = 10.dp, vertical = 4.dp)
+                    .background(Color.Black)
+                    .padding(horizontal = 8.dp, vertical = 4.dp)
             ) {
                 Text(
                     text = gearType,
                     color = EndfieldYellow,
                     fontSize = 10.sp,
                     fontWeight = FontWeight.Bold,
-                    letterSpacing = 0.5.sp
+                    letterSpacing = 1.sp
                 )
             }
 
+            // Imagen
             Box(
                 modifier = Modifier
                     .size(70.dp)
-                    .clip(RoundedCornerShape(8.dp))
+                    .clip(RoundedCornerShape(6.dp))
                     .background(Color(0xFF1A1A1A))
-                    .border(1.dp, TechBorder, RoundedCornerShape(8.dp))
+                    .border(1.dp, TechBorder, RoundedCornerShape(6.dp)),
+                contentAlignment = Alignment.Center
             ) {
                 AsyncImage(
                     model = gear.imageUrl,
@@ -464,31 +453,33 @@ fun GearCardWithImage(
                 )
             }
 
+            // Nombre
             Text(
-                text = gear.name,
+                text = gear.name.uppercase(),
                 color = Color.White,
                 fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.Black,
                 maxLines = 2,
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                letterSpacing = 0.5.sp
             )
 
+            // Set
             Box(
                 modifier = Modifier
-                    .background(
-                        EndfieldOrange.copy(alpha = 0.1f),
-                        shape = RoundedCornerShape(4.dp)
-                    )
+                    .background(Color.Black)
                     .padding(horizontal = 8.dp, vertical = 4.dp)
             ) {
                 Text(
                     text = gear.gearSet,
                     color = EndfieldOrange,
                     fontSize = 10.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 0.5.sp
                 )
             }
 
+            // DEF
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -502,7 +493,7 @@ fun GearCardWithImage(
                 Text(
                     text = gear.def.toString(),
                     color = Color.White,
-                    fontSize = 12.sp,
+                    fontSize = 14.sp,
                     fontWeight = FontWeight.Black
                 )
             }

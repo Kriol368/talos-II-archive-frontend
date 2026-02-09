@@ -1,5 +1,7 @@
 package com.endfield.talosIIarchive.ui.screens.social
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -11,13 +13,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.endfield.talosIIarchive.ui.theme.EndfieldPurple
-import com.endfield.talosIIarchive.ui.theme.TechSurface
+import com.endfield.talosIIarchive.ui.theme.*
 import com.endfield.talosIIarchive.ui.viewmodel.TeamViewModel
 
 @Composable
@@ -31,7 +33,7 @@ fun TeamListScreen(
         teamViewModel.fetchTeams()
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize().background(TechBackground)) {
         when {
             teamViewModel.isLoading -> {
                 Column(
@@ -41,7 +43,13 @@ fun TeamListScreen(
                 ) {
                     CircularProgressIndicator(color = EndfieldPurple)
                     Spacer(Modifier.height(16.dp))
-                    Text("LOADING_TEAMS...", color = Color.Gray)
+                    Text(
+                        "LOADING_TEAM_FILES...",
+                        color = EndfieldPurple,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.sp
+                    )
                 }
             }
 
@@ -51,8 +59,25 @@ fun TeamListScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Text("ERROR", color = Color.Red, fontWeight = FontWeight.Bold)
-                    Text(teamViewModel.errorMessage ?: "Unknown error", color = Color.Gray)
+                    Box(
+                        modifier = Modifier
+                            .background(Color.Black)
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                    ) {
+                        Text(
+                            "SYSTEM_ERROR",
+                            color = Color.Red,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Black
+                        )
+                    }
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        teamViewModel.errorMessage ?: "UNKNOWN_ERROR",
+                        color = Color.Gray,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
 
@@ -62,18 +87,31 @@ fun TeamListScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Text("NO_TEAMS_FOUND", color = Color.Gray)
+                    Box(
+                        modifier = Modifier
+                            .background(Color.Black)
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                    ) {
+                        Text(
+                            "NO_TEAMS_FOUND",
+                            color = EndfieldPurple,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Black
+                        )
+                    }
+                    Spacer(Modifier.height(8.dp))
                     Text(
-                        "Create your first team!",
+                        "CREATE_YOUR_FIRST_TEAM",
                         color = Color.Gray,
-                        fontSize = 12.sp,
-                        modifier = Modifier.padding(top = 8.dp)
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }
 
             else -> {
                 LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
@@ -89,15 +127,28 @@ fun TeamListScreen(
             }
         }
 
-        FloatingActionButton(
-            onClick = onNewTeamClick,
+        // FAB con estilo del tema
+        Box(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(16.dp),
-            containerColor = EndfieldPurple,
-            contentColor = Color.White
+                .padding(24.dp)
         ) {
-            Icon(Icons.Default.Add, contentDescription = "Create Team")
+            Box(
+                modifier = Modifier
+                    .size(56.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(EndfieldPurple)
+                    .border(1.dp, Color.Black, RoundedCornerShape(12.dp))
+                    .clickable { onNewTeamClick() },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    Icons.Default.Add,
+                    contentDescription = "Create Team",
+                    modifier = Modifier.size(24.dp),
+                    tint = Color.Black
+                )
+            }
         }
     }
 }
@@ -110,67 +161,156 @@ fun TeamCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
+            .border(1.dp, TechBorder)
             .clickable { onClick() },
         colors = CardDefaults.cardColors(
             containerColor = TechSurface
         ),
-        shape = RoundedCornerShape(8.dp)
+        elevation = CardDefaults.cardElevation(0.dp),
+        shape = RoundedCornerShape(4.dp)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(20.dp)
         ) {
+            // Header con ID del equipo
             Text(
-                text = team.teamName,
-                color = Color.White,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
+                text = "TEAM_${team.id.toString().padStart(3, '0')}",
+                color = EndfieldPurple,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 1.sp
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            // Nombre del equipo
             Text(
-                text = team.description,
-                color = Color.Gray,
-                fontSize = 14.sp,
-                lineHeight = 18.sp
+                text = team.teamName.uppercase(),
+                color = Color.White,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Black,
+                letterSpacing = 1.sp
             )
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            if (team.operatorNames.size >= 4) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    OperatorNameText(
-                        operatorName = team.operatorNames[0],
-                        modifier = Modifier.weight(1f)
-                    )
+            // Descripción
+            Text(
+                text = team.description,
+                color = Color.LightGray,
+                fontSize = 12.sp,
+                lineHeight = 16.sp
+            )
 
-                    OperatorNameText(
-                        operatorName = team.operatorNames[1],
-                        modifier = Modifier.weight(1f)
-                    )
+            Spacer(modifier = Modifier.height(16.dp))
 
-                    OperatorNameText(
-                        operatorName = team.operatorNames[2],
-                        modifier = Modifier.weight(1f)
-                    )
-
-                    OperatorNameText(
-                        operatorName = team.operatorNames[3],
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-            } else {
+            // Sección de operadores
+            Column {
                 Text(
-                    text = "Team incomplete (${team.operatorNames.size}/4 operators)",
-                    color = Color.Red,
-                    fontSize = 12.sp
+                    "OPERATOR_COMPOSITION",
+                    color = EndfieldPurple,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.sp,
+                    modifier = Modifier.padding(bottom = 8.dp)
                 )
+
+                if (team.operatorNames.size >= 4) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color.Black.copy(alpha = 0.3f))
+                            .border(1.dp, TechBorder)
+                            .padding(12.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            OperatorNameText(
+                                operatorName = team.operatorNames[0],
+                                modifier = Modifier.weight(1f)
+                            )
+
+                            Box(
+                                modifier = Modifier
+                                    .width(1.dp)
+                                    .height(20.dp)
+                                    .background(TechBorder)
+                            )
+
+                            OperatorNameText(
+                                operatorName = team.operatorNames[1],
+                                modifier = Modifier.weight(1f)
+                            )
+
+                            Box(
+                                modifier = Modifier
+                                    .width(1.dp)
+                                    .height(20.dp)
+                                    .background(TechBorder)
+                            )
+
+                            OperatorNameText(
+                                operatorName = team.operatorNames[2],
+                                modifier = Modifier.weight(1f)
+                            )
+
+                            Box(
+                                modifier = Modifier
+                                    .width(1.dp)
+                                    .height(20.dp)
+                                    .background(TechBorder)
+                            )
+
+                            OperatorNameText(
+                                operatorName = team.operatorNames[3],
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                    }
+
+                    // Estado del equipo
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Box(
+                        modifier = Modifier
+                            .background(Color.Black)
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                            .align(Alignment.End)
+                    ) {
+                        Text(
+                            "COMPLETE",
+                            color = EndfieldPurple,
+                            fontSize = 8.sp,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 1.sp
+                        )
+                    }
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color.Black.copy(alpha = 0.3f))
+                            .border(1.dp, Color.Red.copy(alpha = 0.5f))
+                            .padding(12.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "TEAM_INCOMPLETE (${team.operatorNames.size}/4)",
+                                color = Color.Red,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                }
             }
         }
     }
@@ -181,14 +321,19 @@ fun OperatorNameText(
     operatorName: String,
     modifier: Modifier = Modifier
 ) {
-    Text(
-        text = operatorName,
-        color = Color.White,
-        fontSize = 13.sp,
-        fontWeight = FontWeight.Bold,
-        maxLines = 1,
-        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
-        modifier = modifier,
-        textAlign = androidx.compose.ui.text.style.TextAlign.Center
-    )
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+    ) {
+        Text(
+            text = operatorName,
+            color = Color.White,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Bold,
+            maxLines = 1,
+            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
 }

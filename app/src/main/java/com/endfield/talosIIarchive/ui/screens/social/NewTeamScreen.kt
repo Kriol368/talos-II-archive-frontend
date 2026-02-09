@@ -14,24 +14,20 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -45,9 +41,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import com.endfield.talosIIarchive.domain.models.Gear
 import com.endfield.talosIIarchive.ui.theme.EndfieldCyan
 import com.endfield.talosIIarchive.ui.theme.EndfieldPurple
 import com.endfield.talosIIarchive.ui.theme.EndfieldYellow
@@ -79,7 +77,7 @@ fun NewTeamScreen(
             TopAppBar(
                 title = {
                     Text(
-                        "CREATE NEW TEAM",
+                        "// NEW_TEAM_CREATION",
                         fontWeight = FontWeight.Black,
                         fontSize = 18.sp,
                         letterSpacing = 1.sp
@@ -96,28 +94,36 @@ fun NewTeamScreen(
                 ),
                 actions = {
                     if (viewModel.isFormValid()) {
-                        IconButton(
-                            onClick = {
-                                coroutineScope.launch {
-                                    val success = viewModel.createTeam(teamViewModel)
-                                    if (success) {
-                                        showSuccessDialog = true
+                        Box(
+                            modifier = Modifier
+                                .padding(end = 12.dp)
+                                .background(Color.Black)
+                                .clickable(
+                                    enabled = !viewModel.isCreating,
+                                    onClick = {
+                                        coroutineScope.launch {
+                                            val success = viewModel.createTeam(teamViewModel)
+                                            if (success) {
+                                                showSuccessDialog = true
+                                            }
+                                        }
                                     }
-                                }
-                            },
-                            enabled = !viewModel.isCreating
+                                )
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
                         ) {
                             if (viewModel.isCreating) {
                                 CircularProgressIndicator(
                                     color = EndfieldPurple,
-                                    modifier = Modifier.size(24.dp),
+                                    modifier = Modifier.size(16.dp),
                                     strokeWidth = 2.dp
                                 )
                             } else {
-                                Icon(
-                                    Icons.Default.Check,
-                                    contentDescription = "Create Team",
-                                    tint = EndfieldPurple
+                                Text(
+                                    "CREATE",
+                                    color = EndfieldPurple,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Black,
+                                    letterSpacing = 1.sp
                                 )
                             }
                         }
@@ -143,13 +149,35 @@ fun NewTeamScreen(
                 }
 
                 item {
-                    Text(
-                        "SELECT OPERATORS (4 REQUIRED)",
-                        color = EndfieldPurple,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                    ) {
+                        Column {
+                            Text(
+                                "// SELECT_OPERATORS",
+                                color = EndfieldPurple,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 1.sp
+                            )
+                            Text(
+                                "OPERATORS (4 REQUIRED)",
+                                color = Color.White,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Black,
+                                letterSpacing = 1.sp
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(2.dp)
+                                    .background(EndfieldPurple)
+                                    .padding(top = 4.dp)
+                            )
+                        }
+                    }
                 }
 
                 items(4) { index ->
@@ -161,13 +189,35 @@ fun NewTeamScreen(
 
                 if (viewModel.selectedOperators.size == 4 && viewModel.selectedOperators.all { it != null }) {
                     item {
-                        Text(
-                            "SELECT WEAPONS",
-                            color = EndfieldCyan,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(bottom = 8.dp, top = 8.dp)
-                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp)
+                        ) {
+                            Column {
+                                Text(
+                                    "// SELECT_WEAPONS",
+                                    color = EndfieldCyan,
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    letterSpacing = 1.sp
+                                )
+                                Text(
+                                    "WEAPONS",
+                                    color = Color.White,
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.Black,
+                                    letterSpacing = 1.sp
+                                )
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(2.dp)
+                                        .background(EndfieldCyan)
+                                        .padding(top = 4.dp)
+                                )
+                            }
+                        }
                     }
 
                     items(4) { index ->
@@ -180,13 +230,35 @@ fun NewTeamScreen(
 
                 if (viewModel.selectedWeapons.size == 4 && viewModel.selectedWeapons.all { it != null }) {
                     item {
-                        Text(
-                            "SELECT GEAR FOR EACH OPERATOR",
-                            color = EndfieldYellow,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(bottom = 8.dp, top = 8.dp)
-                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp)
+                        ) {
+                            Column {
+                                Text(
+                                    "// SELECT_GEAR",
+                                    color = EndfieldYellow,
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    letterSpacing = 1.sp
+                                )
+                                Text(
+                                    "GEAR FOR EACH OPERATOR",
+                                    color = Color.White,
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.Black,
+                                    letterSpacing = 1.sp
+                                )
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(2.dp)
+                                        .background(EndfieldYellow)
+                                        .padding(top = 4.dp)
+                                )
+                            }
+                        }
                     }
 
                     items(4) { operatorIndex ->
@@ -206,7 +278,7 @@ fun NewTeamScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(Color.Black.copy(alpha = 0.7f)),
+                        .background(Color.Black.copy(alpha = 0.8f)),
                     contentAlignment = Alignment.Center
                 ) {
                     Column(
@@ -215,10 +287,11 @@ fun NewTeamScreen(
                     ) {
                         CircularProgressIndicator(color = EndfieldPurple)
                         Text(
-                            "LOADING DATA...",
+                            "LOADING_DATA...",
                             color = EndfieldPurple,
                             fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 1.sp
                         )
                     }
                 }
@@ -228,8 +301,7 @@ fun NewTeamScreen(
 
     if (viewModel.showingOperatorDialogFor != null) {
         OperatorSelectionDialog(
-            title = "SELECT OPERATOR",
-            items = viewModel.availableOperatorsForSelection(),
+            viewModel = viewModel,
             onOperatorSelected = { operatorItem ->
                 viewModel.selectOperator(
                     viewModel.showingOperatorDialogFor!!,
@@ -243,8 +315,7 @@ fun NewTeamScreen(
 
     if (viewModel.showingWeaponDialogFor != null) {
         WeaponSelectionDialog(
-            title = "SELECT WEAPON FOR ${viewModel.selectedOperators[viewModel.showingWeaponDialogFor!!]?.name?.uppercase() ?: "OPERATOR"}",
-            items = viewModel.availableWeaponsForSelection(viewModel.showingWeaponDialogFor!!),
+            viewModel = viewModel,
             onWeaponSelected = { weaponItem ->
                 viewModel.selectWeapon(viewModel.showingWeaponDialogFor!!, weaponItem.weapon)
                 viewModel.showingWeaponDialogFor = null
@@ -256,8 +327,8 @@ fun NewTeamScreen(
     if (viewModel.showingGearDialogFor != null) {
         val (operatorIndex, gearType) = viewModel.showingGearDialogFor!!
         GearSelectionDialog(
-            title = "SELECT ${gearType.name.uppercase()} FOR ${viewModel.selectedOperators[operatorIndex]?.name?.uppercase() ?: "OPERATOR"}",
-            items = viewModel.availableGearForSelection(gearType),
+            gearType = gearType,
+            viewModel = viewModel,
             onGearSelected = { gearItem ->
                 viewModel.selectGear(operatorIndex, gearType, gearItem.gear)
                 viewModel.showingGearDialogFor = null
@@ -267,22 +338,73 @@ fun NewTeamScreen(
     }
 
     if (showSuccessDialog) {
-        AlertDialog(
-            onDismissRequest = { showSuccessDialog = false },
-            title = { Text("TEAM CREATED!", color = EndfieldPurple, fontWeight = FontWeight.Bold) },
-            text = { Text("Your team has been created successfully!") },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        showSuccessDialog = false
-                        onCreateSuccess()
-                    }
+        Dialog(onDismissRequest = { showSuccessDialog = false }) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(24.dp),
+                shape = RoundedCornerShape(4.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = TechSurface
+                ),
+                elevation = CardDefaults.cardElevation(0.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(20.dp)
                 ) {
-                    Text("OK", color = EndfieldPurple)
+                    Text(
+                        "// SUCCESS",
+                        color = EndfieldPurple,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.sp
+                    )
+                    Text(
+                        "TEAM CREATED",
+                        color = Color.White,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Black,
+                        letterSpacing = 1.sp
+                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(2.dp)
+                            .background(EndfieldPurple)
+                            .padding(top = 4.dp)
+                    )
+                    Text(
+                        "YOUR_TEAM_HAS_BEEN_CREATED_SUCCESSFULLY",
+                        color = Color.Gray,
+                        fontSize = 12.sp,
+                        textAlign = TextAlign.Center
+                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(EndfieldPurple)
+                            .clickable {
+                                showSuccessDialog = false
+                                onCreateSuccess()
+                            }
+                            .padding(vertical = 14.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            "CONTINUE",
+                            color = Color.Black,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Black,
+                            letterSpacing = 1.sp
+                        )
+                    }
                 }
-            },
-            containerColor = TechSurface
-        )
+            }
+        }
     }
 }
 
@@ -291,48 +413,122 @@ fun TeamInfoSection(viewModel: NewTeamViewModel) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = TechSurface),
-        shape = RoundedCornerShape(12.dp)
+        shape = RoundedCornerShape(4.dp),
+        elevation = CardDefaults.cardElevation(0.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Text(
-                "TEAM INFORMATION",
-                color = EndfieldPurple,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold
-            )
+        Box(modifier = Modifier.fillMaxWidth()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(20.dp)
+            ) {
+                Column {
+                    Text(
+                        "// TEAM_INFORMATION",
+                        color = EndfieldPurple,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.sp
+                    )
+                    Text(
+                        "TEAM DETAILS",
+                        color = Color.White,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Black,
+                        letterSpacing = 1.sp
+                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(2.dp)
+                            .background(EndfieldPurple)
+                            .padding(top = 4.dp)
+                    )
+                }
 
-            OutlinedTextField(
-                value = viewModel.teamName,
-                onValueChange = { viewModel.teamName = it },
-                label = { Text("Team Name") },
-                modifier = Modifier.fillMaxWidth(),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = EndfieldPurple,
-                    unfocusedBorderColor = TechBorder,
-                    focusedLabelColor = EndfieldPurple,
-                    unfocusedLabelColor = Color.Gray
-                ),
-                singleLine = true
-            )
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Column {
+                        Text(
+                            "TEAM_NAME",
+                            color = EndfieldPurple,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 1.sp,
+                            modifier = Modifier.padding(bottom = 4.dp)
+                        )
+                        TextField(
+                            value = viewModel.teamName,
+                            onValueChange = { viewModel.teamName = it },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .border(1.dp, TechBorder)
+                                .background(Color.Black),
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = Color.Black,
+                                unfocusedContainerColor = Color.Black,
+                                focusedTextColor = Color.White,
+                                unfocusedTextColor = Color.White,
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent,
+                                cursorColor = EndfieldPurple
+                            ),
+                            placeholder = {
+                                Text(
+                                    "ENTER_TEAM_NAME",
+                                    color = Color.Gray,
+                                    fontSize = 12.sp
+                                )
+                            },
+                            textStyle = LocalTextStyle.current.copy(
+                                fontSize = 14.sp,
+                                color = Color.White
+                            ),
+                            maxLines = 1
+                        )
+                    }
 
-            OutlinedTextField(
-                value = viewModel.description,
-                onValueChange = { viewModel.description = it },
-                label = { Text("Description") },
-                modifier = Modifier.fillMaxWidth(),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = EndfieldPurple,
-                    unfocusedBorderColor = TechBorder,
-                    focusedLabelColor = EndfieldPurple,
-                    unfocusedLabelColor = Color.Gray
-                ),
-                maxLines = 3
-            )
+                    Column {
+                        Text(
+                            "DESCRIPTION",
+                            color = EndfieldPurple,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 1.sp,
+                            modifier = Modifier.padding(bottom = 4.dp)
+                        )
+                        TextField(
+                            value = viewModel.description,
+                            onValueChange = { viewModel.description = it },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(100.dp)
+                                .border(1.dp, TechBorder)
+                                .background(Color.Black),
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = Color.Black,
+                                unfocusedContainerColor = Color.Black,
+                                focusedTextColor = Color.White,
+                                unfocusedTextColor = Color.White,
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent,
+                                cursorColor = EndfieldPurple
+                            ),
+                            placeholder = {
+                                Text(
+                                    "ENTER_TEAM_DESCRIPTION",
+                                    color = Color.Gray,
+                                    fontSize = 12.sp
+                                )
+                            },
+                            textStyle = LocalTextStyle.current.copy(
+                                fontSize = 14.sp,
+                                color = Color.White
+                            )
+                        )
+                    }
+                }
+            }
         }
     }
 }
@@ -340,56 +536,67 @@ fun TeamInfoSection(viewModel: NewTeamViewModel) {
 @Composable
 fun OperatorSelectorCard(index: Int, viewModel: NewTeamViewModel) {
     val operator = viewModel.selectedOperators.getOrNull(index)
-    val backgroundColor = if (operator != null) EndfieldPurple.copy(alpha = 0.2f) else TechSurface
+    val backgroundColor = if (operator != null) EndfieldPurple.copy(alpha = 0.15f) else TechSurface
+    val borderColor = if (operator != null) EndfieldPurple else TechBorder
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
+            .border(1.dp, borderColor)
             .clickable { viewModel.showingOperatorDialogFor = index },
         colors = CardDefaults.cardColors(containerColor = backgroundColor),
-        shape = RoundedCornerShape(8.dp)
+        elevation = CardDefaults.cardElevation(0.dp),
+        shape = RoundedCornerShape(4.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Column {
-                Text(
-                    "OPERATOR ${index + 1}",
-                    color = if (operator != null) EndfieldPurple else Color.Gray,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    operator?.name ?: "Select Operator",
-                    color = if (operator != null) Color.White else Color.Gray,
-                    fontSize = 16.sp,
-                    fontWeight = if (operator != null) FontWeight.Bold else FontWeight.Normal
-                )
-                if (operator != null) {
+        Box(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        "${operator.operatorClass} • ${operator.weaponType}",
-                        color = EndfieldPurple.copy(alpha = 0.8f),
-                        fontSize = 12.sp
-                    )
-                }
-            }
-
-            if (operator != null) {
-                Box(
-                    modifier = Modifier
-                        .background(EndfieldPurple, shape = RoundedCornerShape(4.dp))
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
-                ) {
-                    Text(
-                        "SELECTED",
-                        color = Color.Black,
+                        "SLOT_${index + 1}",
+                        color = EndfieldPurple,
                         fontSize = 10.sp,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.sp
                     )
+                    Text(
+                        operator?.name?.uppercase() ?: "SELECT_OPERATOR",
+                        color = if (operator != null) Color.White else Color.Gray,
+                        fontSize = 18.sp,
+                        fontWeight = if (operator != null) FontWeight.Black else FontWeight.Bold,
+                        letterSpacing = 0.5.sp,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                    if (operator != null) {
+                        Text(
+                            "${operator.operatorClass} • ${operator.weaponType}",
+                            color = EndfieldPurple.copy(alpha = 0.8f),
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(top = 2.dp)
+                        )
+                    }
+                }
+
+                if (operator != null) {
+                    Box(
+                        modifier = Modifier
+                            .background(Color.Black)
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                    ) {
+                        Text(
+                            "SELECTED",
+                            color = EndfieldPurple,
+                            fontSize = 9.sp,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 1.sp
+                        )
+                    }
                 }
             }
         }
@@ -401,64 +608,90 @@ fun WeaponSelectorCard(index: Int, viewModel: NewTeamViewModel) {
     val weapon = viewModel.selectedWeapons.getOrNull(index)
     val operator = viewModel.selectedOperators.getOrNull(index)
     val isSelectable = operator != null
-    val backgroundColor = if (weapon != null) EndfieldCyan.copy(alpha = 0.2f) else TechSurface
+    val backgroundColor = if (weapon != null) EndfieldCyan.copy(alpha = 0.15f) else TechSurface
+    val borderColor = if (weapon != null) EndfieldCyan else TechBorder
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
+            .border(1.dp, borderColor)
             .clickable(enabled = isSelectable) {
                 if (isSelectable) viewModel.showingWeaponDialogFor = index
             },
         colors = CardDefaults.cardColors(containerColor = backgroundColor),
-        shape = RoundedCornerShape(8.dp)
+        elevation = CardDefaults.cardElevation(0.dp),
+        shape = RoundedCornerShape(4.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Column {
+        Box(modifier = Modifier.fillMaxWidth()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            "WEAPON_FOR",
+                            color = EndfieldCyan,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 1.sp
+                        )
+                        Text(
+                            operator?.name?.uppercase() ?: "OPERATOR_${index + 1}",
+                            color = Color.White,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(top = 2.dp)
+                        )
+                    }
+
+                    if (weapon != null) {
+                        Box(
+                            modifier = Modifier
+                                .background(Color.Black)
+                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                        ) {
+                            Text(
+                                "SELECTED",
+                                color = EndfieldCyan,
+                                fontSize = 9.sp,
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 1.sp
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
                 Text(
-                    "WEAPON FOR ${operator?.name?.uppercase() ?: "OPERATOR ${index + 1}"}",
-                    color = if (weapon != null) EndfieldCyan else Color.Gray,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    weapon?.name ?: "Select Weapon",
+                    weapon?.name?.uppercase() ?: "SELECT_WEAPON",
                     color = if (weapon != null) Color.White else Color.Gray,
                     fontSize = 16.sp,
-                    fontWeight = if (weapon != null) FontWeight.Bold else FontWeight.Normal
+                    fontWeight = if (weapon != null) FontWeight.Black else FontWeight.Bold,
+                    letterSpacing = 0.5.sp
                 )
+
                 if (weapon != null) {
                     Text(
                         weapon.weaponType,
                         color = EndfieldCyan.copy(alpha = 0.8f),
-                        fontSize = 12.sp
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(top = 2.dp)
                     )
                 } else if (operator != null) {
                     Text(
-                        "Must be ${operator.weaponType} type",
+                        "REQUIRED_TYPE: ${operator.weaponType}",
                         color = EndfieldCyan.copy(alpha = 0.6f),
-                        fontSize = 11.sp,
-                        fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
-                    )
-                }
-            }
-
-            if (weapon != null) {
-                Box(
-                    modifier = Modifier
-                        .background(EndfieldCyan, shape = RoundedCornerShape(4.dp))
-                        .padding(horizontal = 8.dp, vertical = 4.dp)
-                ) {
-                    Text(
-                        "SELECTED",
-                        color = Color.Black,
                         fontSize = 10.sp,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(top = 4.dp)
                     )
                 }
             }
@@ -473,52 +706,76 @@ fun GearSelectorSection(operatorIndex: Int, viewModel: NewTeamViewModel) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = TechSurface),
-        shape = RoundedCornerShape(8.dp)
+        elevation = CardDefaults.cardElevation(0.dp),
+        shape = RoundedCornerShape(4.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Text(
-                "GEAR FOR ${operator?.name?.uppercase() ?: "OPERATOR ${operatorIndex + 1}"}",
-                color = EndfieldYellow,
-                fontSize = 13.sp,
-                fontWeight = FontWeight.Bold
-            )
-
-            GearSelectorRow(
-                gearType = GearType.ARMOR,
-                selectedGear = viewModel.selectedGear[operatorIndex]?.get(GearType.ARMOR),
-                onClick = {
-                    viewModel.showingGearDialogFor = Pair(operatorIndex, GearType.ARMOR)
+        Box(modifier = Modifier.fillMaxWidth()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Column {
+                    Text(
+                        "// GEAR_FOR",
+                        color = EndfieldYellow,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.sp
+                    )
+                    Text(
+                        operator?.name?.uppercase() ?: "OPERATOR_${operatorIndex + 1}",
+                        color = Color.White,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Black,
+                        letterSpacing = 1.sp
+                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(2.dp)
+                            .background(EndfieldYellow)
+                            .padding(top = 4.dp)
+                    )
                 }
-            )
 
-            GearSelectorRow(
-                gearType = GearType.GLOVES,
-                selectedGear = viewModel.selectedGear[operatorIndex]?.get(GearType.GLOVES),
-                onClick = {
-                    viewModel.showingGearDialogFor = Pair(operatorIndex, GearType.GLOVES)
-                }
-            )
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    GearSelectorRow(
+                        gearType = GearType.ARMOR,
+                        selectedGear = viewModel.selectedGear[operatorIndex]?.get(GearType.ARMOR),
+                        onClick = {
+                            viewModel.showingGearDialogFor = Pair(operatorIndex, GearType.ARMOR)
+                        }
+                    )
 
-            GearSelectorRow(
-                gearType = GearType.KIT1,
-                selectedGear = viewModel.selectedGear[operatorIndex]?.get(GearType.KIT1),
-                onClick = {
-                    viewModel.showingGearDialogFor = Pair(operatorIndex, GearType.KIT1)
-                }
-            )
+                    GearSelectorRow(
+                        gearType = GearType.GLOVES,
+                        selectedGear = viewModel.selectedGear[operatorIndex]?.get(GearType.GLOVES),
+                        onClick = {
+                            viewModel.showingGearDialogFor = Pair(operatorIndex, GearType.GLOVES)
+                        }
+                    )
 
-            GearSelectorRow(
-                gearType = GearType.KIT2,
-                selectedGear = viewModel.selectedGear[operatorIndex]?.get(GearType.KIT2),
-                onClick = {
-                    viewModel.showingGearDialogFor = Pair(operatorIndex, GearType.KIT2)
+                    GearSelectorRow(
+                        gearType = GearType.KIT1,
+                        selectedGear = viewModel.selectedGear[operatorIndex]?.get(GearType.KIT1),
+                        onClick = {
+                            viewModel.showingGearDialogFor = Pair(operatorIndex, GearType.KIT1)
+                        }
+                    )
+
+                    GearSelectorRow(
+                        gearType = GearType.KIT2,
+                        selectedGear = viewModel.selectedGear[operatorIndex]?.get(GearType.KIT2),
+                        onClick = {
+                            viewModel.showingGearDialogFor = Pair(operatorIndex, GearType.KIT2)
+                        }
+                    )
                 }
-            )
+            }
         }
     }
 }
@@ -526,58 +783,75 @@ fun GearSelectorSection(operatorIndex: Int, viewModel: NewTeamViewModel) {
 @Composable
 fun GearSelectorRow(
     gearType: GearType,
-    selectedGear: com.endfield.talosIIarchive.domain.models.Gear?,
+    selectedGear: Gear?,
     onClick: () -> Unit
 ) {
     val backgroundColor =
-        if (selectedGear != null) EndfieldYellow.copy(alpha = 0.2f) else Color.Transparent
+        if (selectedGear != null) EndfieldYellow.copy(alpha = 0.15f) else Color.Transparent
+    val borderColor = if (selectedGear != null) EndfieldYellow else TechBorder
 
-    Row(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(backgroundColor, shape = RoundedCornerShape(6.dp))
-            .border(1.dp, TechBorder, RoundedCornerShape(6.dp))
+            .border(1.dp, borderColor)
+            .background(backgroundColor)
             .clickable { onClick() }
-            .padding(horizontal = 12.dp, vertical = 10.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Column {
-            Text(
-                gearType.name,
-                color = if (selectedGear != null) EndfieldYellow else Color.Gray,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                selectedGear?.name ?: "Select ${gearType.name}",
-                color = if (selectedGear != null) Color.White else Color.Gray,
-                fontSize = 14.sp
-            )
-        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column {
+                Text(
+                    gearType.name,
+                    color = if (selectedGear != null) EndfieldYellow else Color.Gray,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.sp
+                )
+                Text(
+                    selectedGear?.name?.uppercase() ?: "SELECT_${gearType.name}",
+                    color = if (selectedGear != null) Color.White else Color.Gray,
+                    fontSize = 14.sp,
+                    fontWeight = if (selectedGear != null) FontWeight.Bold else FontWeight.Normal,
+                    modifier = Modifier.padding(top = 2.dp)
+                )
+            }
 
-        if (selectedGear != null) {
-            Text(
-                "✓",
-                color = EndfieldYellow,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold
-            )
+            if (selectedGear != null) {
+                Box(
+                    modifier = Modifier
+                        .background(Color.Black)
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                ) {
+                    Text(
+                        "SELECTED",
+                        color = EndfieldYellow,
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.sp
+                    )
+                }
+            }
         }
     }
 }
 
 @Composable
 fun OperatorSelectionDialog(
-    title: String,
-    items: List<SelectionItem.OperatorItem>,
+    viewModel: NewTeamViewModel,
     onOperatorSelected: (SelectionItem.OperatorItem) -> Unit,
     onDismiss: () -> Unit
 ) {
     SelectionDialog(
-        title = title,
-        items = items,
-        itemName = { it.operator.name },
+        title = "SELECT_OPERATOR",
+        items = viewModel.availableOperatorsForSelection(),
+        itemName = { it.operator.name.uppercase() },
+        itemSubtitle = { "${it.operator.operatorClass} • ${it.operator.weaponType}" },
+        accentColor = EndfieldPurple,
         onItemSelected = onOperatorSelected,
         onDismiss = onDismiss
     )
@@ -585,15 +859,16 @@ fun OperatorSelectionDialog(
 
 @Composable
 fun WeaponSelectionDialog(
-    title: String,
-    items: List<SelectionItem.WeaponItem>,
+    viewModel: NewTeamViewModel,
     onWeaponSelected: (SelectionItem.WeaponItem) -> Unit,
     onDismiss: () -> Unit
 ) {
     SelectionDialog(
-        title = title,
-        items = items,
-        itemName = { it.weapon.name },
+        title = "SELECT_WEAPON",
+        items = viewModel.availableWeaponsForSelection(viewModel.showingWeaponDialogFor!!),
+        itemName = { it.weapon.name.uppercase() },
+        itemSubtitle = { it.weapon.weaponType },
+        accentColor = EndfieldCyan,
         onItemSelected = onWeaponSelected,
         onDismiss = onDismiss
     )
@@ -601,15 +876,17 @@ fun WeaponSelectionDialog(
 
 @Composable
 fun GearSelectionDialog(
-    title: String,
-    items: List<SelectionItem.GearItem>,
+    gearType: GearType,
+    viewModel: NewTeamViewModel,
     onGearSelected: (SelectionItem.GearItem) -> Unit,
     onDismiss: () -> Unit
 ) {
     SelectionDialog(
-        title = title,
-        items = items,
-        itemName = { it.gear.name },
+        title = "SELECT_${gearType.name}",
+        items = viewModel.availableGearForSelection(gearType),
+        itemName = { it.gear.name.uppercase() },
+        itemSubtitle = { "${it.gear.gearSet} • DEF: ${it.gear.def}" },
+        accentColor = EndfieldYellow,
         onItemSelected = onGearSelected,
         onDismiss = onDismiss
     )
@@ -620,6 +897,8 @@ fun <T> SelectionDialog(
     title: String,
     items: List<T>,
     itemName: (T) -> String,
+    itemSubtitle: (T) -> String? = { null },
+    accentColor: Color,
     onItemSelected: (T) -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -627,56 +906,111 @@ fun <T> SelectionDialog(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(400.dp),
-            shape = RoundedCornerShape(12.dp),
+                .height(500.dp)
+                .padding(24.dp),
+            shape = RoundedCornerShape(4.dp),
             colors = CardDefaults.cardColors(
                 containerColor = TechSurface
-            )
+            ),
+            elevation = CardDefaults.cardElevation(0.dp)
         ) {
             Column(
                 modifier = Modifier.fillMaxSize()
             ) {
-                Text(
-                    title,
-                    color = EndfieldPurple,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
+                // Header
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp)
-                )
-
-                Divider(color = TechBorder, thickness = 1.dp)
-
-                LazyColumn(
-                    modifier = Modifier.weight(1f)
+                        .background(Color.Black)
+                        .padding(20.dp)
                 ) {
-                    items(items) { item ->
-                        Row(
+                    Column {
+                        Text(
+                            "// $title",
+                            color = accentColor,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 1.sp
+                        )
+                        Text(
+                            title.replace("_", " "),
+                            color = Color.White,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Black,
+                            letterSpacing = 1.sp
+                        )
+                        Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .clickable { onItemSelected(item) }
-                                .padding(horizontal = 16.dp, vertical = 12.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                itemName(item),
-                                color = Color.White,
-                                fontSize = 14.sp
-                            )
-                        }
-
-                        Divider(color = TechBorder.copy(alpha = 0.3f), thickness = 0.5.dp)
+                                .height(2.dp)
+                                .background(accentColor)
+                                .padding(top = 4.dp)
+                        )
                     }
                 }
 
-                TextButton(
-                    onClick = onDismiss,
+                // Lista de items
+                LazyColumn(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    items(items.size) { index ->
+                        val item = items[index]
+                        Column {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { onItemSelected(item) }
+                                    .padding(16.dp)
+                            ) {
+                                Column {
+                                    Text(
+                                        itemName(item),
+                                        color = Color.White,
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                    itemSubtitle(item)?.let { subtitle ->
+                                        Text(
+                                            subtitle,
+                                            color = accentColor.copy(alpha = 0.8f),
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            modifier = Modifier.padding(top = 2.dp)
+                                        )
+                                    }
+                                }
+                            }
+
+                            // Separador entre items (excepto el último)
+                            if (index < items.size - 1) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(1.dp)
+                                        .background(TechBorder)
+                                        .padding(horizontal = 16.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+
+                // Botón de cancelar
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(8.dp)
+                        .background(Color.Black)
+                        .clickable { onDismiss() }
+                        .padding(vertical = 16.dp),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Text("CANCEL", color = Color.Gray)
+                    Text(
+                        "CANCEL",
+                        color = Color.Gray,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.sp
+                    )
                 }
             }
         }
