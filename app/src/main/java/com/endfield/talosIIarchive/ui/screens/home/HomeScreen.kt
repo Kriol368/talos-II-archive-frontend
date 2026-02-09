@@ -1,7 +1,9 @@
 package com.endfield.talosIIarchive.ui.screens.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,10 +13,10 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,29 +27,38 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
+import com.endfield.talosIIarchive.ui.theme.EndfieldCyan
+import com.endfield.talosIIarchive.ui.theme.EndfieldOrange
+import com.endfield.talosIIarchive.ui.theme.EndfieldYellow
+import com.endfield.talosIIarchive.ui.theme.TechBackground
+import com.endfield.talosIIarchive.ui.theme.TechBorder
+import com.endfield.talosIIarchive.ui.theme.TechSurface
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
+import kotlin.math.roundToInt
 
 class HomeViewModel : ViewModel() {
     private val client = OkHttpClient()
@@ -112,6 +123,10 @@ fun HomeScreen(
     var isLoading by remember { mutableStateOf(true) }
     val coroutineScope = rememberCoroutineScope()
 
+    // Estados para el drag del footer
+    var footerOffsetX by remember { mutableFloatStateOf(0f) }
+    var footerOffsetY by remember { mutableFloatStateOf(0f) }
+
     LaunchedEffect(Unit) {
         coroutineScope.launch {
             isLoading = true
@@ -123,46 +138,106 @@ fun HomeScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF0A0E17))
+            .background(TechBackground)
             .padding(16.dp)
     ) {
-        Text(
-            text = "TALOS-II ARCHIVE",
-            fontSize = 28.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color(0xFF4CC9F0),
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
+        // Header con estilo de tu tema
+        Column(
+            modifier = Modifier.padding(bottom = 24.dp)
+        ) {
+            Text(
+                text = "// SYSTEM_DASHBOARD",
+                color = EndfieldYellow,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 1.sp
+            )
+            Text(
+                text = "TALOS-II ARCHIVE",
+                fontSize = 32.sp,
+                fontWeight = FontWeight.Black,
+                color = Color.White,
+                letterSpacing = 2.sp
+            )
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .height(2.dp)
+                    .background(EndfieldOrange)
+                    .padding(top = 4.dp)
+            )
+        }
 
-
+        // Sección trending (SIN CAMBIOS - mantiene las imágenes normales)
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(300.dp),
-            shape = RoundedCornerShape(16.dp),
+                .height(320.dp),
+            shape = RoundedCornerShape(4.dp),
             colors = CardDefaults.cardColors(
-                containerColor = Color(0xFF1A1A2E)
-            )
+                containerColor = TechSurface
+            ),
+            elevation = CardDefaults.cardElevation(0.dp)
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(12.dp)
+                    .padding(16.dp)
             ) {
-                Text(
-                    text = "Now trending on r/Endfield",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Text(
+                            text = "NETWORK // REDDIT_FEED",
+                            color = EndfieldCyan,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 1.sp
+                        )
+                        Text(
+                            text = "TRENDING ON r/ENDFIELD",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Black,
+                            color = Color.White,
+                            letterSpacing = 1.sp
+                        )
+                    }
 
-                Spacer(modifier = Modifier.height(12.dp))
+                    Box(
+                        modifier = Modifier
+                            .background(Color.Black)
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                    ) {
+                        Text(
+                            text = "REAL-TIME",
+                            color = EndfieldYellow,
+                            fontSize = 9.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
 
                 if (isLoading) {
                     Box(
-                        modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
                     ) {
-                        CircularProgressIndicator(color = Color(0xFF4CC9F0))
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            CircularProgressIndicator(color = EndfieldOrange)
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                text = "ACCESSING_NETWORK...",
+                                color = EndfieldOrange,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 1.sp
+                            )
+                        }
                     }
                 } else if (imageUrls.isNotEmpty()) {
                     LazyRow(
@@ -174,105 +249,243 @@ fun HomeScreen(
                     }
                 } else {
                     Box(
-                        modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(
+                                text = "CONNECTION_FAILED",
+                                color = Color.Red,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                text = "NO_IMAGES_FOUND",
+                                color = Color.Gray,
+                                fontSize = 10.sp
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(4.dp))
+
+        // Botón WIKI con estilo consistente
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(100.dp)
+                .border(1.dp, TechBorder)
+                .clickable { onWikiClick() },
+            shape = RoundedCornerShape(4.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = TechSurface
+            ),
+            elevation = CardDefaults.cardElevation(0.dp)
+        ) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                // Barra lateral naranja
+                Box(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .width(6.dp)
+                        .background(EndfieldOrange)
+                )
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 24.dp, vertical = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Número de módulo
+                    Column(
+                        modifier = Modifier
+                            .width(60.dp)
+                            .padding(end = 16.dp)
                     ) {
                         Text(
-                            text = "No images found", color = Color.Gray
+                            text = "ID.01",
+                            color = EndfieldOrange,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(2.dp)
+                                .background(EndfieldOrange)
+                                .padding(top = 2.dp)
+                        )
+                    }
+
+                    // Contenido del botón
+                    Column(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(
+                            text = "WIKI",
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Black,
+                            color = Color.White,
+                            letterSpacing = 2.sp
+                        )
+                        Text(
+                            text = "ACCESS_FILES",
+                            color = EndfieldOrange,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 1.sp
+                        )
+                    }
+
+                    // Indicador de acceso
+                    Box(
+                        modifier = Modifier
+                            .background(Color.Black)
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                    ) {
+                        Text(
+                            text = "ACCESS >",
+                            color = EndfieldYellow,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold
                         )
                     }
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
+        // Botón SOCIAL con estilo consistente
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable { onWikiClick()},
-            shape = RoundedCornerShape(16.dp),
+                .height(100.dp)
+                .border(1.dp, TechBorder)
+                .clickable { onSocialClick() },
+            shape = RoundedCornerShape(4.dp),
             colors = CardDefaults.cardColors(
-                containerColor = Color(0xFF1E293B)
-            )
+                containerColor = TechSurface
+            ),
+            elevation = CardDefaults.cardElevation(0.dp)
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                // Barra lateral cian
                 Box(
                     modifier = Modifier
-                        .size(60.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFF4CC9F0)), contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "W",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
-                }
+                        .fillMaxHeight()
+                        .width(6.dp)
+                        .background(EndfieldCyan)
+                )
 
-                Spacer(modifier = Modifier.width(16.dp))
-
-                Column(
-                    modifier = Modifier.weight(1f)
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 24.dp, vertical = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = "WIKI",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
+                    // Número de módulo
+                    Column(
+                        modifier = Modifier
+                            .width(60.dp)
+                            .padding(end = 16.dp)
+                    ) {
+                        Text(
+                            text = "ID.02",
+                            color = EndfieldCyan,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(2.dp)
+                                .background(EndfieldCyan)
+                                .padding(top = 2.dp)
+                        )
+                    }
+
+                    // Contenido del botón
+                    Column(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(
+                            text = "SOCIAL",
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Black,
+                            color = Color.White,
+                            letterSpacing = 2.sp
+                        )
+                        Text(
+                            text = "COMUNITY_UPLOADS",
+                            color = EndfieldCyan,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 1.sp
+                        )
+                    }
+
+                    // Indicador de acceso
+                    Box(
+                        modifier = Modifier
+                            .background(Color.Black)
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
+                    ) {
+                        Text(
+                            text = "ACCESS >",
+                            color = EndfieldYellow,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Card(
+        // Footer CON DRAG GESTURE
+        Spacer(modifier = Modifier.weight(1f))
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable {onSocialClick() },
-            shape = RoundedCornerShape(16.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = Color(0xFF2A1A3A)
-            )
+                .padding(top = 16.dp)
+                .border(1.dp, TechBorder)
+                .offset { IntOffset(footerOffsetX.roundToInt(), footerOffsetY.roundToInt()) }
+                .pointerInput(Unit) {
+                    detectDragGestures(
+                        onDrag = { change, dragAmount ->
+                            change.consume()
+                            footerOffsetX += dragAmount.x
+                            footerOffsetY += dragAmount.y
+                        },
+                        onDragEnd = {
+                            // Vuelve a la posición original al soltar
+                            footerOffsetX = 0f
+                            footerOffsetY = 0f
+                        }
+                    )
+                }
+                .padding(8.dp)
         ) {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp),
-                verticalAlignment = Alignment.CenterVertically
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(60.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFF9D4EDD)), contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "C",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(16.dp))
-
-                Column(
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = "SOCIAL",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
-                }
+                Text(
+                    text = "// SYSTEM_STATUS: ONLINE",
+                    color = EndfieldYellow,
+                    fontSize = 9.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Text(
+                    text = "TALOS_OS v2.0.1",
+                    color = Color.Gray,
+                    fontSize = 9.sp,
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
     }
@@ -280,37 +493,79 @@ fun HomeScreen(
 
 @Composable
 fun EndfieldImageCard(imageUrl: String) {
-    val targetHeight = 200.dp
-
     Card(
         modifier = Modifier
-            .wrapContentWidth()
-            .height(targetHeight),
-        shape = RoundedCornerShape(12.dp),
+            .width(280.dp)
+            .height(200.dp)
+            .border(0.5.dp, TechBorder),
+        shape = RoundedCornerShape(4.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF252525)
-        )
+            containerColor = Color.Black
+        ),
+        elevation = CardDefaults.cardElevation(0.dp)
     ) {
-        SubcomposeAsyncImage(
-            model = ImageRequest.Builder(LocalContext.current).data(imageUrl).crossfade(true)
-                .build(),
-            loading = {
-                Box(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .width(200.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(30.dp),
-                        strokeWidth = 2.dp,
-                        color = Color(0xFF4CC9F0)
+        Box(modifier = Modifier.fillMaxSize()) {
+            SubcomposeAsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(imageUrl)
+                    .crossfade(true)
+                    .build(),
+                loading = {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(30.dp),
+                                strokeWidth = 2.dp,
+                                color = EndfieldOrange
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = "LOADING...",
+                                color = EndfieldOrange,
+                                fontSize = 8.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+                    }
+                },
+                contentDescription = "Arknights Endfield image",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+
+            // Overlay degradado en la parte inferior
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        androidx.compose.ui.graphics.Brush.verticalGradient(
+                            colors = listOf(
+                                Color.Transparent,
+                                Color.Black.copy(alpha = 0.7f)
+                            ),
+                            startY = 100f,
+                            endY = 400f
+                        )
                     )
-                }
-            },
-            contentDescription = "Arknights Endfield image",
-            contentScale = ContentScale.FillHeight,
-            modifier = Modifier.fillMaxHeight()
-        )
+            )
+
+            // Badge de fuente
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .background(Color.Black)
+                    .padding(horizontal = 8.dp, vertical = 4.dp)
+            ) {
+                Text(
+                    text = "r/ENDFIELD",
+                    color = EndfieldCyan,
+                    fontSize = 8.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
     }
 }

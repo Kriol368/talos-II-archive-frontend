@@ -4,25 +4,26 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -48,8 +49,8 @@ import com.endfield.talosIIarchive.ui.screens.social.SocialScreen
 import com.endfield.talosIIarchive.ui.screens.wiki.WikiScreen
 import com.endfield.talosIIarchive.ui.theme.EndfieldCyan
 import com.endfield.talosIIarchive.ui.theme.EndfieldOrange
+import com.endfield.talosIIarchive.ui.theme.EndfieldYellow
 import com.endfield.talosIIarchive.ui.theme.TalosIIarchivefrontendTheme
-import com.endfield.talosIIarchive.ui.theme.TechBorder
 import com.endfield.talosIIarchive.ui.theme.TechSurface
 import com.endfield.talosIIarchive.ui.viewmodel.BlueprintViewModel
 import com.endfield.talosIIarchive.ui.viewmodel.BlueprintViewModelFactory
@@ -115,7 +116,14 @@ class MainActivity : ComponentActivity() {
                     )
 
 
-                    App(operatorViewModel, weaponViewModel, gearViewModel, blueprintViewModel, teamViewModel, newTeamViewModel)
+                    App(
+                        operatorViewModel,
+                        weaponViewModel,
+                        gearViewModel,
+                        blueprintViewModel,
+                        teamViewModel,
+                        newTeamViewModel
+                    )
                 }
             }
         }
@@ -138,81 +146,57 @@ fun App(
         Screen.Weapons,
     )
 
-
     val pagerState = rememberPagerState(pageCount = { screens.size })
     val coroutineScope = rememberCoroutineScope()
+
+    // Obtener el tamaño de la barra de navegación del sistema
+    val systemNavigationBarHeight =
+        WindowInsets.systemBars.asPaddingValues().calculateBottomPadding()
+
     Scaffold(
         bottomBar = {
             Column {
+                // Barra de navegación principal con safe area
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(1.dp)
-                        .background(TechBorder)
-                )
-
-                NavigationBar(
-                    containerColor = TechSurface,
-                    tonalElevation = 0.dp,
-                    modifier = Modifier.height(100.dp)
+                        .background(TechSurface)
+                        .padding(bottom = systemNavigationBarHeight)
                 ) {
-                    screens.forEachIndexed { index, screen ->
-                        val isSelected = pagerState.currentPage == index
-                        val accentColor = if (index == 1) EndfieldOrange else EndfieldCyan
-
-                        NavigationBarItem(
-                            selected = isSelected, onClick = {
-                            coroutineScope.launch {
-                                pagerState.animateScrollToPage(index)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(80.dp)
+                            .padding(horizontal = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        screens.forEachIndexed { index, screen ->
+                            val isSelected = pagerState.currentPage == index
+                            val accentColor = when (index) {
+                                0 -> EndfieldYellow
+                                1 -> EndfieldOrange
+                                2 -> EndfieldCyan
+                                else -> EndfieldOrange
                             }
-                        }, colors = NavigationBarItemDefaults.colors(
-                            indicatorColor = Color.Transparent,
-                            selectedIconColor = accentColor,
-                            unselectedIconColor = Color.Gray,
-                            selectedTextColor = accentColor,
-                            unselectedTextColor = Color.Gray
-                        ), icon = {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center,
-                                modifier = Modifier.height(100.dp)
-                            ) {
-                                Icon(
-                                    painter = painterResource(id = screen.iconResId),
-                                    contentDescription = screen.title,
-                                    modifier = Modifier.size(32.dp),
-                                    tint = if (isSelected) accentColor else Color.DarkGray
-                                )
 
-                                Spacer(Modifier.height(4.dp))
-
-                                Text(
-                                    text = screen.title.uppercase(),
-                                    style = MaterialTheme.typography.labelMedium,
-                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                    fontSize = 11.sp,
-                                    letterSpacing = 0.8.sp,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-
-                                if (isSelected) {
-                                    Spacer(Modifier.height(4.dp))
-                                    Box(
-                                        modifier = Modifier
-                                            .width(24.dp)
-                                            .height(3.dp)
-                                            .background(
-                                                accentColor, shape = RoundedCornerShape(1.5.dp)
-                                            )
-                                    )
-                                }
-                            }
-                        }, label = { })
+                            NavigationBarItemEnhanced(
+                                screen = screen,
+                                isSelected = isSelected,
+                                accentColor = accentColor,
+                                onClick = {
+                                    coroutineScope.launch {
+                                        pagerState.animateScrollToPage(index)
+                                    }
+                                },
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
                     }
                 }
             }
-        }) { paddingValues ->
+        }
+    ) { paddingValues ->
         HorizontalPager(
             state = pagerState,
             modifier = Modifier
@@ -232,6 +216,7 @@ fun App(
                         }
                     }
                 )
+
                 1 -> WikiScreen(operatorViewModel, weaponViewModel, gearViewModel)
                 2 -> SocialScreen(blueprintViewModel, teamViewModel, newTeamViewModel)
                 else -> HomeScreen(
@@ -245,6 +230,80 @@ fun App(
                             pagerState.animateScrollToPage(2)
                         }
                     }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun NavigationBarItemEnhanced(
+    screen: Screen,
+    isSelected: Boolean,
+    accentColor: Color,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .height(80.dp)
+            .clickable { onClick() },
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier.padding(vertical = 8.dp)
+        ) {
+            // Icono grande
+            Box(
+                modifier = Modifier
+                    .size(44.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    painter = painterResource(id = screen.iconResId),
+                    contentDescription = screen.title,
+                    modifier = Modifier.size(26.dp),
+                    tint = if (isSelected) accentColor else Color.Gray
+                )
+            }
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            // Texto del ítem
+            Text(
+                text = screen.title.uppercase(),
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = if (isSelected) FontWeight.Black else FontWeight.Medium,
+                fontSize = 11.sp,
+                letterSpacing = 1.sp,
+                color = if (isSelected) accentColor else Color.Gray,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+
+            // Indicador de selección (punto debajo del texto)
+            if (isSelected) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Box(
+                    modifier = Modifier
+                        .size(6.dp)
+                        .background(accentColor, shape = CircleShape)
+                )
+            } else {
+                // ID de módulo cuando no está seleccionado
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = when (screen.title) {
+                        "Home" -> "00"
+                        "Operators" -> "01"
+                        "Weapons" -> "02"
+                        else -> "00"
+                    },
+                    color = Color.Gray.copy(alpha = 0.4f),
+                    fontSize = 9.sp,
+                    fontWeight = FontWeight.Bold
                 )
             }
         }

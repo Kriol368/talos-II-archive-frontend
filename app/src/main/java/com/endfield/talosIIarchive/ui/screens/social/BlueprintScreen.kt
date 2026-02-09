@@ -4,6 +4,8 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.widget.Toast
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -15,6 +17,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -22,8 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import com.endfield.talosIIarchive.domain.models.Blueprint
-import com.endfield.talosIIarchive.ui.theme.EndfieldGreen
-import com.endfield.talosIIarchive.ui.theme.TechSurface
+import com.endfield.talosIIarchive.ui.theme.*
 import com.endfield.talosIIarchive.ui.viewmodel.BlueprintViewModel
 import kotlinx.coroutines.launch
 
@@ -37,7 +39,7 @@ fun BlueprintScreen(blueprintViewModel: BlueprintViewModel) {
         blueprintViewModel.fetchBlueprints()
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize().background(TechBackground)) {
         when {
             blueprintViewModel.isLoading -> {
                 Column(
@@ -47,7 +49,13 @@ fun BlueprintScreen(blueprintViewModel: BlueprintViewModel) {
                 ) {
                     CircularProgressIndicator(color = EndfieldGreen)
                     Spacer(Modifier.height(16.dp))
-                    Text("LOADING_BLUEPRINTS...", color = Color.Gray)
+                    Text(
+                        "LOADING_BLUEPRINT_FILES...",
+                        color = EndfieldGreen,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.sp
+                    )
                 }
             }
 
@@ -57,8 +65,25 @@ fun BlueprintScreen(blueprintViewModel: BlueprintViewModel) {
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Text("ERROR", color = Color.Red, fontWeight = FontWeight.Bold)
-                    Text(blueprintViewModel.errorMessage ?: "Unknown error", color = Color.Gray)
+                    Box(
+                        modifier = Modifier
+                            .background(Color.Black)
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                    ) {
+                        Text(
+                            "SYSTEM_ERROR",
+                            color = Color.Red,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Black
+                        )
+                    }
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        blueprintViewModel.errorMessage ?: "UNKNOWN_ERROR",
+                        color = Color.Gray,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
 
@@ -68,18 +93,31 @@ fun BlueprintScreen(blueprintViewModel: BlueprintViewModel) {
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Text("NO_BLUEPRINTS_FOUND", color = Color.Gray)
+                    Box(
+                        modifier = Modifier
+                            .background(Color.Black)
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                    ) {
+                        Text(
+                            "NO_BLUEPRINTS_FOUND",
+                            color = EndfieldGreen,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Black
+                        )
+                    }
+                    Spacer(Modifier.height(8.dp))
                     Text(
-                        "Create the first blueprint in the community!",
+                        "CREATE_THE_FIRST_BLUEPRINT_IN_THE_COMMUNITY",
                         color = Color.Gray,
-                        fontSize = 12.sp,
-                        modifier = Modifier.padding(top = 8.dp)
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold
                     )
                 }
             }
 
             else -> {
                 LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
@@ -95,15 +133,28 @@ fun BlueprintScreen(blueprintViewModel: BlueprintViewModel) {
             }
         }
 
-        FloatingActionButton(
-            onClick = { showCreateDialog = true },
+        // FAB con estilo del tema
+        Box(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
-                .padding(16.dp),
-            containerColor = EndfieldGreen,
-            contentColor = Color.White
+                .padding(24.dp)
         ) {
-            Icon(Icons.Default.Add, contentDescription = "Create Blueprint")
+            Box(
+                modifier = Modifier
+                    .size(56.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(EndfieldGreen)
+                    .border(1.dp, Color.Black, RoundedCornerShape(12.dp))
+                    .clickable { showCreateDialog = true },
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    Icons.Default.Add,
+                    contentDescription = "Create Blueprint",
+                    modifier = Modifier.size(24.dp),
+                    tint = Color.Black
+                )
+            }
         }
     }
 
@@ -140,94 +191,214 @@ fun CreateBlueprintDialog(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            shape = RoundedCornerShape(12.dp),
+                .padding(24.dp),
+            shape = RoundedCornerShape(4.dp),
             colors = CardDefaults.cardColors(
                 containerColor = TechSurface
-            )
+            ),
+            elevation = CardDefaults.cardElevation(0.dp)
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(24.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
-                Text(
-                    "CREATE NEW BLUEPRINT",
-                    color = EndfieldGreen,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
-                )
+                // Header
+                Column {
+                    Text(
+                        "// NEW_BLUEPRINT_ENTRY",
+                        color = EndfieldGreen,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.sp
+                    )
+                    Text(
+                        "CREATE BLUEPRINT",
+                        color = Color.White,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Black,
+                        letterSpacing = 1.sp
+                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(2.dp)
+                            .background(EndfieldGreen)
+                            .padding(top = 4.dp)
+                    )
+                }
 
-                OutlinedTextField(
-                    value = title,
-                    onValueChange = { title = it },
-                    label = { Text("Title") },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = EndfieldGreen,
-                        unfocusedBorderColor = Color.Gray,
-                        focusedLabelColor = EndfieldGreen,
-                        unfocusedLabelColor = Color.Gray
-                    ),
-                    maxLines = 1
-                )
+                // Campos del formulario
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Column {
+                        Text(
+                            "BLUEPRINT_TITLE",
+                            color = EndfieldGreen,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 1.sp,
+                            modifier = Modifier.padding(bottom = 4.dp)
+                        )
+                        TextField(
+                            value = title,
+                            onValueChange = { title = it },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .border(1.dp, TechBorder)
+                                .background(Color.Black),
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = Color.Black,
+                                unfocusedContainerColor = Color.Black,
+                                focusedTextColor = Color.White,
+                                unfocusedTextColor = Color.White,
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent,
+                                cursorColor = EndfieldGreen
+                            ),
+                            placeholder = {
+                                Text(
+                                    "ENTER_BLUEPRINT_NAME",
+                                    color = Color.Gray,
+                                    fontSize = 12.sp
+                                )
+                            },
+                            textStyle = LocalTextStyle.current.copy(
+                                fontSize = 14.sp,
+                                color = Color.White
+                            ),
+                            maxLines = 1
+                        )
+                    }
 
-                OutlinedTextField(
-                    value = description,
-                    onValueChange = { description = it },
-                    label = { Text("Description") },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = EndfieldGreen,
-                        unfocusedBorderColor = Color.Gray,
-                        focusedLabelColor = EndfieldGreen,
-                        unfocusedLabelColor = Color.Gray
-                    ),
-                    maxLines = 4
-                )
+                    Column {
+                        Text(
+                            "DESCRIPTION",
+                            color = EndfieldGreen,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 1.sp,
+                            modifier = Modifier.padding(bottom = 4.dp)
+                        )
+                        TextField(
+                            value = description,
+                            onValueChange = { description = it },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(120.dp)
+                                .border(1.dp, TechBorder)
+                                .background(Color.Black),
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = Color.Black,
+                                unfocusedContainerColor = Color.Black,
+                                focusedTextColor = Color.White,
+                                unfocusedTextColor = Color.White,
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent,
+                                cursorColor = EndfieldGreen
+                            ),
+                            placeholder = {
+                                Text(
+                                    "ENTER_BLUEPRINT_DESCRIPTION",
+                                    color = Color.Gray,
+                                    fontSize = 12.sp
+                                )
+                            },
+                            textStyle = LocalTextStyle.current.copy(
+                                fontSize = 14.sp,
+                                color = Color.White
+                            )
+                        )
+                    }
 
-                OutlinedTextField(
-                    value = codeHash,
-                    onValueChange = { codeHash = it },
-                    label = { Text("Code Hash") },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = EndfieldGreen,
-                        unfocusedBorderColor = Color.Gray,
-                        focusedLabelColor = EndfieldGreen,
-                        unfocusedLabelColor = Color.Gray
-                    ),
-                    maxLines = 1,
-                    placeholder = { Text("Enter blueprint code") }
-                )
+                    Column {
+                        Text(
+                            "CODE_HASH",
+                            color = EndfieldGreen,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 1.sp,
+                            modifier = Modifier.padding(bottom = 4.dp)
+                        )
+                        TextField(
+                            value = codeHash,
+                            onValueChange = { codeHash = it },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .border(1.dp, TechBorder)
+                                .background(Color.Black),
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = Color.Black,
+                                unfocusedContainerColor = Color.Black,
+                                focusedTextColor = Color.White,
+                                unfocusedTextColor = Color.White,
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent,
+                                cursorColor = EndfieldGreen
+                            ),
+                            placeholder = {
+                                Text(
+                                    "ENTER_CODE_HASH",
+                                    color = Color.Gray,
+                                    fontSize = 12.sp
+                                )
+                            },
+                            textStyle = LocalTextStyle.current.copy(
+                                fontSize = 14.sp,
+                                color = Color.White
+                            ),
+                            maxLines = 1
+                        )
+                    }
+                }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
+                // Botones
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    TextButton(onClick = onDismiss) {
-                        Text("CANCEL", color = Color.Gray)
+                    Box(
+                        modifier = Modifier
+                            .clickable { onDismiss() }
+                            .border(1.dp, TechBorder)
+                            .background(Color.Black)
+                            .padding(horizontal = 20.dp, vertical = 12.dp)
+                    ) {
+                        Text(
+                            "CANCEL",
+                            color = Color.Gray,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 1.sp
+                        )
                     }
 
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(12.dp))
 
-                    Button(
-                        onClick = {
-                            if (title.isNotBlank() && description.isNotBlank() && codeHash.isNotBlank()) {
-                                onCreate(title, description, codeHash)
+                    Box(
+                        modifier = Modifier
+                            .clickable {
+                                if (title.isNotBlank() && description.isNotBlank() && codeHash.isNotBlank()) {
+                                    onCreate(title, description, codeHash)
+                                }
                             }
-                        },
-                        enabled = title.isNotBlank() && description.isNotBlank() && codeHash.isNotBlank(),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = EndfieldGreen,
-                            disabledContainerColor = EndfieldGreen.copy(alpha = 0.5f)
-                        )
+                            .background(
+                                if (title.isNotBlank() && description.isNotBlank() && codeHash.isNotBlank())
+                                    EndfieldGreen
+                                else EndfieldGreen.copy(alpha = 0.5f)
+                            )
+                            .padding(horizontal = 20.dp, vertical = 12.dp)
                     ) {
-                        Text("CREATE")
+                        Text(
+                            "CREATE",
+                            color = Color.Black,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Black,
+                            letterSpacing = 1.sp
+                        )
                     }
                 }
             }
@@ -243,32 +414,75 @@ fun BlueprintCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
+            .border(1.dp, TechBorder)
             .clickable { onCopyClick(blueprint.codeHash) },
         colors = CardDefaults.cardColors(
             containerColor = TechSurface
         ),
-        shape = RoundedCornerShape(8.dp)
+        elevation = CardDefaults.cardElevation(0.dp),
+        shape = RoundedCornerShape(4.dp)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(20.dp)
         ) {
+            // Header con ID
             Text(
-                text = blueprint.title,
-                color = Color.White,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
+                text = "BP_${blueprint.id.toString().padStart(3, '0')}",
+                color = EndfieldGreen,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 1.sp
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            // Título
+            Text(
+                text = blueprint.title.uppercase(),
+                color = Color.White,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Black,
+                letterSpacing = 1.sp
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Descripción
             Text(
                 text = blueprint.description,
-                color = Color.Gray,
-                fontSize = 14.sp,
-                lineHeight = 18.sp
+                color = Color.LightGray,
+                fontSize = 12.sp,
+                lineHeight = 16.sp
             )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Hash del código
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.Black.copy(alpha = 0.3f))
+                    .padding(12.dp)
+            ) {
+                Column {
+                    Text(
+                        "CODE_HASH",
+                        color = EndfieldGreen,
+                        fontSize = 8.sp,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 1.sp
+                    )
+                    Text(
+                        blueprint.codeHash,
+                        color = Color.Gray,
+                        fontSize = 9.sp,
+                        fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+            }
         }
     }
 }
