@@ -159,10 +159,10 @@ fun HomeScreen(
     LaunchedEffect(imageUrls) {
         if (imageUrls.isNotEmpty()) {
             while (true) {
-                yield() // Cede el paso para evitar bloqueos de UI
-                delay(2500) // Tiempo de espera entre transiciones
+                yield()
+                delay(2500)
 
-                // Solo animamos si el usuario NO está tocando el pager actualmente
+
                 if (!pagerState.isScrollInProgress) {
                     val nextPage = (pagerState.currentPage + 1) % imageUrls.size
                     try {
@@ -188,7 +188,6 @@ fun HomeScreen(
             .background(TechBackground)
             .padding(16.dp)
     ) {
-        // Header con estilo de tu tema
         Column(
             modifier = Modifier.padding(bottom = 24.dp)
         ) {
@@ -215,7 +214,6 @@ fun HomeScreen(
             )
         }
 
-        // Sección trending (SIN CAMBIOS - mantiene las imágenes normales)
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -287,16 +285,16 @@ fun HomeScreen(
                         }
                     }
                 }else if (imageUrls.isNotEmpty()) {
-                    Box(modifier = Modifier.fillMaxSize()) { // Este Box agrupa todo
+                    Box(modifier = Modifier.fillMaxSize()) {
                         HorizontalPager(
                             state = pagerState,
                             modifier = Modifier.fillMaxSize()
                         ) { page ->
-                            // Calculamos la distancia de la página actual al centro
+
                             val pageOffset = (pagerState.currentPage - page + pagerState.currentPageOffsetFraction).absoluteValue
 
                             Box(modifier = Modifier.graphicsLayer {
-                                // Animamos la transparencia según la posición
+
                                 alpha = lerp(
                                     start = 0.1f,
                                     stop = 1f,
@@ -312,7 +310,7 @@ fun HomeScreen(
         }
         Spacer(modifier = Modifier.height(4.dp))
 
-        // Botón WIKI con estilo consistente
+
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -326,7 +324,7 @@ fun HomeScreen(
             elevation = CardDefaults.cardElevation(0.dp)
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
-                // Barra lateral naranja
+
                 Box(
                     modifier = Modifier
                         .fillMaxHeight()
@@ -340,7 +338,7 @@ fun HomeScreen(
                         .padding(horizontal = 24.dp, vertical = 16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Número de módulo
+
                     Column(
                         modifier = Modifier
                             .width(60.dp)
@@ -361,7 +359,7 @@ fun HomeScreen(
                         )
                     }
 
-                    // Contenido del botón
+
                     Column(
                         modifier = Modifier.weight(1f)
                     ) {
@@ -381,7 +379,7 @@ fun HomeScreen(
                         )
                     }
 
-                    // Indicador de acceso
+
                     Box(
                         modifier = Modifier
                             .background(Color.Black)
@@ -400,7 +398,7 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Botón SOCIAL con estilo consistente
+
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -428,7 +426,7 @@ fun HomeScreen(
                         .padding(horizontal = 24.dp, vertical = 16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Número de módulo
+
                     Column(
                         modifier = Modifier
                             .width(60.dp)
@@ -449,7 +447,7 @@ fun HomeScreen(
                         )
                     }
 
-                    // Contenido del botón
+
                     Column(
                         modifier = Modifier.weight(1f)
                     ) {
@@ -469,7 +467,7 @@ fun HomeScreen(
                         )
                     }
 
-                    // Indicador de acceso
+
                     Box(
                         modifier = Modifier
                             .background(Color.Black)
@@ -486,7 +484,7 @@ fun HomeScreen(
             }
         }
 
-        // Footer CON DRAG GESTURE
+
         Spacer(modifier = Modifier.weight(1f))
         Box(
             modifier = Modifier
@@ -502,7 +500,7 @@ fun HomeScreen(
                             footerOffsetY += dragAmount.y
                         },
                         onDragEnd = {
-                            // Vuelve a la posición original al soltar
+
                             footerOffsetX = 0f
                             footerOffsetY = 0f
                         }
@@ -546,7 +544,7 @@ fun FeaturedImageCard(imageUrl: String) {
             modifier = Modifier.fillMaxSize()
         )
 
-        // Overlay de "Interferencias" (Estética Endfield)
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -558,84 +556,5 @@ fun FeaturedImageCard(imageUrl: String) {
         )
 
 
-    }
-}
-
-@Composable
-fun EndfieldImageCard(imageUrl: String) {
-    Card(
-        modifier = Modifier
-            .width(280.dp)
-            .height(200.dp)
-            .border(0.5.dp, TechBorder),
-        shape = RoundedCornerShape(4.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.Black
-        ),
-        elevation = CardDefaults.cardElevation(0.dp)
-    ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            SubcomposeAsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(imageUrl)
-                    .crossfade(true)
-                    .build(),
-                loading = {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(30.dp),
-                                strokeWidth = 2.dp,
-                                color = EndfieldOrange
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = "LOADING...",
-                                color = EndfieldOrange,
-                                fontSize = 8.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
-                },
-                contentDescription = "Arknights Endfield image",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-            )
-
-            // Overlay degradado en la parte inferior
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        androidx.compose.ui.graphics.Brush.verticalGradient(
-                            colors = listOf(
-                                Color.Transparent,
-                                Color.Black.copy(alpha = 0.7f)
-                            ),
-                            startY = 100f,
-                            endY = 400f
-                        )
-                    )
-            )
-
-            // Badge de fuente
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .background(Color.Black)
-                    .padding(horizontal = 8.dp, vertical = 4.dp)
-            ) {
-                Text(
-                    text = "r/ENDFIELD",
-                    color = EndfieldCyan,
-                    fontSize = 8.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        }
     }
 }
