@@ -1,5 +1,11 @@
 package com.endfield.talosIIarchive.ui.screens.social
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -11,6 +17,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -27,6 +34,16 @@ enum class SocialCategory {
 fun SocialScreen(blueprintViewModel: BlueprintViewModel, teamViewModel: TeamViewModel, newTeamViewModel: NewTeamViewModel) {
     var selectedCategory by remember { mutableStateOf<SocialCategory?>(null) }
     var showNewTeamScreen by remember { mutableStateOf(false) }
+
+    val infiniteTransition = rememberInfiniteTransition(label = "SocialNeonWave")
+    val pulsePosition by infiniteTransition.animateFloat(
+        initialValue = -1f,
+        targetValue = 2f, // Ajustado a 2 porque solo hay dos botones (índice 0 y 1)
+        animationSpec = infiniteRepeatable(
+            animation = tween(5000, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ), label = "SocialWaveProgress"
+    )
 
     Surface(modifier = Modifier.fillMaxSize(), color = TechBackground) {
         when {
@@ -125,6 +142,7 @@ fun SocialScreen(blueprintViewModel: BlueprintViewModel, teamViewModel: TeamView
                         }
                     }
 
+                    // --- SECCIÓN DEL MENÚ PRINCIPAL (Modificada) ---
                     null -> {
                         Column(
                             modifier = Modifier
@@ -138,65 +156,99 @@ fun SocialScreen(blueprintViewModel: BlueprintViewModel, teamViewModel: TeamView
                                 modifier = Modifier.padding(bottom = 24.dp)
                             )
 
-                            SocialMenuButton("04", "TEAMS", EndfieldPurple, Modifier.weight(1f)) {
+                            // Botón TEAMS (Índice 0)
+                            SocialMenuButton(
+                                number = "04",
+                                title = "TEAMS",
+                                accentColor = EndfieldPurple,
+                                buttonIndex = 0f,
+                                currentWave = pulsePosition,
+                                modifier = Modifier.weight(1f)
+                            ) {
                                 selectedCategory = SocialCategory.TEAMS
                             }
+
                             Spacer(modifier = Modifier.height(12.dp))
-                            SocialMenuButton("05", "BLUEPRINTS", EndfieldGreen, Modifier.weight(1f)) {
+
+                            // Botón BLUEPRINTS (Índice 1)
+                            SocialMenuButton(
+                                number = "05",
+                                title = "BLUEPRINTS",
+                                accentColor = EndfieldGreen,
+                                buttonIndex = 1f,
+                                currentWave = pulsePosition,
+                                modifier = Modifier.weight(1f)
+                            ) {
                                 selectedCategory = SocialCategory.BLUEPRINTS
                             }
                         }
-                    }
                 }
             }
         }
     }
-}
-
-@Composable
-fun SocialMenuButton(
-    number: String, title: String, accentColor: Color, modifier: Modifier, onClick: () -> Unit
-) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .border(1.dp, TechBorder)
-            .background(TechSurface)
-            .clickable { onClick() }) {
-        Box(
-            modifier = Modifier
-                .fillMaxHeight()
-                .width(6.dp)
-                .background(accentColor)
-        )
-
-        Column(
-            modifier = Modifier
-                .padding(24.dp)
-                .align(Alignment.CenterStart)
-        ) {
-            Text(
-                text = "ID.$number",
-                color = accentColor,
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = title,
-                color = Color.White,
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Black,
-                letterSpacing = 4.sp
-            )
-        }
-
-        Text(
-            text = "ACCESS >",
-            color = Color.DarkGray,
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp),
-            fontSize = 10.sp
-        )
     }
 }
+    @Composable
+    fun SocialMenuButton(
+        number: String,
+        title: String,
+        accentColor: Color,
+        buttonIndex: Float,
+        currentWave: Float,
+        modifier: Modifier,
+        onClick: () -> Unit
+    ) {
+        val distance = Math.abs(currentWave - buttonIndex)
+        val intensity = (1f - distance).coerceIn(0f, 1f)
+
+        val textAlpha = (0.7f + (intensity * 0.3f)).coerceIn(0.7f, 1f)
+        Box(
+            modifier = modifier
+                .fillMaxWidth()
+                .background(TechSurface)
+                .clickable { onClick() }
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .width(6.dp)
+                    .graphicsLayer { alpha = (0.2f + intensity * 0.8f) }
+                    .background(accentColor)
+            )
+
+            Column(
+                modifier = Modifier
+                    .padding(24.dp)
+                    .align(Alignment.CenterStart)
+            ) {
+                Text(
+                    text = "ID.$number",
+                    color = accentColor.copy(alpha = (0.4f + intensity * 0.6f)),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.sp
+                )
+
+                // TÍTULO (Siempre legible)
+                Text(
+                    text = title,
+                    color = Color.White,
+                    fontSize = 32.sp,
+                    fontWeight = FontWeight.Black,
+                    letterSpacing = 4.sp,
+                    modifier = Modifier.graphicsLayer { alpha = textAlpha }
+                )
+            }
+
+            // Indicador de acceso técnico
+            Text(
+                text = "CONNECT >",
+                color = Color.White.copy(alpha = 0.2f + (intensity * 0.4f)),
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp),
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+    }

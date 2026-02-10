@@ -17,7 +17,9 @@ class OperatorViewModel(private val repository: OperatorRepository) : ViewModel(
 
     var isLoading by mutableStateOf(false)
         private set
-
+    fun updateOrder(newList: List<Operator>) {
+        operators = newList // Al ser 'by mutableStateOf', solo asignamos
+    }
     var errorMessage by mutableStateOf<String?>(null)
         private set
 

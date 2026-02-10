@@ -1,5 +1,11 @@
     package com.endfield.talosIIarchive.ui.screens.wiki
 
+    import androidx.compose.animation.core.LinearEasing
+    import androidx.compose.animation.core.RepeatMode
+    import androidx.compose.animation.core.animateFloat
+    import androidx.compose.animation.core.infiniteRepeatable
+    import androidx.compose.animation.core.rememberInfiniteTransition
+    import androidx.compose.animation.core.tween
     import androidx.compose.foundation.background
     import androidx.compose.foundation.border
     import androidx.compose.foundation.clickable
@@ -30,7 +36,9 @@
     import androidx.compose.runtime.setValue
     import androidx.compose.ui.Alignment
     import androidx.compose.ui.Modifier
+    import androidx.compose.ui.graphics.Brush
     import androidx.compose.ui.graphics.Color
+    import androidx.compose.ui.graphics.graphicsLayer
     import androidx.compose.ui.text.font.FontWeight
     import androidx.compose.ui.unit.dp
     import androidx.compose.ui.unit.sp
@@ -120,7 +128,17 @@
                         }
                     }
                 } else {
-                    // MENÚ PRINCIPAL
+                    // 1. RELOJ GLOBAL: Va de -1 a 3 (para que la luz entre desde arriba y salga por abajo)
+                    val infiniteTransition = rememberInfiniteTransition(label = "NeonWave")
+                    val pulsePosition by infiniteTransition.animateFloat(
+                        initialValue = -1f,
+                        targetValue = 3f,
+                        animationSpec = infiniteRepeatable(
+                            animation = tween(5000, easing = LinearEasing),
+                            repeatMode = RepeatMode.Restart
+                        ), label = "WaveProgress"
+                    )
+
                     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
                         Text(
                             text = "// ARCHIVE_SYSTEM_V.2.0",
@@ -129,17 +147,44 @@
                             modifier = Modifier.padding(bottom = 24.dp)
                         )
 
-                        WikiMenuButton("01", "OPERATORS", EndfieldOrange, Modifier.weight(1f)) {
+                        // Botón 0
+                        WikiMenuButton(
+                            "01",
+                            "OPERATORS",
+                            EndfieldOrange,
+                            0f,
+                            pulsePosition,
+                            Modifier.weight(1f)
+                        ) {
                             selectedCategory = WikiCategory.OPERATORS
                         }
                         Spacer(modifier = Modifier.height(12.dp))
-                        WikiMenuButton("02", "WEAPONS", EndfieldCyan, Modifier.weight(1f)) {
+
+                        // Botón 1
+                        WikiMenuButton(
+                            "02",
+                            "WEAPONS",
+                            EndfieldCyan,
+                            1f,
+                            pulsePosition,
+                            Modifier.weight(1f)
+                        ) {
                             selectedCategory = WikiCategory.WEAPONS
                         }
                         Spacer(modifier = Modifier.height(12.dp))
-                        WikiMenuButton("03", "GEAR", EndfieldYellow, Modifier.weight(1f)) {
+
+                        // Botón 2
+                        WikiMenuButton(
+                            "03",
+                            "GEAR",
+                            EndfieldYellow,
+                            2f,
+                            pulsePosition,
+                            Modifier.weight(1f)
+                        ) {
                             selectedCategory = WikiCategory.GEAR
                         }
+
                     }
                 }
             }
@@ -185,22 +230,35 @@
 
         }
     }
-
     @Composable
     fun WikiMenuButton(
-        number: String, title: String, accentColor: Color, modifier: Modifier, onClick: () -> Unit
+        number: String,
+        title: String,
+        accentColor: Color,
+        buttonIndex: Float,    // Su posición (0, 1 o 2)
+        currentWave: Float,    // Dónde está la luz ahora
+        modifier: Modifier,
+        onClick: () -> Unit
     ) {
+        // CÁLCULO DE INTENSIDAD (Efecto Degradado)
+        // Calculamos la distancia y la convertimos en un valor de 0 a 1
+        // Cuanto más cerca esté currentWave de buttonIndex, más brilla.
+        val distance = Math.abs(currentWave - buttonIndex)
+        val intensity = (1f - distance).coerceIn(0f, 1f) // 0.2f es el brillo mínimo (apagado)
+        val textAlpha = (0.7f + (intensity * 0.3f)).coerceIn(0.7f, 1f)
         Box(
             modifier = modifier
                 .fillMaxWidth()
-                .border(1.dp, TechBorder)
                 .background(TechSurface)
-                .clickable { onClick() }) {
+                .clickable { onClick() }
+        ) {
+            // --- LA BARRA NEÓN ---
             Box(
                 modifier = Modifier
                     .fillMaxHeight()
                     .width(6.dp)
-                    .background(accentColor)
+                    // La barra sí brilla intensamente (de 0.2 a 1.0)
+                    .background(accentColor.copy(alpha = (0.2f + intensity * 0.8f)))
             )
 
             Column(
@@ -210,27 +268,34 @@
             ) {
                 Text(
                     text = "ID.$number",
-                    color = accentColor,
+                    color = accentColor.copy(alpha = intensity),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Bold
                 )
+                // --- TÍTULO PRINCIPAL ---
                 Text(
                     text = title,
-                    color = Color.White,
+                    color = Color.White, // Siempre blanco puro
                     fontSize = 32.sp,
                     fontWeight = FontWeight.Black,
-                    letterSpacing = 4.sp
+                    letterSpacing = 4.sp,
+                    modifier = Modifier.graphicsLayer {
+                        // Solo animamos un poco la opacidad para que "respire",
+                        // pero se mantiene siempre legible (mínimo 0.7)
+                        alpha = textAlpha
+                    }
                 )
             }
 
+            // Decoración técnica en la esquina
             Text(
                 text = "ACCESS >",
-                color = Color.DarkGray,
+                color = Color.White.copy(alpha = 0.2f + (intensity * 0.3f)),
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(16.dp),
-                fontSize = 10.sp
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Bold
             )
         }
     }
-

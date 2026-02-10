@@ -1,5 +1,14 @@
 package com.endfield.talosIIarchive.ui.screens.home
 
+import android.R.attr.scaleX
+import android.R.attr.scaleY
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -19,6 +28,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -34,7 +46,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -42,8 +56,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.util.lerp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import com.endfield.talosIIarchive.ui.theme.EndfieldCyan
@@ -53,11 +69,14 @@ import com.endfield.talosIIarchive.ui.theme.TechBackground
 import com.endfield.talosIIarchive.ui.theme.TechBorder
 import com.endfield.talosIIarchive.ui.theme.TechSurface
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.yield
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.json.JSONObject
+import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 
 class HomeViewModel : ViewModel() {
@@ -119,19 +138,47 @@ fun HomeScreen(
     onSocialClick: () -> Unit = {},
     viewModel: HomeViewModel = viewModel()
 ) {
+
     var imageUrls by remember { mutableStateOf<List<String>>(emptyList()) }
     var isLoading by remember { mutableStateOf(true) }
     val coroutineScope = rememberCoroutineScope()
+
+    val pagerState = rememberPagerState(pageCount = { imageUrls.size })
+
 
     // Estados para el drag del footer
     var footerOffsetX by remember { mutableFloatStateOf(0f) }
     var footerOffsetY by remember { mutableFloatStateOf(0f) }
 
     LaunchedEffect(Unit) {
-        coroutineScope.launch {
-            isLoading = true
-            imageUrls = viewModel.fetchEndfieldImages()
-            isLoading = false
+        isLoading = true
+        imageUrls = viewModel.fetchEndfieldImages()
+        isLoading = false
+    }
+
+    LaunchedEffect(imageUrls) {
+        if (imageUrls.isNotEmpty()) {
+            while (true) {
+                yield() // Cede el paso para evitar bloqueos de UI
+                delay(2500) // Tiempo de espera entre transiciones
+
+                // Solo animamos si el usuario NO está tocando el pager actualmente
+                if (!pagerState.isScrollInProgress) {
+                    val nextPage = (pagerState.currentPage + 1) % imageUrls.size
+                    try {
+                        pagerState.animateScrollToPage(
+                            page = nextPage,
+                            animationSpec = tween(
+                                durationMillis = 1000,
+                                easing = FastOutSlowInEasing
+                            )
+                        )
+                    } catch (e: Exception) {
+                        // Si algo cancela la animación, el bucle simplemente sigue al siguiente ciclo
+                        println("Auto-scroll interrumpido: ${e.message}")
+                    }
+                }
+            }
         }
     }
 
@@ -214,7 +261,7 @@ fun HomeScreen(
                         Text(
                             text = "REAL-TIME",
                             color = EndfieldYellow,
-                            fontSize = 9.sp,
+                            fontSize = 6.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -239,37 +286,30 @@ fun HomeScreen(
                             )
                         }
                     }
-                } else if (imageUrls.isNotEmpty()) {
-                    LazyRow(
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        items(imageUrls) { imageUrl ->
-                            EndfieldImageCard(imageUrl = imageUrl)
-                        }
-                    }
-                } else {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(
-                                text = "CONNECTION_FAILED",
-                                color = Color.Red,
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Text(
-                                text = "NO_IMAGES_FOUND",
-                                color = Color.Gray,
-                                fontSize = 10.sp
-                            )
+                }else if (imageUrls.isNotEmpty()) {
+                    Box(modifier = Modifier.fillMaxSize()) { // Este Box agrupa todo
+                        HorizontalPager(
+                            state = pagerState,
+                            modifier = Modifier.fillMaxSize()
+                        ) { page ->
+                            // Calculamos la distancia de la página actual al centro
+                            val pageOffset = (pagerState.currentPage - page + pagerState.currentPageOffsetFraction).absoluteValue
+
+                            Box(modifier = Modifier.graphicsLayer {
+                                // Animamos la transparencia según la posición
+                                alpha = lerp(
+                                    start = 0.1f,
+                                    stop = 1f,
+                                    fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                                )
+                            }) {
+                                FeaturedImageCard(imageUrl = imageUrls[page])
+                            }
                         }
                     }
                 }
             }
         }
-
         Spacer(modifier = Modifier.height(4.dp))
 
         // Botón WIKI con estilo consistente
@@ -488,6 +528,36 @@ fun HomeScreen(
                 )
             }
         }
+    }
+}
+
+@Composable
+fun FeaturedImageCard(imageUrl: String) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(260.dp)
+            .border(1.dp, TechBorder)
+    ) {
+        AsyncImage(
+            model = imageUrl,
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
+        )
+
+        // Overlay de "Interferencias" (Estética Endfield)
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.5f))
+                    )
+                )
+        )
+
+
     }
 }
 

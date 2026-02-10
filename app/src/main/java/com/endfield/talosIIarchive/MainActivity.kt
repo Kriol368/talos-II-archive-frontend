@@ -3,8 +3,21 @@ package com.endfield.talosIIarchive
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,9 +25,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
@@ -28,10 +43,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -244,68 +263,60 @@ fun NavigationBarItemEnhanced(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // 1. ANIMACIÓN DE ESTADO: Color, Escala y Elevación
+    val animatedColor by animateColorAsState(
+        targetValue = if (isSelected) accentColor else Color.Gray.copy(alpha = 0.5f),
+        animationSpec = tween(300),
+        label = "ColorState"
+    )
+
+    val verticalOffset by animateDpAsState(
+        targetValue = if (isSelected) (-5).dp else 0.dp,
+        animationSpec = spring(stiffness = Spring.StiffnessLow),
+        label = "OffsetState"
+    )
+
+    val textAlpha by animateFloatAsState(
+        targetValue = if (isSelected) 1f else 0.5f,
+        label = "AlphaState"
+    )
+
     Box(
         modifier = modifier
-            .height(80.dp)
-            .clickable { onClick() },
+            .fillMaxHeight()
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null // Sin ripple para un look más "terminal"
+            ) { onClick() },
         contentAlignment = Alignment.Center
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier.padding(vertical = 8.dp)
+            verticalArrangement = Arrangement.Center
         ) {
-            // Icono grande
-            Box(
+            // Icono con elevación suave
+            Icon(
+                painter = painterResource(id = screen.iconResId),
+                contentDescription = screen.title,
                 modifier = Modifier
-                    .size(44.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    painter = painterResource(id = screen.iconResId),
-                    contentDescription = screen.title,
-                    modifier = Modifier.size(26.dp),
-                    tint = if (isSelected) accentColor else Color.Gray
-                )
-            }
-
-            Spacer(modifier = Modifier.height(6.dp))
-
-            // Texto del ítem
-            Text(
-                text = screen.title.uppercase(),
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = if (isSelected) FontWeight.Black else FontWeight.Medium,
-                fontSize = 11.sp,
-                letterSpacing = 1.sp,
-                color = if (isSelected) accentColor else Color.Gray,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                    .size(24.dp)
+                    .offset(y = verticalOffset),
+                tint = animatedColor
             )
 
-            // Indicador de selección (punto debajo del texto)
-            if (isSelected) {
-                Spacer(modifier = Modifier.height(4.dp))
-                Box(
-                    modifier = Modifier
-                        .size(6.dp)
-                        .background(accentColor, shape = CircleShape)
-                )
-            } else {
-                // ID de módulo cuando no está seleccionado
-                Spacer(modifier = Modifier.height(6.dp))
-                Text(
-                    text = when (screen.title) {
-                        "Home" -> "00"
-                        "Operators" -> "01"
-                        "Weapons" -> "02"
-                        else -> "00"
-                    },
-                    color = Color.Gray.copy(alpha = 0.4f),
-                    fontSize = 9.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // Título de la pantalla
+            Text(
+                text = screen.title.uppercase(),
+                fontSize = 10.sp,
+                fontWeight = if (isSelected) FontWeight.Black else FontWeight.Bold,
+                letterSpacing = 1.5.sp,
+                color = animatedColor,
+                modifier = Modifier.graphicsLayer { alpha = textAlpha }
+            )
+
+
         }
     }
 }
