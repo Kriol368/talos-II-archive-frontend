@@ -3,7 +3,6 @@ package com.endfield.talosIIarchive.domain.models
 import kotlinx.serialization.Serializable
 
 
-
 @Serializable
 data class Operator(
     val id: Int,

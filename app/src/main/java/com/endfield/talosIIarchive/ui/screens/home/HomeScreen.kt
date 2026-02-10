@@ -2,28 +2,39 @@ package com.endfield.talosIIarchive.ui.screens.home
 
 import android.content.res.Configuration
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -32,7 +43,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -42,14 +52,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.endfield.talosIIarchive.ui.theme.EndfieldCyan
+import com.endfield.talosIIarchive.ui.theme.EndfieldLightGrey
 import com.endfield.talosIIarchive.ui.theme.EndfieldOrange
-import com.endfield.talosIIarchive.ui.theme.EndfieldYellow
 import com.endfield.talosIIarchive.ui.theme.TechBackground
 import com.endfield.talosIIarchive.ui.theme.TechBorder
 import com.endfield.talosIIarchive.ui.theme.TechSurface
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import okhttp3.OkHttpClient
@@ -65,7 +74,8 @@ class HomeViewModel : ViewModel() {
         val imageUrls = mutableListOf<String>()
         try {
             val url = "https://www.reddit.com/r/Endfield/hot.json?limit=100"
-            val request = Request.Builder().url(url).addHeader("User-Agent", "TalosArchive/1.0").build()
+            val request =
+                Request.Builder().url(url).addHeader("User-Agent", "TalosArchive/1.0").build()
             val response = client.newCall(request).execute()
             val responseBody = response.body?.string()
 
@@ -82,15 +92,19 @@ class HomeViewModel : ViewModel() {
                         post.has("preview") -> {
                             val preview = post.optJSONObject("preview")
                             val images = preview?.optJSONArray("images")
-                            images?.getJSONObject(0)?.optJSONObject("source")?.optString("url", "")?.replace("&amp;", "&")
+                            images?.getJSONObject(0)?.optJSONObject("source")?.optString("url", "")
+                                ?.replace("&amp;", "&")
                         }
+
                         else -> null
                     }
                     if (imageUrl != null && imageUrl.startsWith("http")) imageUrls.add(imageUrl)
                     if (imageUrls.size >= 20) break
                 }
             }
-        } catch (e: Exception) { e.printStackTrace() }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
         return@withContext imageUrls
     }
 }
@@ -107,7 +121,6 @@ fun HomeScreen(
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
-    // Estados para el drag del footer
     var footerOffsetX by remember { mutableFloatStateOf(0f) }
     var footerOffsetY by remember { mutableFloatStateOf(0f) }
 
@@ -127,9 +140,13 @@ fun HomeScreen(
                     try {
                         pagerState.animateScrollToPage(
                             page = nextPage,
-                            animationSpec = tween(durationMillis = 1000, easing = FastOutSlowInEasing)
+                            animationSpec = tween(
+                                durationMillis = 1000,
+                                easing = FastOutSlowInEasing
+                            )
                         )
-                    } catch (e: Exception) { /* Animación cancelada */ }
+                    } catch (_: Exception) {
+                    }
                 }
             }
         }
@@ -141,23 +158,19 @@ fun HomeScreen(
             .background(TechBackground)
             .padding(16.dp)
     ) {
-        // --- HEADER (SYSTEM DASHBOARD) ---
         HeaderSection(isLandscape)
 
         if (isLandscape) {
-            // --- DISEÑO HORIZONTAL (LANDSCAPE) ---
             Row(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(top = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // Columna Izquierda: Pager de Noticias
                 Box(modifier = Modifier.weight(1.2f)) {
                     RedditFeedSection(isLoading, imageUrls, pagerState)
                 }
 
-                // Columna Derecha: Botones y Status
                 Column(
                     modifier = Modifier
                         .weight(1f)
@@ -165,14 +178,14 @@ fun HomeScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     MenuButton(
-                        id = "ID.01",
+                        id = "ID.S1",
                         title = "WIKI",
                         subtitle = "ACCESS_FILES",
                         accentColor = EndfieldOrange,
                         onClick = onWikiClick
                     )
                     MenuButton(
-                        id = "ID.02",
+                        id = "ID.S2",
                         title = "SOCIAL",
                         subtitle = "COMMUNITY_UPLOADS",
                         accentColor = EndfieldCyan,
@@ -190,7 +203,6 @@ fun HomeScreen(
                 }
             }
         } else {
-            // --- DISEÑO VERTICAL (PORTRAIT) ---
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -205,7 +217,7 @@ fun HomeScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 MenuButton(
-                    id = "ID.01",
+                    id = "ID.S1",
                     title = "WIKI",
                     subtitle = "ACCESS_FILES",
                     accentColor = EndfieldOrange,
@@ -215,7 +227,7 @@ fun HomeScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 MenuButton(
-                    id = "ID.02",
+                    id = "ID.S2",
                     title = "SOCIAL",
                     subtitle = "COMMUNITY_UPLOADS",
                     accentColor = EndfieldCyan,
@@ -240,7 +252,7 @@ fun HeaderSection(isLandscape: Boolean) {
     Column {
         Text(
             text = "// SYSTEM_DASHBOARD",
-            color = EndfieldYellow,
+            color = Color.White,
             fontSize = 10.sp,
             fontWeight = FontWeight.Bold,
             letterSpacing = 1.sp
@@ -274,14 +286,23 @@ fun RedditFeedSection(
         colors = CardDefaults.cardColors(containerColor = TechSurface),
         elevation = CardDefaults.cardElevation(0.dp)
     ) {
-        Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column {
-                    Text("TRENDING ON r/ENDFIELD", fontSize = 18.sp, fontWeight = FontWeight.Black, color = Color.White)
+                    Text(
+                        "TRENDING ON r/ENDFIELD",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Black,
+                        color = Color.White
+                    )
                 }
 
             }
@@ -294,9 +315,14 @@ fun RedditFeedSection(
                 }
             } else if (imageUrls.isNotEmpty()) {
                 HorizontalPager(state = pagerState, modifier = Modifier.fillMaxSize()) { page ->
-                    val pageOffset = (pagerState.currentPage - page + pagerState.currentPageOffsetFraction).absoluteValue
+                    val pageOffset =
+                        (pagerState.currentPage - page + pagerState.currentPageOffsetFraction).absoluteValue
                     Box(modifier = Modifier.graphicsLayer {
-                        alpha = lerp(start = 0.1f, stop = 1f, fraction = 1f - pageOffset.coerceIn(0f, 1f))
+                        alpha = lerp(
+                            start = 0.1f,
+                            stop = 1f,
+                            fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                        )
                     }) {
                         FeaturedImageCard(imageUrl = imageUrls[page])
                     }
@@ -307,7 +333,13 @@ fun RedditFeedSection(
 }
 
 @Composable
-fun MenuButton(id: String, title: String, subtitle: String, accentColor: Color, onClick: () -> Unit) {
+fun MenuButton(
+    id: String,
+    title: String,
+    subtitle: String,
+    accentColor: Color,
+    onClick: () -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -318,21 +350,56 @@ fun MenuButton(id: String, title: String, subtitle: String, accentColor: Color, 
         colors = CardDefaults.cardColors(containerColor = TechSurface)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            Box(Modifier.fillMaxHeight().width(6.dp).background(accentColor))
+            Box(
+                Modifier
+                    .fillMaxHeight()
+                    .width(6.dp)
+                    .background(accentColor)
+            )
             Row(
-                modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp, vertical = 16.dp),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 24.dp, vertical = 16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column(Modifier.width(60.dp).padding(end = 16.dp)) {
+                Column(
+                    Modifier
+                        .width(60.dp)
+                        .padding(end = 16.dp)
+                ) {
                     Text(id, color = accentColor, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                    Box(Modifier.fillMaxWidth().height(2.dp).background(accentColor))
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .height(2.dp)
+                            .background(accentColor)
+                    )
                 }
                 Column(Modifier.weight(1f)) {
-                    Text(title, fontSize = 24.sp, fontWeight = FontWeight.Black, color = Color.White)
-                    Text(subtitle, color = accentColor, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                    Text(
+                        title,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Black,
+                        color = Color.White
+                    )
+                    Text(
+                        subtitle,
+                        color = accentColor,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
-                Box(Modifier.background(Color.Black).padding(horizontal = 8.dp, vertical = 4.dp)) {
-                    Text("ACCESS >", color = EndfieldYellow, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                Box(
+                    Modifier
+                        .background(Color.Black)
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                ) {
+                    Text(
+                        "ACCESS >",
+                        color = EndfieldLightGrey,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
         }
@@ -340,7 +407,12 @@ fun MenuButton(id: String, title: String, subtitle: String, accentColor: Color, 
 }
 
 @Composable
-fun FooterStatus(offsetX: Float, offsetY: Float, onDrag: (Float, Float) -> Unit, onDragEnd: () -> Unit) {
+fun FooterStatus(
+    offsetX: Float,
+    offsetY: Float,
+    onDrag: (Float, Float) -> Unit,
+    onDragEnd: () -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -358,8 +430,18 @@ fun FooterStatus(offsetX: Float, offsetY: Float, onDrag: (Float, Float) -> Unit,
             .padding(8.dp)
     ) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text("// SYSTEM_STATUS: ONLINE", color = EndfieldYellow, fontSize = 9.sp, fontWeight = FontWeight.Bold)
-            Text("TALOS_OS v2.0.1", color = Color.Gray, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+            Text(
+                "// SYSTEM_STATUS: ONLINE",
+                color = Color.White,
+                fontSize = 9.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                "TALOS_OS v1.0.0",
+                color = Color.Gray,
+                fontSize = 9.sp,
+                fontWeight = FontWeight.Bold
+            )
         }
     }
 }
@@ -367,7 +449,10 @@ fun FooterStatus(offsetX: Float, offsetY: Float, onDrag: (Float, Float) -> Unit,
 @Composable
 fun FeaturedImageCard(imageUrl: String) {
     Box(
-        modifier = Modifier.fillMaxWidth().height(260.dp).border(1.dp, TechBorder)
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(260.dp)
+            .border(1.dp, TechBorder)
     ) {
         AsyncImage(
             model = imageUrl,
@@ -376,9 +461,16 @@ fun FeaturedImageCard(imageUrl: String) {
             modifier = Modifier.fillMaxSize()
         )
         Box(
-            modifier = Modifier.fillMaxSize().background(
-                Brush.verticalGradient(colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.5f)))
-            )
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            Color.Transparent,
+                            Color.Black.copy(alpha = 0.5f)
+                        )
+                    )
+                )
         )
     }
 }

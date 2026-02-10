@@ -44,7 +44,7 @@ class BlueprintViewModel(private val repository: BlueprintRepository) : ViewMode
             } else {
                 false
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             false
         }
     }

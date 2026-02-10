@@ -63,7 +63,7 @@ fun GearDetailScreen(gear: Gear, isLoadingFullData: Boolean, onBack: () -> Unit)
         dragHandle = {
             Icon(
                 imageVector = Icons.Default.KeyboardArrowDown,
-                contentDescription = "Cerrar",
+                contentDescription = "Close",
                 tint = EndfieldYellow.copy(alpha = 0.7f),
                 modifier = Modifier
                     .padding(top = 12.dp)
@@ -79,7 +79,6 @@ fun GearDetailScreen(gear: Gear, isLoadingFullData: Boolean, onBack: () -> Unit)
                 .background(TechBlack)
                 .verticalScroll(scrollState)
         ) {
-            // --- 1. HEADER ---
             Box(
                 modifier = Modifier
                     .height(380.dp)
@@ -116,14 +115,12 @@ fun GearDetailScreen(gear: Gear, isLoadingFullData: Boolean, onBack: () -> Unit)
                         color = Color.White,
                         lineHeight = 44.sp
                     )
-                    // Etiquetas técnicas
                     Row(
                         modifier = Modifier.padding(top = 8.dp),
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         DataTag("TYPE", gear.gearType, EndfieldCyan, Color.Black)
                         DataTag("SET", gear.gearSet.take(8), EndfieldOrange, Color.Black)
-                        // Indicador visual de setBonus
                         if (!gear.setBonus.isNullOrBlank()) {
                             DataTag("BONUS", "✓", EndfieldYellow, Color.Black)
                         }
@@ -131,7 +128,6 @@ fun GearDetailScreen(gear: Gear, isLoadingFullData: Boolean, onBack: () -> Unit)
                 }
             }
 
-            // --- 2. STATS PRINCIPALES ---
             Row(
                 modifier = Modifier
                     .padding(24.dp)
@@ -153,7 +149,6 @@ fun GearDetailScreen(gear: Gear, isLoadingFullData: Boolean, onBack: () -> Unit)
                 }
             }
 
-            // --- 3. SELECTOR DE MÓDULOS ---
             Row(
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
@@ -172,7 +167,6 @@ fun GearDetailScreen(gear: Gear, isLoadingFullData: Boolean, onBack: () -> Unit)
                 }
             }
 
-            // --- 4. PANEL DE CONTENIDO ---
             Box(
                 modifier = Modifier
                     .padding(24.dp)
@@ -218,7 +212,6 @@ fun GearStatContent(gear: Gear) {
     Column(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // CARD 1: BASE STATS Y ATRIBUTOS
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(containerColor = TechSurface),
@@ -247,7 +240,6 @@ fun GearStatContent(gear: Gear) {
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
 
-                // Mostrar los 3 atributos si existen
                 gear.attribute1?.let { attr ->
                     if (attr.isNotBlank()) {
                         GearAttributeRow("ATTR_01", attr)
@@ -266,10 +258,10 @@ fun GearStatContent(gear: Gear) {
                     }
                 }
 
-                // Si no hay atributos, mostrar mensaje
                 if (gear.attribute1.isNullOrBlank() &&
                     gear.attribute2.isNullOrBlank() &&
-                    gear.attribute3.isNullOrBlank()) {
+                    gear.attribute3.isNullOrBlank()
+                ) {
                     Text(
                         "No additional attributes",
                         color = Color.Gray,
@@ -281,7 +273,6 @@ fun GearStatContent(gear: Gear) {
             }
         }
 
-        // CARD 2: INFORMACIÓN DEL GEAR
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(containerColor = TechSurface),

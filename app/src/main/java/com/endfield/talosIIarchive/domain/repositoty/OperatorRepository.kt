@@ -1,7 +1,6 @@
 package com.endfield.talosIIarchive.domain.repositoty
 
 import com.endfield.talosIIarchive.domain.models.Operator
-import com.endfield.talosIIarchive.domain.models.Weapon
 
 
 interface OperatorRepository {

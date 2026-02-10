@@ -3,14 +3,30 @@ package com.endfield.talosIIarchive.ui.screens.social
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -19,7 +35,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.endfield.talosIIarchive.ui.theme.*
+import com.endfield.talosIIarchive.ui.theme.EndfieldPurple
+import com.endfield.talosIIarchive.ui.theme.TechBackground
+import com.endfield.talosIIarchive.ui.theme.TechBorder
+import com.endfield.talosIIarchive.ui.theme.TechSurface
 import com.endfield.talosIIarchive.ui.viewmodel.TeamViewModel
 
 @Composable
@@ -27,13 +46,15 @@ fun TeamListScreen(
     teamViewModel: TeamViewModel,
     onNewTeamClick: () -> Unit
 ) {
-    val context = LocalContext.current
+    LocalContext.current
 
     LaunchedEffect(Unit) {
         teamViewModel.fetchTeams()
     }
 
-    Box(modifier = Modifier.fillMaxSize().background(TechBackground)) {
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .background(TechBackground)) {
         when {
             teamViewModel.isLoading -> {
                 Column(
@@ -127,7 +148,6 @@ fun TeamListScreen(
             }
         }
 
-        // FAB con estilo del tema
         Box(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
@@ -174,7 +194,6 @@ fun TeamCard(
                 .fillMaxWidth()
                 .padding(20.dp)
         ) {
-            // Header con ID del equipo
             Text(
                 text = "TEAM_${team.id.toString().padStart(3, '0')}",
                 color = EndfieldPurple,
@@ -185,7 +204,6 @@ fun TeamCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Nombre del equipo
             Text(
                 text = team.teamName.uppercase(),
                 color = Color.White,
@@ -196,7 +214,6 @@ fun TeamCard(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Descripción
             Text(
                 text = team.description,
                 color = Color.LightGray,
@@ -206,7 +223,6 @@ fun TeamCard(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Sección de operadores
             Column {
                 Text(
                     "OPERATOR_COMPOSITION",
@@ -271,23 +287,6 @@ fun TeamCard(
                                 modifier = Modifier.weight(1f)
                             )
                         }
-                    }
-
-                    // Estado del equipo
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Box(
-                        modifier = Modifier
-                            .background(Color.Black)
-                            .padding(horizontal = 8.dp, vertical = 4.dp)
-                            .align(Alignment.End)
-                    ) {
-                        Text(
-                            "COMPLETE",
-                            color = EndfieldPurple,
-                            fontSize = 8.sp,
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = 1.sp
-                        )
                     }
                 } else {
                     Box(

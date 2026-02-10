@@ -24,7 +24,7 @@ class TeamViewModel(private val repository: TeamRepository) : ViewModel() {
     var isDetailLoading by mutableStateOf(false)
         private set
 
-    var isCreating by mutableStateOf(false)  // Add this
+    var isCreating by mutableStateOf(false)
         private set
 
     var errorMessage by mutableStateOf<String?>(null)
@@ -61,7 +61,7 @@ class TeamViewModel(private val repository: TeamRepository) : ViewModel() {
         }
     }
 
-    suspend fun createTeam(request: CreateTeamRequest): Boolean {  // Make this suspend
+    suspend fun createTeam(request: CreateTeamRequest): Boolean {
         isCreating = true
         return try {
             val newTeam = repository.createTeam(request)
@@ -88,7 +88,4 @@ class TeamViewModel(private val repository: TeamRepository) : ViewModel() {
         errorMessage = null
     }
 
-    fun clearError() {
-        errorMessage = null
-    }
 }

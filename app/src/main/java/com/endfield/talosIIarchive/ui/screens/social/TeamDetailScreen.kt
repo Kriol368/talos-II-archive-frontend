@@ -3,13 +3,28 @@ package com.endfield.talosIIarchive.ui.screens.social
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -26,7 +41,13 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.endfield.talosIIarchive.domain.models.TeamDetail
 import com.endfield.talosIIarchive.domain.models.TeamOperatorDetail
-import com.endfield.talosIIarchive.ui.theme.*
+import com.endfield.talosIIarchive.ui.theme.EndfieldCyan
+import com.endfield.talosIIarchive.ui.theme.EndfieldOrange
+import com.endfield.talosIIarchive.ui.theme.EndfieldPurple
+import com.endfield.talosIIarchive.ui.theme.EndfieldYellow
+import com.endfield.talosIIarchive.ui.theme.TechBackground
+import com.endfield.talosIIarchive.ui.theme.TechBorder
+import com.endfield.talosIIarchive.ui.theme.TechSurface
 
 @Composable
 fun TeamDetailScreen(
@@ -43,7 +64,6 @@ fun TeamDetailScreen(
                 .fillMaxSize()
                 .verticalScroll(scrollState)
         ) {
-            // Header con degradado
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -98,7 +118,6 @@ fun TeamDetailScreen(
                 }
             }
 
-            // Pestañas de operadores
             OperatorTabsRow(
                 operators = team.operators,
                 selectedIndex = selectedOperatorIndex,
@@ -175,6 +194,7 @@ fun OperatorTabItem(
         )
     }
 }
+
 @Composable
 fun OperatorInfoCard(operator: TeamOperatorDetail) {
     Card(
@@ -192,7 +212,6 @@ fun OperatorInfoCard(operator: TeamOperatorDetail) {
                     .padding(20.dp),
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
-                // Header
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -229,13 +248,11 @@ fun OperatorInfoCard(operator: TeamOperatorDetail) {
                     }
                 }
 
-                // Contenido principal
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(24.dp),
                     verticalAlignment = Alignment.Top
                 ) {
-                    // Operador
                     Column(
                         modifier = Modifier.weight(1f),
                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -275,7 +292,6 @@ fun OperatorInfoCard(operator: TeamOperatorDetail) {
                         }
                     }
 
-                    // Arma
                     Column(
                         modifier = Modifier.weight(1f),
                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -419,7 +435,6 @@ fun GearCard(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Tipo de gear
             Box(
                 modifier = Modifier
                     .background(Color.Black)
@@ -434,7 +449,6 @@ fun GearCard(
                 )
             }
 
-            // Imagen
             Box(
                 modifier = Modifier
                     .size(70.dp)
@@ -453,7 +467,6 @@ fun GearCard(
                 )
             }
 
-            // Nombre
             Text(
                 text = gear.name.uppercase(),
                 color = Color.White,
@@ -464,7 +477,6 @@ fun GearCard(
                 letterSpacing = 0.5.sp
             )
 
-            // Set
             Box(
                 modifier = Modifier
                     .background(Color.Black)
@@ -479,7 +491,6 @@ fun GearCard(
                 )
             }
 
-            // DEF
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(4.dp)

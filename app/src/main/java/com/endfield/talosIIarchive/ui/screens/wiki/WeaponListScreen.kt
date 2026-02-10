@@ -8,32 +8,20 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -60,7 +48,7 @@ fun WeaponListScreen(
         }
     }
 
-    val weapons = weaponViewModel.weapons
+    weaponViewModel.weapons
     val configuration = LocalConfiguration.current
 
     val columnCount = if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) 4 else 2
@@ -82,7 +70,7 @@ fun WeaponListScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(weaponViewModel.weapons) { weapon ->
-                    WeaponrGridItem(weapon) { onWeaponClick(weapon) }
+                    WeaponGridItem(weapon) { onWeaponClick(weapon) }
 
                 }
             }
@@ -92,7 +80,7 @@ fun WeaponListScreen(
 
 
 @Composable
-fun WeaponrGridItem(weapon: Weapon,onClick:()-> Unit){
+fun WeaponGridItem(weapon: Weapon, onClick: () -> Unit) {
     val rarityColor = if (weapon.rarity.contains("6")) EndfieldOrange else EndfieldCyan
 
     Box(
@@ -124,9 +112,11 @@ fun WeaponrGridItem(weapon: Weapon,onClick:()-> Unit){
                 )
         )
 
-        Column(modifier = Modifier
-            .align(Alignment.BottomStart)
-            .padding(12.dp)) {
+        Column(
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .padding(12.dp)
+        ) {
             Text(
                 weapon.rarity,
                 color = rarityColor,

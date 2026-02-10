@@ -6,7 +6,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.endfield.talosIIarchive.domain.models.Operator
-import com.endfield.talosIIarchive.domain.models.Weapon
 import com.endfield.talosIIarchive.domain.repositoty.OperatorRepository
 import kotlinx.coroutines.launch
 
@@ -17,9 +16,11 @@ class OperatorViewModel(private val repository: OperatorRepository) : ViewModel(
 
     var isLoading by mutableStateOf(false)
         private set
+
     fun updateOrder(newList: List<Operator>) {
-        operators = newList // Al ser 'by mutableStateOf', solo asignamos
+        operators = newList
     }
+
     var errorMessage by mutableStateOf<String?>(null)
         private set
 
@@ -31,9 +32,9 @@ class OperatorViewModel(private val repository: OperatorRepository) : ViewModel(
             startLoading()
             try {
                 operators = repository.getAllOperators()
-                if (operators.isEmpty()) errorMessage = "No se encontraron operadores."
+                if (operators.isEmpty()) errorMessage = "No operators found."
             } catch (e: Exception) {
-                errorMessage = "Error al conectar: ${e.localizedMessage}"
+                errorMessage = "Error connecting: ${e.localizedMessage}"
             } finally {
                 isLoading = false
             }
@@ -41,16 +42,11 @@ class OperatorViewModel(private val repository: OperatorRepository) : ViewModel(
     }
 
 
-
     private fun startLoading() {
         isLoading = true
         errorMessage = null
     }
 
-    // Función para "pestañear" o limpiar errores desde la UI
-    fun clearError() {
-        errorMessage = null
-    }
 
     var selectedOperatorFull by mutableStateOf<Operator?>(null)
         private set

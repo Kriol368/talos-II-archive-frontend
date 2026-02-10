@@ -10,17 +10,33 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
@@ -36,6 +52,7 @@ import com.endfield.talosIIarchive.ui.theme.TechSurface
 import com.endfield.talosIIarchive.ui.viewmodel.GearViewModel
 import com.endfield.talosIIarchive.ui.viewmodel.OperatorViewModel
 import com.endfield.talosIIarchive.ui.viewmodel.WeaponViewModel
+import kotlin.math.abs
 
 enum class WikiCategory {
     OPERATORS, WEAPONS, GEAR
@@ -52,7 +69,6 @@ fun WikiScreen(
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
-    // Estados para controlar qué se está mostrando
     var selectedOperatorId by remember { mutableStateOf<Int?>(null) }
     var selectedWeaponId by remember { mutableStateOf<Int?>(null) }
     var selectedGearId by remember { mutableStateOf<Int?>(null) }
@@ -62,11 +78,15 @@ fun WikiScreen(
             if (selectedCategory != null) {
                 Column(modifier = Modifier.fillMaxSize()) {
                     TopAppBar(
-                        title = { Text(text = "// ${selectedCategory.toString()}", fontWeight = FontWeight.Black) },
+                        title = {
+                            Text(
+                                text = "// ${selectedCategory.toString()}",
+                                fontWeight = FontWeight.Black
+                            )
+                        },
                         navigationIcon = {
                             IconButton(onClick = {
                                 selectedCategory = null
-                                // Limpiar selecciones al volver
                                 selectedOperatorId = null
                                 selectedWeaponId = null
                                 selectedGearId = null
@@ -74,7 +94,11 @@ fun WikiScreen(
                                 weaponViewModel.clearSelectedWeapon()
                                 gearViewModel.clearSelectedGear()
                             }) {
-                                Icon(Icons.AutoMirrored.Filled.ArrowBack, null, tint = EndfieldOrange)
+                                Icon(
+                                    Icons.AutoMirrored.Filled.ArrowBack,
+                                    null,
+                                    tint = EndfieldOrange
+                                )
                             }
                         },
                         colors = TopAppBarDefaults.topAppBarColors(
@@ -86,45 +110,40 @@ fun WikiScreen(
                     when (selectedCategory) {
                         WikiCategory.OPERATORS -> {
                             OperatorListScreen(operatorViewModel) { op ->
-                                // Guardar el ID y cargar detalles COMPLETOS
                                 selectedOperatorId = op.id
                                 operatorViewModel.fetchOperatorDetails(op.id)
                             }
                         }
+
                         WikiCategory.WEAPONS -> {
                             WeaponListScreen(weaponViewModel) { wp ->
-                                // Guardar el ID y cargar detalles COMPLETOS
                                 selectedWeaponId = wp.id
                                 weaponViewModel.fetchWeaponDetails(wp.id)
                             }
                         }
+
                         WikiCategory.GEAR -> {
                             GearListScreen(gearViewModel) { gear ->
-                                // Guardar el ID y cargar detalles COMPLETOS (CON SETBONUS)
                                 selectedGearId = gear.id
                                 gearViewModel.fetchGearDetails(gear.id)
                             }
                         }
+
                         else -> {}
                     }
                 }
             } else {
-                // --- MENÚ PRINCIPAL ---
                 WikiMainMenu(isLandscape) { selectedCategory = it }
             }
         }
 
-        // --- CAPA DE DETALLES ---
 
-        // 1. OPERADORES
         selectedOperatorId?.let { opId ->
             val operatorFull = operatorViewModel.selectedOperatorFull
             val isLoading = operatorViewModel.isDetailLoading
 
-            // También buscar el operador básico de la lista como fallback
             val basicOperator = operatorViewModel.operators.find { it.id == opId }
 
-            // Determinar qué mostrar
             val operatorToShow = if (operatorFull != null && operatorFull.id == opId) {
                 operatorFull
             } else {
@@ -143,7 +162,6 @@ fun WikiScreen(
             }
         }
 
-        // 2. ARMAS
         selectedWeaponId?.let { wpId ->
             val weaponFull = weaponViewModel.selectedWeaponFull
             val isLoading = weaponViewModel.isDetailLoading
@@ -168,22 +186,18 @@ fun WikiScreen(
             }
         }
 
-        // 3. GEAR - CORRECCIÓN PRINCIPAL
         selectedGearId?.let { gearId ->
             val gearFull = gearViewModel.selectedGearFull
             val isLoading = gearViewModel.isDetailLoading
 
-            // Buscar el gear básico de la lista como fallback
             val basicGear = gearViewModel.gearList.find { it.id == gearId }
 
-            // Determinar qué gear mostrar
             val gearToShow = if (gearFull != null && gearFull.id == gearId) {
-                gearFull  // Usar el completo si está disponible
+                gearFull
             } else {
-                basicGear  // Sino usar el básico de la lista
+                basicGear
             }
 
-            // Siempre mostrar algo si tenemos gear (básico o completo)
             if (gearToShow != null) {
                 GearDetailScreen(
                     gear = gearToShow,
@@ -216,7 +230,7 @@ fun WikiMainMenu(isLandscape: Boolean, onCategorySelect: (WikiCategory) -> Unit)
             .padding(16.dp)
     ) {
         Text(
-            "// ARCHIVE_SYSTEM_V.2.0",
+            "// ARCHIVE_SYSTEM_V.1.0",
             color = Color.White,
             style = MaterialTheme.typography.labelMedium,
             modifier = Modifier.padding(bottom = 16.dp)
@@ -229,17 +243,23 @@ fun WikiMainMenu(isLandscape: Boolean, onCategorySelect: (WikiCategory) -> Unit)
             ) {
                 WikiMenuButton(
                     "01", "OPERATORS", EndfieldOrange, 0f, pulsePosition,
-                    Modifier.weight(1f).fillMaxHeight(), true
+                    Modifier
+                        .weight(1f)
+                        .fillMaxHeight(), true
                 ) { onCategorySelect(WikiCategory.OPERATORS) }
 
                 WikiMenuButton(
                     "02", "WEAPONS", EndfieldCyan, 1f, pulsePosition,
-                    Modifier.weight(1f).fillMaxHeight(), true
+                    Modifier
+                        .weight(1f)
+                        .fillMaxHeight(), true
                 ) { onCategorySelect(WikiCategory.WEAPONS) }
 
                 WikiMenuButton(
                     "03", "GEAR", EndfieldYellow, 2f, pulsePosition,
-                    Modifier.weight(1f).fillMaxHeight(), true
+                    Modifier
+                        .weight(1f)
+                        .fillMaxHeight(), true
                 ) { onCategorySelect(WikiCategory.GEAR) }
             }
         } else {
@@ -249,17 +269,23 @@ fun WikiMainMenu(isLandscape: Boolean, onCategorySelect: (WikiCategory) -> Unit)
             ) {
                 WikiMenuButton(
                     "01", "OPERATORS", EndfieldOrange, 0f, pulsePosition,
-                    Modifier.weight(1f).fillMaxWidth(), false
+                    Modifier
+                        .weight(1f)
+                        .fillMaxWidth(), false
                 ) { onCategorySelect(WikiCategory.OPERATORS) }
 
                 WikiMenuButton(
                     "02", "WEAPONS", EndfieldCyan, 1f, pulsePosition,
-                    Modifier.weight(1f).fillMaxWidth(), false
+                    Modifier
+                        .weight(1f)
+                        .fillMaxWidth(), false
                 ) { onCategorySelect(WikiCategory.WEAPONS) }
 
                 WikiMenuButton(
                     "03", "GEAR", EndfieldYellow, 2f, pulsePosition,
-                    Modifier.weight(1f).fillMaxWidth(), false
+                    Modifier
+                        .weight(1f)
+                        .fillMaxWidth(), false
                 ) { onCategorySelect(WikiCategory.GEAR) }
             }
         }
@@ -277,7 +303,7 @@ fun WikiMenuButton(
     isLandscape: Boolean,
     onClick: () -> Unit
 ) {
-    val distance = Math.abs(currentWave - buttonIndex)
+    val distance = abs(currentWave - buttonIndex)
     val intensity = (1f - distance).coerceIn(0f, 1f)
     val textAlpha = (0.7f + (intensity * 0.3f)).coerceIn(0.7f, 1f)
 
@@ -287,7 +313,6 @@ fun WikiMenuButton(
             .border(if (isLandscape) 1.dp else 0.dp, TechBorder)
             .clickable { onClick() }
     ) {
-        // BARRA NEÓN (Siempre vertical a la izquierda)
         Box(
             modifier = Modifier
                 .fillMaxHeight()

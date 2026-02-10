@@ -16,7 +16,6 @@ class GearViewModel(private val repository: GearRepository) : ViewModel() {
     var isLoading by mutableStateOf(false)
         private set
 
-    // Gear completo con todos los detalles
     var selectedGearFull by mutableStateOf<Gear?>(null)
         private set
 
@@ -46,7 +45,6 @@ class GearViewModel(private val repository: GearRepository) : ViewModel() {
             isDetailLoading = true
             errorMessage = null
             try {
-                // Esto debería devolver el gear COMPLETO con setBonus y atributos
                 selectedGearFull = repository.getGearById(id)
             } catch (e: Exception) {
                 errorMessage = "Error loading gear details: ${e.localizedMessage}"
@@ -62,10 +60,6 @@ class GearViewModel(private val repository: GearRepository) : ViewModel() {
 
     private fun startLoading() {
         isLoading = true
-        errorMessage = null
-    }
-
-    fun clearError() {
         errorMessage = null
     }
 }

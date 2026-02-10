@@ -10,14 +10,35 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,9 +47,15 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.endfield.talosIIarchive.ui.theme.*
+import com.endfield.talosIIarchive.ui.theme.EndfieldGreen
+import com.endfield.talosIIarchive.ui.theme.EndfieldOrange
+import com.endfield.talosIIarchive.ui.theme.EndfieldPurple
+import com.endfield.talosIIarchive.ui.theme.TechBackground
+import com.endfield.talosIIarchive.ui.theme.TechBorder
+import com.endfield.talosIIarchive.ui.theme.TechSurface
 import com.endfield.talosIIarchive.ui.viewmodel.BlueprintViewModel
 import com.endfield.talosIIarchive.ui.viewmodel.TeamViewModel
+import kotlin.math.abs
 
 enum class SocialCategory {
     TEAMS, BLUEPRINTS
@@ -41,7 +68,6 @@ fun SocialScreen(
     teamViewModel: TeamViewModel,
     newTeamViewModel: NewTeamViewModel
 ) {
-    // CAMBIO CLAVE: rememberSaveable para no volver atrás al girar
     var selectedCategory by rememberSaveable { mutableStateOf<SocialCategory?>(null) }
     var showNewTeamScreen by rememberSaveable { mutableStateOf(false) }
 
@@ -60,7 +86,6 @@ fun SocialScreen(
 
     Surface(modifier = Modifier.fillMaxSize(), color = TechBackground) {
         when {
-            // 1. Pantalla de creación de equipo
             showNewTeamScreen -> {
                 NewTeamScreen(
                     teamViewModel = teamViewModel,
@@ -74,14 +99,12 @@ fun SocialScreen(
                 )
             }
 
-            // 2. Detalle de equipo (Overlay)
             teamViewModel.selectedTeam != null -> {
                 TeamDetailScreen(teamViewModel.selectedTeam!!) {
                     teamViewModel.clearSelectedTeam()
                 }
             }
 
-            // 3. Cargando detalle
             teamViewModel.isDetailLoading -> {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -98,7 +121,6 @@ fun SocialScreen(
                 }
             }
 
-            // 4. Categorías o Menú Principal
             else -> {
                 if (selectedCategory != null) {
                     Column(modifier = Modifier.fillMaxSize()) {
@@ -136,14 +158,15 @@ fun SocialScreen(
                                     onNewTeamClick = { showNewTeamScreen = true }
                                 )
                             }
+
                             SocialCategory.BLUEPRINTS -> {
                                 BlueprintScreen(blueprintViewModel)
                             }
+
                             else -> {}
                         }
                     }
                 } else {
-                    // --- MENÚ PRINCIPAL ADAPTATIVO ---
                     Column(
                         modifier = Modifier
                             .fillMaxSize()
@@ -161,7 +184,7 @@ fun SocialScreen(
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(200.dp), // Altura fija para botones en horizontal
+                                    .height(200.dp),
                                 horizontalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
                                 SocialMenuButton(
@@ -190,29 +213,32 @@ fun SocialScreen(
                             }
                         } else {
 
-                                SocialMenuButton(
-                                    number = "04",
-                                    title = "TEAMS",
-                                    accentColor = EndfieldPurple,
-                                    buttonIndex = 0f,
-                                    currentWave = pulsePosition,
-                                    modifier = Modifier.fillMaxWidth().height(160.dp),
-                                    isLandscape = false
-                                ) {
-                                    selectedCategory = SocialCategory.TEAMS
-                                }
+                            SocialMenuButton(
+                                number = "04",
+                                title = "TEAMS",
+                                accentColor = EndfieldPurple,
+                                buttonIndex = 0f,
+                                currentWave = pulsePosition,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(160.dp),
+                                isLandscape = false
+                            ) {
+                                selectedCategory = SocialCategory.TEAMS
+                            }
                             Spacer(modifier = Modifier.height(12.dp))
-                                SocialMenuButton(
-                                    number = "05",
-                                    title = "BLUEPRINTS",
-                                    accentColor = EndfieldGreen,
-                                    buttonIndex = 1f,
-                                    currentWave = pulsePosition,
-                                    modifier = Modifier.fillMaxWidth().height(160.dp),
-                                    isLandscape = false
-                                ) {
-                                    selectedCategory = SocialCategory.BLUEPRINTS
-                                }
+                            SocialMenuButton(
+                                number = "05",
+                                title = "BLUEPRINTS",
+                                accentColor = EndfieldGreen,
+                                buttonIndex = 1f,
+                                currentWave = pulsePosition,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(160.dp),
+                                isLandscape = false
+                            ) {
+                                selectedCategory = SocialCategory.BLUEPRINTS
                             }
                         }
                     }
@@ -220,6 +246,7 @@ fun SocialScreen(
             }
         }
     }
+}
 
 
 @Composable
@@ -233,7 +260,7 @@ fun SocialMenuButton(
     isLandscape: Boolean,
     onClick: () -> Unit
 ) {
-    val distance = Math.abs(currentWave - buttonIndex)
+    val distance = abs(currentWave - buttonIndex)
     val intensity = (1f - distance).coerceIn(0f, 1f)
     val textAlpha = (0.7f + (intensity * 0.3f)).coerceIn(0.7f, 1f)
 

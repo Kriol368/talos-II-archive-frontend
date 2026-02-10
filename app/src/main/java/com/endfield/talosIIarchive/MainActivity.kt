@@ -4,15 +4,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -35,7 +29,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -48,12 +41,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -168,14 +159,12 @@ fun App(
     val pagerState = rememberPagerState(pageCount = { screens.size })
     val coroutineScope = rememberCoroutineScope()
 
-    // Obtener el tamaño de la barra de navegación del sistema
     val systemNavigationBarHeight =
         WindowInsets.systemBars.asPaddingValues().calculateBottomPadding()
 
     Scaffold(
         bottomBar = {
             Column {
-                // Barra de navegación principal con safe area
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -263,7 +252,6 @@ fun NavigationBarItemEnhanced(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // 1. ANIMACIÓN DE ESTADO: Color, Escala y Elevación
     val animatedColor by animateColorAsState(
         targetValue = if (isSelected) accentColor else Color.Gray.copy(alpha = 0.5f),
         animationSpec = tween(300),
@@ -286,7 +274,7 @@ fun NavigationBarItemEnhanced(
             .fillMaxHeight()
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
-                indication = null // Sin ripple para un look más "terminal"
+                indication = null
             ) { onClick() },
         contentAlignment = Alignment.Center
     ) {
@@ -294,7 +282,6 @@ fun NavigationBarItemEnhanced(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // Icono con elevación suave
             Icon(
                 painter = painterResource(id = screen.iconResId),
                 contentDescription = screen.title,
@@ -306,7 +293,6 @@ fun NavigationBarItemEnhanced(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // Título de la pantalla
             Text(
                 text = screen.title.uppercase(),
                 fontSize = 10.sp,
@@ -315,7 +301,6 @@ fun NavigationBarItemEnhanced(
                 color = animatedColor,
                 modifier = Modifier.graphicsLayer { alpha = textAlpha }
             )
-
 
         }
     }

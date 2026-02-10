@@ -16,7 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -63,11 +63,10 @@ fun NewTeamScreen(
     onBack: () -> Unit,
     onCreateSuccess: () -> Unit
 ) {
-    val viewModel = newTeamViewModel
     val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
-        viewModel.loadAllData()
+        newTeamViewModel.loadAllData()
     }
 
     var showSuccessDialog by remember { mutableStateOf(false) }
@@ -85,7 +84,11 @@ fun NewTeamScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = null, tint = Color.White)
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = null,
+                            tint = Color.White
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -93,16 +96,16 @@ fun NewTeamScreen(
                     titleContentColor = Color.White
                 ),
                 actions = {
-                    if (viewModel.isFormValid()) {
+                    if (newTeamViewModel.isFormValid()) {
                         Box(
                             modifier = Modifier
                                 .padding(end = 12.dp)
                                 .background(Color.Black)
                                 .clickable(
-                                    enabled = !viewModel.isCreating,
+                                    enabled = !newTeamViewModel.isCreating,
                                     onClick = {
                                         coroutineScope.launch {
-                                            val success = viewModel.createTeam(teamViewModel)
+                                            val success = newTeamViewModel.createTeam(teamViewModel)
                                             if (success) {
                                                 showSuccessDialog = true
                                             }
@@ -111,7 +114,7 @@ fun NewTeamScreen(
                                 )
                                 .padding(horizontal = 16.dp, vertical = 8.dp)
                         ) {
-                            if (viewModel.isCreating) {
+                            if (newTeamViewModel.isCreating) {
                                 CircularProgressIndicator(
                                     color = EndfieldPurple,
                                     modifier = Modifier.size(16.dp),
@@ -145,7 +148,7 @@ fun NewTeamScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 item {
-                    TeamInfoSection(viewModel)
+                    TeamInfoSection(newTeamViewModel)
                 }
 
                 item {
@@ -183,11 +186,11 @@ fun NewTeamScreen(
                 items(4) { index ->
                     OperatorSelectorCard(
                         index = index,
-                        viewModel = viewModel
+                        viewModel = newTeamViewModel
                     )
                 }
 
-                if (viewModel.selectedOperators.size == 4 && viewModel.selectedOperators.all { it != null }) {
+                if (newTeamViewModel.selectedOperators.size == 4 && newTeamViewModel.selectedOperators.all { it != null }) {
                     item {
                         Box(
                             modifier = Modifier
@@ -223,12 +226,12 @@ fun NewTeamScreen(
                     items(4) { index ->
                         WeaponSelectorCard(
                             index = index,
-                            viewModel = viewModel
+                            viewModel = newTeamViewModel
                         )
                     }
                 }
 
-                if (viewModel.selectedWeapons.size == 4 && viewModel.selectedWeapons.all { it != null }) {
+                if (newTeamViewModel.selectedWeapons.size == 4 && newTeamViewModel.selectedWeapons.all { it != null }) {
                     item {
                         Box(
                             modifier = Modifier
@@ -264,7 +267,7 @@ fun NewTeamScreen(
                     items(4) { operatorIndex ->
                         GearSelectorSection(
                             operatorIndex = operatorIndex,
-                            viewModel = viewModel
+                            viewModel = newTeamViewModel
                         )
                     }
                 }
@@ -274,7 +277,7 @@ fun NewTeamScreen(
                 }
             }
 
-            if (viewModel.isLoading) {
+            if (newTeamViewModel.isLoading) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -299,41 +302,44 @@ fun NewTeamScreen(
         }
     }
 
-    if (viewModel.showingOperatorDialogFor != null) {
+    if (newTeamViewModel.showingOperatorDialogFor != null) {
         OperatorSelectionDialog(
-            viewModel = viewModel,
+            viewModel = newTeamViewModel,
             onOperatorSelected = { operatorItem ->
-                viewModel.selectOperator(
-                    viewModel.showingOperatorDialogFor!!,
+                newTeamViewModel.selectOperator(
+                    newTeamViewModel.showingOperatorDialogFor!!,
                     operatorItem.operator
                 )
-                viewModel.showingOperatorDialogFor = null
+                newTeamViewModel.showingOperatorDialogFor = null
             },
-            onDismiss = { viewModel.showingOperatorDialogFor = null }
+            onDismiss = { newTeamViewModel.showingOperatorDialogFor = null }
         )
     }
 
-    if (viewModel.showingWeaponDialogFor != null) {
+    if (newTeamViewModel.showingWeaponDialogFor != null) {
         WeaponSelectionDialog(
-            viewModel = viewModel,
+            viewModel = newTeamViewModel,
             onWeaponSelected = { weaponItem ->
-                viewModel.selectWeapon(viewModel.showingWeaponDialogFor!!, weaponItem.weapon)
-                viewModel.showingWeaponDialogFor = null
+                newTeamViewModel.selectWeapon(
+                    newTeamViewModel.showingWeaponDialogFor!!,
+                    weaponItem.weapon
+                )
+                newTeamViewModel.showingWeaponDialogFor = null
             },
-            onDismiss = { viewModel.showingWeaponDialogFor = null }
+            onDismiss = { newTeamViewModel.showingWeaponDialogFor = null }
         )
     }
 
-    if (viewModel.showingGearDialogFor != null) {
-        val (operatorIndex, gearType) = viewModel.showingGearDialogFor!!
+    if (newTeamViewModel.showingGearDialogFor != null) {
+        val (operatorIndex, gearType) = newTeamViewModel.showingGearDialogFor!!
         GearSelectionDialog(
             gearType = gearType,
-            viewModel = viewModel,
+            viewModel = newTeamViewModel,
             onGearSelected = { gearItem ->
-                viewModel.selectGear(operatorIndex, gearType, gearItem.gear)
-                viewModel.showingGearDialogFor = null
+                newTeamViewModel.selectGear(operatorIndex, gearType, gearItem.gear)
+                newTeamViewModel.showingGearDialogFor = null
             },
-            onDismiss = { viewModel.showingGearDialogFor = null }
+            onDismiss = { newTeamViewModel.showingGearDialogFor = null }
         )
     }
 
@@ -917,7 +923,6 @@ fun <T> SelectionDialog(
             Column(
                 modifier = Modifier.fillMaxSize()
             ) {
-                // Header
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -949,7 +954,6 @@ fun <T> SelectionDialog(
                     }
                 }
 
-                // Lista de items
                 LazyColumn(
                     modifier = Modifier.weight(1f)
                 ) {
@@ -981,7 +985,6 @@ fun <T> SelectionDialog(
                                 }
                             }
 
-                            // Separador entre items (excepto el último)
                             if (index < items.size - 1) {
                                 Box(
                                     modifier = Modifier
@@ -995,7 +998,6 @@ fun <T> SelectionDialog(
                     }
                 }
 
-                // Botón de cancelar
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()

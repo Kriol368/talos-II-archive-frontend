@@ -1,58 +1,41 @@
 package com.endfield.talosIIarchive.ui.screens.wiki
 
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.input.pointer.motionEventSpy
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
@@ -64,9 +47,7 @@ import com.endfield.talosIIarchive.ui.theme.EndfieldYellow
 import com.endfield.talosIIarchive.ui.theme.TechBlack
 import com.endfield.talosIIarchive.ui.theme.TechBorder
 import com.endfield.talosIIarchive.ui.theme.TechSurface
-import kotlin.math.roundToInt
 
-//Aca faltaria mejorar el formato de las descripciones y tal (justificar el texto) y añadir el tipo de arma que usa, elemento y rareza
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -81,9 +62,12 @@ fun OperatorDetailScreen(operator: Operator, isLoadingFullData: Boolean, onBack:
         dragHandle = {
             Icon(
                 imageVector = Icons.Default.KeyboardArrowDown,
-                contentDescription = "Cerrar",
+                contentDescription = "Close",
                 tint = EndfieldYellow.copy(alpha = 0.7f),
-                modifier = Modifier.padding(top = 12.dp).size(30.dp).clickable { onBack() }
+                modifier = Modifier
+                    .padding(top = 12.dp)
+                    .size(30.dp)
+                    .clickable { onBack() }
             )
         },
         shape = androidx.compose.ui.graphics.RectangleShape
@@ -97,22 +81,41 @@ fun OperatorDetailScreen(operator: Operator, isLoadingFullData: Boolean, onBack:
                 .background(TechBlack)
                 .verticalScroll(scrollState)
         ) {
-            // --- 1. CABECERA (Imagen y Datos Básicos) ---
-            Box(modifier = Modifier.height(380.dp).fillMaxWidth()) {
+            Box(modifier = Modifier
+                .height(380.dp)
+                .fillMaxWidth()) {
                 AsyncImage(
                     model = "http://158.179.216.16:8080${operator.imageUrl}",
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
                 )
-                Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.Transparent, TechBlack))))
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(Brush.verticalGradient(listOf(Color.Transparent, TechBlack)))
+                )
 
-                Column(Modifier.align(Alignment.BottomStart).padding(24.dp)) {
-                    Text("REC // PERSONNEL_FILE", color = EndfieldYellow, fontSize = 10.sp, fontWeight = FontWeight.Bold)
-                    Text(operator.name.uppercase(), fontSize = 46.sp, fontWeight = FontWeight.Black, color = Color.White)
+                Column(Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(24.dp)) {
+                    Text(
+                        "REC // PERSONNEL_FILE",
+                        color = EndfieldYellow,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        operator.name.uppercase(),
+                        fontSize = 46.sp,
+                        fontWeight = FontWeight.Black,
+                        color = Color.White
+                    )
 
-                    // Etiquetas de Clase, Arma y Rareza
-                    Row(modifier = Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Row(
+                        modifier = Modifier.padding(top = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
                         DataTag("CLASS", operator.operatorClass, EndfieldYellow, Color.Black)
                         DataTag("WEAPON", operator.weaponType, EndfieldOrange, Color.Black)
                         DataTag("RARITY", operator.rarity, EndfieldPurple, Color.Black)
@@ -120,13 +123,20 @@ fun OperatorDetailScreen(operator: Operator, isLoadingFullData: Boolean, onBack:
                 }
             }
 
-            // --- 2. CORE STATS (Siempre visibles) ---
             Row(
-                modifier = Modifier.padding(24.dp).fillMaxWidth(),
+                modifier = Modifier
+                    .padding(24.dp)
+                    .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 if (isLoadingFullData) {
-                    repeat(4) { CircularProgressIndicator(Modifier.size(24.dp), strokeWidth = 2.dp, color = EndfieldYellow) }
+                    repeat(4) {
+                        CircularProgressIndicator(
+                            Modifier.size(24.dp),
+                            strokeWidth = 2.dp,
+                            color = EndfieldYellow
+                        )
+                    }
                 } else {
                     FunctionalStatItem("STR", operator.strength)
                     FunctionalStatItem("AGI", operator.agility)
@@ -135,34 +145,70 @@ fun OperatorDetailScreen(operator: Operator, isLoadingFullData: Boolean, onBack:
                 }
             }
 
-            // --- 3. SELECTOR DE MÓDULOS (BOTONES) ---
             Row(
-                modifier = Modifier.padding(horizontal = 16.dp).fillMaxWidth(),
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                EndfieldTabButton("Skills", "MOD_01", activeTab == "SKILLS", Modifier.weight(1f)) { activeTab = "SKILLS" }
-                EndfieldTabButton("Talents", "MOD_02", activeTab == "TALENTS", Modifier.weight(1f)) { activeTab = "TALENTS" }
-                EndfieldTabButton("Potential", "MOD_03", activeTab == "POTENTIAL", Modifier.weight(1f)) { activeTab = "POTENTIAL" }
+                EndfieldTabButton(
+                    "Skills",
+                    "MOD_01",
+                    activeTab == "SKILLS",
+                    Modifier.weight(1f)
+                ) { activeTab = "SKILLS" }
+                EndfieldTabButton(
+                    "Talents",
+                    "MOD_02",
+                    activeTab == "TALENTS",
+                    Modifier.weight(1f)
+                ) { activeTab = "TALENTS" }
+                EndfieldTabButton(
+                    "Potential",
+                    "MOD_03",
+                    activeTab == "POTENTIAL",
+                    Modifier.weight(1f)
+                ) { activeTab = "POTENTIAL" }
             }
 
-            // --- 4. CONTENIDO DINÁMICO ---
-            Box(modifier = Modifier.padding(24.dp).fillMaxWidth().heightIn(min = 400.dp)) {
+            Box(modifier = Modifier
+                .padding(24.dp)
+                .fillMaxWidth()
+                .heightIn(min = 400.dp)) {
                 if (isLoadingFullData) {
-                    Text("ACCESSING_DATABASE...", color = EndfieldYellow, modifier = Modifier.align(Alignment.Center))
+                    Text(
+                        "ACCESSING_DATABASE...",
+                        color = EndfieldYellow,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
                 } else {
                     when (activeTab) {
                         "SKILLS" -> Column {
-                            SkillBlock(operator.basicAttack, "BASIC_ATK", operator.basicAttackDescription)
-                            SkillBlock(operator.battleSkill, "BATTLE_SKILL", operator.battleSkillDescription)
-                            SkillBlock(operator.comboSkill, "COMBO_SKILL", operator.comboSkillDescription)
+                            SkillBlock(
+                                operator.basicAttack,
+                                "BASIC_ATK",
+                                operator.basicAttackDescription
+                            )
+                            SkillBlock(
+                                operator.battleSkill,
+                                "BATTLE_SKILL",
+                                operator.battleSkillDescription
+                            )
+                            SkillBlock(
+                                operator.comboSkill,
+                                "COMBO_SKILL",
+                                operator.comboSkillDescription
+                            )
                             SkillBlock(operator.ultimate, "ULTIMATE", operator.ultimateDescription)
                         }
+
                         "TALENTS" -> Column {
                             TalentBlock("COMBAT_TALENT_01", operator.combatTalent1)
                             TalentBlock("COMBAT_TALENT_02", operator.combatTalent2)
                             TalentBlock("BASE_LOGISTICS_01", operator.baseTalent1)
                             TalentBlock("BASE_LOGISTICS_02", operator.baseTalent2)
                         }
+
                         "POTENTIAL" -> Column {
                             PotentialRow("P1", operator.p1, operator.p1Effect)
                             PotentialRow("P2", operator.p2, operator.p2Effect)
@@ -189,7 +235,7 @@ fun SkillBlock(name: String?, type: String, desc: String?) {
             color = Color.LightGray,
             fontSize = 12.sp,
             lineHeight = 18.sp,
-            textAlign = androidx.compose.ui.text.style.TextAlign.Justify // 👈 Justificado
+            textAlign = androidx.compose.ui.text.style.TextAlign.Justify
         )
     }
 }

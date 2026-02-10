@@ -63,7 +63,7 @@ fun WeaponDetailScreen(weapon: Weapon, isLoadingFullData: Boolean, onBack: () ->
         dragHandle = {
             Icon(
                 imageVector = Icons.Default.KeyboardArrowDown,
-                contentDescription = "Cerrar",
+                contentDescription = "Close",
                 tint = EndfieldYellow.copy(alpha = 0.7f),
                 modifier = Modifier
                     .padding(top = 12.dp)
@@ -79,7 +79,6 @@ fun WeaponDetailScreen(weapon: Weapon, isLoadingFullData: Boolean, onBack: () ->
                 .background(TechBlack)
                 .verticalScroll(scrollState)
         ) {
-            // --- 1. HEADER ---
             Box(
                 modifier = Modifier
                     .height(380.dp)
@@ -116,7 +115,6 @@ fun WeaponDetailScreen(weapon: Weapon, isLoadingFullData: Boolean, onBack: () ->
                         color = Color.White,
                         lineHeight = 40.sp
                     )
-                    // Etiquetas técnicas
                     Row(
                         modifier = Modifier.padding(top = 8.dp),
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -128,7 +126,6 @@ fun WeaponDetailScreen(weapon: Weapon, isLoadingFullData: Boolean, onBack: () ->
                             if (weapon.rarity.contains("6")) EndfieldOrange else EndfieldCyan,
                             Color.Black
                         )
-                        // Indicador visual de passive
                         if (!weapon.passive.isNullOrBlank()) {
                             DataTag("PASSIVE", "✓", EndfieldYellow, Color.Black)
                         }
@@ -136,7 +133,6 @@ fun WeaponDetailScreen(weapon: Weapon, isLoadingFullData: Boolean, onBack: () ->
                 }
             }
 
-            // --- 2. STATS PRINCIPALES ---
             Row(
                 modifier = Modifier
                     .padding(24.dp)
@@ -158,7 +154,6 @@ fun WeaponDetailScreen(weapon: Weapon, isLoadingFullData: Boolean, onBack: () ->
                 }
             }
 
-            // --- 3. SELECTOR DE TABS ---
             Row(
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
@@ -179,7 +174,6 @@ fun WeaponDetailScreen(weapon: Weapon, isLoadingFullData: Boolean, onBack: () ->
                 ) { activeTab = "PASSIVE" }
             }
 
-            // --- 4. CONTENIDO DINÁMICO ---
             Box(
                 modifier = Modifier
                     .padding(24.dp)
@@ -223,7 +217,6 @@ fun StatContent(weapon: Weapon) {
     Column(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Base Stats Card
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(containerColor = TechSurface),
@@ -252,7 +245,6 @@ fun StatContent(weapon: Weapon) {
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
 
-                // Mostrar stat1 y stat2 si existen
                 weapon.stat1?.let { stat ->
                     if (stat.isNotBlank()) {
                         WeaponAttributeRow("STAT_01", stat)
@@ -265,7 +257,6 @@ fun StatContent(weapon: Weapon) {
                     }
                 }
 
-                // Si no hay stats adicionales
                 if (weapon.stat1.isNullOrBlank() && weapon.stat2.isNullOrBlank()) {
                     Text(
                         "No additional stats",
@@ -278,7 +269,6 @@ fun StatContent(weapon: Weapon) {
             }
         }
 
-        // Weapon Info Card
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(containerColor = TechSurface),
@@ -322,7 +312,6 @@ fun PassiveContent(weapon: Weapon) {
             )
 
             if (!weapon.passive.isNullOrBlank()) {
-                // Reemplazar saltos de línea para mejor formato
                 val formattedPassive = weapon.passive
                     .replace("\r\n", "\n")
                     .replace("\r", "\n")

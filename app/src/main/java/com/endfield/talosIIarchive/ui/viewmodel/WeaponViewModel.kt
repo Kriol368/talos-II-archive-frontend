@@ -16,7 +16,6 @@ class WeaponViewModel(private val repository: WeaponRepository) : ViewModel() {
     var isLoading by mutableStateOf(false)
         private set
 
-    // Arma completa con todos los detalles (passive, stat1, stat2)
     var selectedWeaponFull by mutableStateOf<Weapon?>(null)
         private set
 
@@ -49,7 +48,6 @@ class WeaponViewModel(private val repository: WeaponRepository) : ViewModel() {
             isDetailLoading = true
             errorMessage = null
             try {
-                // Esto debería devolver el arma COMPLETA con passive y stats
                 selectedWeaponFull = repository.getWeaponById(id)
             } catch (e: Exception) {
                 errorMessage = "Error loading weapon details: ${e.localizedMessage}"
@@ -65,10 +63,6 @@ class WeaponViewModel(private val repository: WeaponRepository) : ViewModel() {
 
     private fun startLoading() {
         isLoading = true
-        errorMessage = null
-    }
-
-    fun clearError() {
         errorMessage = null
     }
 }

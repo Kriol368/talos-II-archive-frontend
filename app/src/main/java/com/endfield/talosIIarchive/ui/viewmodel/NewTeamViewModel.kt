@@ -183,8 +183,4 @@ class NewTeamViewModel(
             isCreating = false
         }
     }
-
-    fun clearError() {
-        errorMessage = null
-    }
 }
