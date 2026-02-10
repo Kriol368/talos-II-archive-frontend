@@ -1,5 +1,6 @@
 package com.endfield.talosIIarchive.ui.screens.wiki
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -35,6 +36,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -56,6 +58,12 @@ fun GearListScreen(
         gearViewModel.fetchGear()
     }
 
+    val configuration = LocalConfiguration.current
+
+    val columnCount = if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) 4 else 2
+
+
+
     Box(modifier = Modifier.fillMaxSize().background(TechBackground)) {
         if (gearViewModel.isLoading) {
             CircularProgressIndicator(
@@ -67,7 +75,7 @@ fun GearListScreen(
         } else {
             // Cambio a Grid de 2 columnas para igualar a los Operadores
             LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
+                columns = GridCells.Fixed(columnCount),
                 contentPadding = PaddingValues(16.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)

@@ -58,7 +58,6 @@ fun OperatorListScreen(
     val operators = operatorViewModel.operators
     val configuration = LocalConfiguration.current
 
-    // Determinamos columnas dinámicamente: 2 en vertical, 4 en horizontal
     val columnCount = if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) 4 else 2
 
     Box(modifier = Modifier.fillMaxSize().background(TechBackground)) {
@@ -128,7 +127,7 @@ fun OperatorGridItem(
                 if (isDragging) EndfieldYellow else TechBorder
             )
             .background(TechSurface)
-            .pointerInput(index, columnCount) { // Escuchar cambios de columna/index
+            .pointerInput(index, columnCount) {
                 detectDragGesturesAfterLongPress(
                     onDragStart = {
                         isDragging = true
@@ -140,11 +139,9 @@ fun OperatorGridItem(
                         change.consume()
                         offset += dragAmount
 
-                        // LÓGICA DE SWAP ADAPTATIVA
                         val thresholdY = size.height.toFloat() * 0.8f
                         val thresholdX = size.width.toFloat() * 0.8f
 
-                        // Mover Vertical (Salto de filas según columnCount)
                         if (offset.y > thresholdY && index + columnCount < totalItems) {
                             onMove(index, index + columnCount)
                             offset = offset.copy(y = offset.y - thresholdY)
@@ -153,7 +150,6 @@ fun OperatorGridItem(
                             offset = offset.copy(y = offset.y + thresholdY)
                         }
 
-                        // Mover Horizontal (Solo si no se sale de su fila actual)
                         val currentRow = index / columnCount
                         if (offset.x > thresholdX && index + 1 < totalItems && (index + 1) / columnCount == currentRow) {
                             onMove(index, index + 1)

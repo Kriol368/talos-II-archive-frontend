@@ -1,5 +1,6 @@
 package com.endfield.talosIIarchive.ui.screens.wiki
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -36,6 +37,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -46,7 +48,6 @@ import com.endfield.talosIIarchive.ui.theme.EndfieldOrange
 import com.endfield.talosIIarchive.ui.theme.TechBorder
 import com.endfield.talosIIarchive.ui.theme.TechSurface
 import com.endfield.talosIIarchive.ui.viewmodel.WeaponViewModel
-
 
 @Composable
 fun WeaponListScreen(
@@ -60,6 +61,9 @@ fun WeaponListScreen(
     }
 
     val weapons = weaponViewModel.weapons
+    val configuration = LocalConfiguration.current
+
+    val columnCount = if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) 4 else 2
 
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -72,7 +76,7 @@ fun WeaponListScreen(
             Text("DATA_NOT_FOUND", color = Color.Red, modifier = Modifier.align(Alignment.Center))
         } else {
             LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
+                columns = GridCells.Fixed(columnCount),
                 contentPadding = PaddingValues(16.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
