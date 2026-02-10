@@ -6,7 +6,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.endfield.talosIIarchive.domain.models.Gear
-import com.endfield.talosIIarchive.domain.models.Weapon
 import com.endfield.talosIIarchive.domain.repositoty.GearRepository
 import kotlinx.coroutines.launch
 
@@ -17,13 +16,11 @@ class GearViewModel(private val repository: GearRepository) : ViewModel() {
     var isLoading by mutableStateOf(false)
         private set
 
-
+    // Gear completo con todos los detalles
     var selectedGearFull by mutableStateOf<Gear?>(null)
         private set
-    var errorMessage by mutableStateOf<String?>(null)
-        private set
 
-    var selectedGear by mutableStateOf<Gear?>(null)
+    var errorMessage by mutableStateOf<String?>(null)
         private set
 
     var isDetailLoading by mutableStateOf(false)
@@ -36,9 +33,6 @@ class GearViewModel(private val repository: GearRepository) : ViewModel() {
             startLoading()
             try {
                 gearList = repository.getAllGear()
-                if (gearList.isEmpty()) {
-                    errorMessage = "No gear found in database"
-                }
             } catch (e: Exception) {
                 errorMessage = "Error loading gear: ${e.localizedMessage}"
             } finally {
@@ -50,8 +44,10 @@ class GearViewModel(private val repository: GearRepository) : ViewModel() {
     fun fetchGearDetails(id: Int) {
         viewModelScope.launch {
             isDetailLoading = true
+            errorMessage = null
             try {
-                selectedGear = repository.getGearById(id)
+                // Esto debería devolver el gear COMPLETO con setBonus y atributos
+                selectedGearFull = repository.getGearById(id)
             } catch (e: Exception) {
                 errorMessage = "Error loading gear details: ${e.localizedMessage}"
             } finally {
@@ -61,7 +57,7 @@ class GearViewModel(private val repository: GearRepository) : ViewModel() {
     }
 
     fun clearSelectedGear() {
-        selectedGear = null
+        selectedGearFull = null
     }
 
     private fun startLoading() {

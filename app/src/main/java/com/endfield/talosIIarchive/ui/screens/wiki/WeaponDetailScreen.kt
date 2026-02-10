@@ -13,20 +13,18 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -53,9 +51,9 @@ import com.endfield.talosIIarchive.ui.theme.TechSurface
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WeaponDetailScreen(weapon: Weapon, isLoadingFullData: Boolean, onBack: () -> Unit) {
-
-
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var activeTab by remember { mutableStateOf("STATS") }
+    val scrollState = rememberScrollState()
 
     ModalBottomSheet(
         onDismissRequest = { onBack() },
@@ -67,61 +65,91 @@ fun WeaponDetailScreen(weapon: Weapon, isLoadingFullData: Boolean, onBack: () ->
                 imageVector = Icons.Default.KeyboardArrowDown,
                 contentDescription = "Cerrar",
                 tint = EndfieldYellow.copy(alpha = 0.7f),
-                modifier = Modifier.padding(top = 12.dp).size(30.dp).clickable { onBack() }
+                modifier = Modifier
+                    .padding(top = 12.dp)
+                    .size(30.dp)
+                    .clickable { onBack() }
             )
         },
         shape = androidx.compose.ui.graphics.RectangleShape
     ) {
-        var activeTab by remember { mutableStateOf("STATS") }
-        val scrollState = rememberScrollState()
-
-
-
-
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(TechBlack)
                 .verticalScroll(scrollState)
         ) {
-            // --- 1. HEADER (Siempre visible con datos de la lista) ---
-            Box(modifier = Modifier.height(380.dp).fillMaxWidth()) {
+            // --- 1. HEADER ---
+            Box(
+                modifier = Modifier
+                    .height(380.dp)
+                    .fillMaxWidth()
+            ) {
                 AsyncImage(
-                    model = weapon.imageUrl,
+                    model = if (weapon.imageUrl.startsWith("http")) weapon.imageUrl
+                    else "http://158.179.216.16:8080${weapon.imageUrl}",
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
                 )
-                Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.Transparent, TechBlack))))
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Brush.verticalGradient(listOf(Color.Transparent, TechBlack)))
+                )
 
-
-                Column(Modifier.align(Alignment.BottomStart).padding(24.dp)) {
-                    Text("REC // WEAPON_FILE", color = EndfieldYellow, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(24.dp)
+                ) {
+                    Text(
+                        "REC // WEAPON_FILE",
+                        color = EndfieldYellow,
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                     Text(
                         weapon.name.uppercase(),
                         fontSize = 40.sp,
                         fontWeight = FontWeight.Black,
                         color = Color.White,
-                        lineHeight = 40.sp,
+                        lineHeight = 40.sp
                     )
-                    // Etiquetas técnicas corregidas
-                    Row(modifier = Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    // Etiquetas técnicas
+                    Row(
+                        modifier = Modifier.padding(top = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
                         DataTag("TYPE", weapon.weaponType, EndfieldCyan, Color.Black)
-                        DataTag("RARITY", weapon.rarity, if (weapon.rarity.contains("6")) EndfieldOrange else EndfieldCyan, Color.Black)
+                        DataTag(
+                            "RARITY",
+                            weapon.rarity,
+                            if (weapon.rarity.contains("6")) EndfieldOrange else EndfieldCyan,
+                            Color.Black
+                        )
+                        // Indicador visual de passive
+                        if (!weapon.passive.isNullOrBlank()) {
+                            DataTag("PASSIVE", "✓", EndfieldYellow, Color.Black)
+                        }
                     }
                 }
             }
 
-            // --- 2. STATS PRINCIPALES (Con Skeleton Loading) ---
+            // --- 2. STATS PRINCIPALES ---
             Row(
-                modifier = Modifier.padding(24.dp).fillMaxWidth(),
+                modifier = Modifier
+                    .padding(24.dp)
+                    .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 if (isLoadingFullData) {
-                    // Muestra cargadores en lugar de números vacíos
                     repeat(3) {
-                        CircularProgressIndicator(Modifier.size(24.dp), strokeWidth = 2.dp, color = EndfieldCyan)
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            strokeWidth = 2.dp,
+                            color = EndfieldCyan
+                        )
                     }
                 } else {
                     WeaponStatItem("ATK", weapon.baseAtk.toString())
@@ -132,15 +160,32 @@ fun WeaponDetailScreen(weapon: Weapon, isLoadingFullData: Boolean, onBack: () ->
 
             // --- 3. SELECTOR DE TABS ---
             Row(
-                modifier = Modifier.padding(horizontal = 16.dp).fillMaxWidth(),
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                EndfieldTabButton("Stats", "MOD_01", activeTab == "STATS", Modifier.weight(1f)) { activeTab = "STATS" }
-                EndfieldTabButton("Passive", "MOD_02", activeTab == "PASSIVE", Modifier.weight(1f)) { activeTab = "PASSIVE" }
+                EndfieldTabButton(
+                    "Stats",
+                    "MOD_01",
+                    activeTab == "STATS",
+                    Modifier.weight(1f)
+                ) { activeTab = "STATS" }
+                EndfieldTabButton(
+                    "Passive",
+                    "MOD_02",
+                    activeTab == "PASSIVE",
+                    Modifier.weight(1f)
+                ) { activeTab = "PASSIVE" }
             }
 
-            // --- 4. CONTENIDO DINÁMICO (Con Skeleton Loading) ---
-            Box(modifier = Modifier.padding(24.dp).fillMaxWidth().heightIn(min = 300.dp)) {
+            // --- 4. CONTENIDO DINÁMICO ---
+            Box(
+                modifier = Modifier
+                    .padding(24.dp)
+                    .fillMaxWidth()
+                    .heightIn(min = 300.dp)
+            ) {
                 if (isLoadingFullData) {
                     Text(
                         "SYNCHRONIZING_WEAPON_DATA...",
@@ -156,12 +201,10 @@ fun WeaponDetailScreen(weapon: Weapon, isLoadingFullData: Boolean, onBack: () ->
                 }
             }
             Spacer(modifier = Modifier.height(100.dp))
-            }
         }
     }
+}
 
-
-// Custom stat item for weapons that accepts String values
 @Composable
 fun WeaponStatItem(label: String, value: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -197,14 +240,40 @@ fun StatContent(weapon: Weapon) {
                     modifier = Modifier.padding(bottom = 12.dp)
                 )
 
-                StatRow("Base ATK", weapon.baseAtk.toString())
+                WeaponStatRow("Base ATK", weapon.baseAtk.toString())
 
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    "ADDITIONAL STATS",
+                    color = EndfieldCyan,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+
+                // Mostrar stat1 y stat2 si existen
                 weapon.stat1?.let { stat ->
-                    StatRow("Primary Stat", stat)
+                    if (stat.isNotBlank()) {
+                        WeaponAttributeRow("STAT_01", stat)
+                    }
                 }
 
                 weapon.stat2?.let { stat ->
-                    StatRow("Secondary Stat", stat)
+                    if (stat.isNotBlank()) {
+                        WeaponAttributeRow("STAT_02", stat)
+                    }
+                }
+
+                // Si no hay stats adicionales
+                if (weapon.stat1.isNullOrBlank() && weapon.stat2.isNullOrBlank()) {
+                    Text(
+                        "No additional stats",
+                        color = Color.Gray,
+                        fontSize = 12.sp,
+                        fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
                 }
             }
         }
@@ -226,8 +295,9 @@ fun StatContent(weapon: Weapon) {
                     modifier = Modifier.padding(bottom = 12.dp)
                 )
 
-                InfoRow("Weapon Type", weapon.weaponType)
-                InfoRow("Rarity", weapon.rarity)
+                WeaponInfoRow("Weapon Type", weapon.weaponType)
+                WeaponInfoRow("Rarity", weapon.rarity)
+                WeaponInfoRow("ID", weapon.id.toString())
             }
         }
     }
@@ -252,49 +322,115 @@ fun PassiveContent(weapon: Weapon) {
             )
 
             if (!weapon.passive.isNullOrBlank()) {
+                // Reemplazar saltos de línea para mejor formato
+                val formattedPassive = weapon.passive
+                    .replace("\r\n", "\n")
+                    .replace("\r", "\n")
+
                 Text(
-                    weapon.passive, color = Color.White, fontSize = 14.sp, lineHeight = 20.sp
+                    formattedPassive,
+                    color = Color.White,
+                    fontSize = 14.sp,
+                    lineHeight = 20.sp
                 )
             } else {
-                Text(
-                    "No passive ability",
-                    color = Color.Gray,
-                    fontSize = 14.sp,
-                    fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
-                )
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        "PASSIVE_DATA_UNAVAILABLE",
+                        color = EndfieldYellow,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        "Complete weapon details not loaded",
+                        color = Color.Gray,
+                        fontSize = 14.sp,
+                        fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
+                    )
+                    Text(
+                        "Weapon: ${weapon.name}",
+                        color = Color.LightGray,
+                        fontSize = 12.sp
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
-fun StatRow(label: String, value: String) {
+fun WeaponStatRow(label: String, value: String) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            label, color = Color.Gray, fontSize = 14.sp, fontWeight = FontWeight.Bold
+            label,
+            color = Color.Gray,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold
         )
         Text(
-            value, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold
+            value,
+            color = Color.White,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold
         )
     }
 }
 
 @Composable
-fun InfoRow(label: String, value: String) {
+fun WeaponAttributeRow(label: String, value: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .background(EndfieldCyan.copy(alpha = 0.2f))
+                .padding(horizontal = 8.dp, vertical = 4.dp)
+        ) {
+            Text(
+                label,
+                color = EndfieldCyan,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+        Spacer(modifier = Modifier.width(12.dp))
+        Text(
+            value,
+            color = Color.White,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier.weight(1f)
+        )
+    }
+}
+
+@Composable
+fun WeaponInfoRow(label: String, value: String) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            label, color = Color.Gray, fontSize = 14.sp, fontWeight = FontWeight.Bold
+            label,
+            color = Color.Gray,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold
         )
         Text(
-            value, color = EndfieldCyan, fontSize = 16.sp, fontWeight = FontWeight.Bold
+            value,
+            color = EndfieldCyan,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold
         )
     }
 }

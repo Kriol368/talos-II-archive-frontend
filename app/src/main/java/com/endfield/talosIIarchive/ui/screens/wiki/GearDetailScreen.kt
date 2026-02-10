@@ -13,20 +13,18 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -52,8 +50,10 @@ import com.endfield.talosIIarchive.ui.theme.TechSurface
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GearDetailScreen(gear: Gear,isLoadingFullData: Boolean, onBack: () -> Unit) {
+fun GearDetailScreen(gear: Gear, isLoadingFullData: Boolean, onBack: () -> Unit) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    var activeTab by remember { mutableStateOf("STATS") }
+    val scrollState = rememberScrollState()
 
     ModalBottomSheet(
         onDismissRequest = { onBack() },
@@ -65,41 +65,41 @@ fun GearDetailScreen(gear: Gear,isLoadingFullData: Boolean, onBack: () -> Unit) 
                 imageVector = Icons.Default.KeyboardArrowDown,
                 contentDescription = "Cerrar",
                 tint = EndfieldYellow.copy(alpha = 0.7f),
-                modifier = Modifier.padding(top = 12.dp).size(30.dp).clickable { onBack() }
+                modifier = Modifier
+                    .padding(top = 12.dp)
+                    .size(30.dp)
+                    .clickable { onBack() }
             )
         },
         shape = androidx.compose.ui.graphics.RectangleShape
     ) {
-    var activeTab by remember { mutableStateOf("STATS") }
-    val scrollState = rememberScrollState()
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(TechBlack)
                 .verticalScroll(scrollState)
         ) {
-            // --- 1. HEADER (Datos básicos de la lista) ---
+            // --- 1. HEADER ---
             Box(
                 modifier = Modifier
                     .height(380.dp)
                     .fillMaxWidth()
             ) {
                 AsyncImage(
-                    model = gear.imageUrl,
+                    model = if (gear.imageUrl.startsWith("http")) gear.imageUrl
+                    else "http://158.179.216.16:8080${gear.imageUrl}",
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
                 )
                 Box(
-                    Modifier
+                    modifier = Modifier
                         .fillMaxSize()
                         .background(Brush.verticalGradient(listOf(Color.Transparent, TechBlack)))
                 )
 
-
-
                 Column(
-                    Modifier
+                    modifier = Modifier
                         .align(Alignment.BottomStart)
                         .padding(24.dp)
                 ) {
@@ -117,14 +117,21 @@ fun GearDetailScreen(gear: Gear,isLoadingFullData: Boolean, onBack: () -> Unit) 
                         lineHeight = 44.sp
                     )
                     // Etiquetas técnicas
-                    Row(modifier = Modifier.padding(top = 8.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Row(
+                        modifier = Modifier.padding(top = 8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
                         DataTag("TYPE", gear.gearType, EndfieldCyan, Color.Black)
-                        DataTag("SET_ID", gear.gearSet.take(8), EndfieldOrange, Color.Black)
+                        DataTag("SET", gear.gearSet.take(8), EndfieldOrange, Color.Black)
+                        // Indicador visual de setBonus
+                        if (!gear.setBonus.isNullOrBlank()) {
+                            DataTag("BONUS", "✓", EndfieldYellow, Color.Black)
+                        }
                     }
                 }
             }
 
-            // --- 2. STATS PRINCIPALES (Skeleton Loading) ---
+            // --- 2. STATS PRINCIPALES ---
             Row(
                 modifier = Modifier
                     .padding(24.dp)
@@ -132,10 +139,9 @@ fun GearDetailScreen(gear: Gear,isLoadingFullData: Boolean, onBack: () -> Unit) 
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 if (isLoadingFullData) {
-                    // Indicadores de carga técnicos
                     repeat(3) {
                         CircularProgressIndicator(
-                            Modifier.size(24.dp),
+                            modifier = Modifier.size(24.dp),
                             strokeWidth = 2.dp,
                             color = EndfieldYellow
                         )
@@ -166,7 +172,7 @@ fun GearDetailScreen(gear: Gear,isLoadingFullData: Boolean, onBack: () -> Unit) 
                 }
             }
 
-            // --- 4. PANEL DE CONTENIDO (Carga progresiva) ---
+            // --- 4. PANEL DE CONTENIDO ---
             Box(
                 modifier = Modifier
                     .padding(24.dp)
@@ -190,10 +196,9 @@ fun GearDetailScreen(gear: Gear,isLoadingFullData: Boolean, onBack: () -> Unit) 
             }
 
             Spacer(modifier = Modifier.height(100.dp))
-            }
         }
     }
-
+}
 
 @Composable
 fun GearStatItem(label: String, value: String) {
@@ -213,6 +218,7 @@ fun GearStatContent(gear: Gear) {
     Column(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        // CARD 1: BASE STATS Y ATRIBUTOS
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(containerColor = TechSurface),
@@ -231,26 +237,51 @@ fun GearStatContent(gear: Gear) {
 
                 GearStatRow("DEF", gear.def.toString())
 
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    "ATTRIBUTES",
+                    color = EndfieldCyan,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+
+                // Mostrar los 3 atributos si existen
                 gear.attribute1?.let { attr ->
                     if (attr.isNotBlank()) {
-                        GearStatRow("Attribute 1", attr)
+                        GearAttributeRow("ATTR_01", attr)
                     }
                 }
 
                 gear.attribute2?.let { attr ->
                     if (attr.isNotBlank()) {
-                        GearStatRow("Attribute 2", attr)
+                        GearAttributeRow("ATTR_02", attr)
                     }
                 }
 
                 gear.attribute3?.let { attr ->
                     if (attr.isNotBlank()) {
-                        GearStatRow("Attribute 3", attr)
+                        GearAttributeRow("ATTR_03", attr)
                     }
+                }
+
+                // Si no hay atributos, mostrar mensaje
+                if (gear.attribute1.isNullOrBlank() &&
+                    gear.attribute2.isNullOrBlank() &&
+                    gear.attribute3.isNullOrBlank()) {
+                    Text(
+                        "No additional attributes",
+                        color = Color.Gray,
+                        fontSize = 12.sp,
+                        fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
                 }
             }
         }
 
+        // CARD 2: INFORMACIÓN DEL GEAR
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(containerColor = TechSurface),
@@ -269,6 +300,7 @@ fun GearStatContent(gear: Gear) {
 
                 GearInfoRow("Gear Type", gear.gearType)
                 GearInfoRow("Gear Set", gear.gearSet)
+                GearInfoRow("ID", gear.id.toString())
             }
         }
     }
@@ -294,15 +326,33 @@ fun SetBonusContent(gear: Gear) {
 
             if (!gear.setBonus.isNullOrBlank()) {
                 Text(
-                    gear.setBonus, color = Color.White, fontSize = 14.sp, lineHeight = 20.sp
+                    gear.setBonus,
+                    color = Color.White,
+                    fontSize = 14.sp,
+                    lineHeight = 20.sp
                 )
             } else {
-                Text(
-                    "No set bonus information available",
-                    color = Color.Gray,
-                    fontSize = 14.sp,
-                    fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
-                )
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        "SET_BONUS_DATA_UNAVAILABLE",
+                        color = EndfieldYellow,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        "Complete gear details not loaded",
+                        color = Color.Gray,
+                        fontSize = 14.sp,
+                        fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
+                    )
+                    Text(
+                        "Gear Set: ${gear.gearSet}",
+                        color = Color.LightGray,
+                        fontSize = 12.sp
+                    )
+                }
             }
         }
     }
@@ -316,10 +366,48 @@ fun GearStatRow(label: String, value: String) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            label, color = Color.Gray, fontSize = 14.sp, fontWeight = FontWeight.Bold
+            label,
+            color = Color.Gray,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold
         )
         Text(
-            value, color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Bold, maxLines = 2
+            value,
+            color = Color.White,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            maxLines = 2
+        )
+    }
+}
+
+@Composable
+fun GearAttributeRow(label: String, value: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .background(EndfieldCyan.copy(alpha = 0.2f))
+                .padding(horizontal = 8.dp, vertical = 4.dp)
+        ) {
+            Text(
+                label,
+                color = EndfieldCyan,
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+        Spacer(modifier = Modifier.width(12.dp))
+        Text(
+            value,
+            color = Color.White,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
+            modifier = Modifier.weight(1f)
         )
     }
 }
@@ -332,10 +420,16 @@ fun GearInfoRow(label: String, value: String) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            label, color = Color.Gray, fontSize = 14.sp, fontWeight = FontWeight.Bold
+            label,
+            color = Color.Gray,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Bold
         )
         Text(
-            value, color = EndfieldCyan, fontSize = 16.sp, fontWeight = FontWeight.Bold
+            value,
+            color = EndfieldCyan,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold
         )
     }
 }

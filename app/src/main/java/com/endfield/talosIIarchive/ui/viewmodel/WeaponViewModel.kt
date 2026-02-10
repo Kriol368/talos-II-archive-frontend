@@ -5,7 +5,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.endfield.talosIIarchive.domain.models.Operator
 import com.endfield.talosIIarchive.domain.models.Weapon
 import com.endfield.talosIIarchive.domain.repositoty.WeaponRepository
 import kotlinx.coroutines.launch
@@ -17,13 +16,11 @@ class WeaponViewModel(private val repository: WeaponRepository) : ViewModel() {
     var isLoading by mutableStateOf(false)
         private set
 
+    // Arma completa con todos los detalles (passive, stat1, stat2)
     var selectedWeaponFull by mutableStateOf<Weapon?>(null)
         private set
 
     var errorMessage by mutableStateOf<String?>(null)
-        private set
-
-    var selectedWeapon by mutableStateOf<Weapon?>(null)
         private set
 
     var isDetailLoading by mutableStateOf(false)
@@ -50,8 +47,10 @@ class WeaponViewModel(private val repository: WeaponRepository) : ViewModel() {
     fun fetchWeaponDetails(id: Int) {
         viewModelScope.launch {
             isDetailLoading = true
+            errorMessage = null
             try {
-                selectedWeapon = repository.getWeaponById(id)
+                // Esto debería devolver el arma COMPLETA con passive y stats
+                selectedWeaponFull = repository.getWeaponById(id)
             } catch (e: Exception) {
                 errorMessage = "Error loading weapon details: ${e.localizedMessage}"
             } finally {
@@ -61,7 +60,7 @@ class WeaponViewModel(private val repository: WeaponRepository) : ViewModel() {
     }
 
     fun clearSelectedWeapon() {
-        selectedWeapon = null
+        selectedWeaponFull = null
     }
 
     private fun startLoading() {
