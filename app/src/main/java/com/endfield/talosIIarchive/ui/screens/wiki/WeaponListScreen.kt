@@ -54,8 +54,13 @@ fun WeaponListScreen(
     onWeaponClick: (Weapon) -> Unit
 ) {
     LaunchedEffect(Unit) {
-        weaponViewModel.fetchWeapons()
+        if (weaponViewModel.weapons.isEmpty()) {
+            weaponViewModel.fetchWeapons()
+        }
     }
+
+    val weapons = weaponViewModel.weapons
+
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (weaponViewModel.isLoading) {
